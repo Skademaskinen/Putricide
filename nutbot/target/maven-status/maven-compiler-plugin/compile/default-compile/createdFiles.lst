@@ -6,8 +6,8 @@ skademaskinen/Utils/Shell.class
 skademaskinen/Utils/Config.class
 skademaskinen/Listeners/AutoCompleteListener.class
 skademaskinen/WorldOfWarcraft/RaidTeam.class
-skademaskinen/Commands/Team.class
 skademaskinen/Commands/Roll.class
+skademaskinen/Commands/Team.class
 skademaskinen/Commands/Command.class
 skademaskinen/Listeners/ModalListener.class
 skademaskinen/Commands/Version.class

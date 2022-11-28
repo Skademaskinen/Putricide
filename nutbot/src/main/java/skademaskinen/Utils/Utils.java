@@ -1,8 +1,14 @@
 package skademaskinen.Utils;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
@@ -32,4 +38,23 @@ public class Utils {
             .findFirst() // take first result
             .orElse(null); // else return null
 	}
+
+    public static JSONObject readJSON(String filepath) {
+        try{
+            return new JSONObject(new JSONTokener(new FileInputStream(new File(filepath))));
+        }
+        catch(Exception e){
+            Shell.exceptionHandler(e);
+            return null;
+        }
+    }
+
+    public static void writeJSON(String filepath, JSONObject data) {
+        try(FileWriter writer = new FileWriter(filepath)){
+            writer.write(data.toString(4));
+        }
+        catch(Exception e){
+            Shell.exceptionHandler(e);
+        }
+    }
 }

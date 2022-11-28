@@ -2,6 +2,7 @@ package skademaskinen;
 
 import java.util.List;
 
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Message;
@@ -35,6 +36,7 @@ public class Bot implements Loggable{
             jda.updateCommands().addCommands(commands).queue();
             shell = new Shell();
             jda.awaitReady();
+            //jda.getGuildById("692410386657574952").getTextChannelById("1046840206562709514").sendMessageEmbeds(new EmbedBuilder().setTitle("init").build()).queue();
             new Thread(shell).start();
             log(true, new String[]{});
         }

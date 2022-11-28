@@ -117,4 +117,7 @@ public class Shell implements Runnable {
             message.getClass().equals(Float.class))
                 Bot.getShell().print(String.valueOf(message));
     }
+
+    public static void exceptionHandler(Exception e) {
+    }
 }

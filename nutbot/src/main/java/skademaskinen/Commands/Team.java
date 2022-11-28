@@ -48,14 +48,21 @@ public class Team implements Command {
         return shouldEphemeral;
     }
 
+    @Override
+    public List<ActionRow> getActionRows() {
+        return actionRows;
+    }
+
     public Team(SlashCommandInteractionEvent event){
         switch(event.getSubcommandName()){
             case "add":
             case "remove":
             case "update":
                 shouldEphemeral = true;
+                break;
             case "form":
                 shouldEphemeral = false;
+                break;
         }
     }
 
@@ -67,6 +74,7 @@ public class Team implements Command {
                 result = event.getOption("server") == null ? 
                     add(event.getOption("raider").getAsUser(), event.getOption("name").getAsString(), event.getOption("role").getAsString(), "argent-dawn") :
                     add(event.getOption("raider").getAsUser(), event.getOption("name").getAsString(), event.getOption("role").getAsString(), event.getOption("server").getAsString());
+
                 break;
             case "remove":
                 result = remove(event.getOption("raider").getAsUser());
@@ -76,13 +84,22 @@ public class Team implements Command {
                 break;
             case "form":
                 result = form();
+        }                
+        if(result == null){
+            success = false;
+            return "Command failed!";
         }
         return result;
     }
 
     private String add(User user, String name, String role, String server){
-        RaidTeam.add(user,name,role,server);
-        return "Successfully added member to raid team!";
+        success = RaidTeam.add(user,name,role,server);
+        if(success){
+            return "Successfully added member to raid team!";
+        }
+        else{
+            return "Error, failed to add member to raid team!";
+        }
     }
 
     private String remove(User user){
@@ -90,10 +107,6 @@ public class Team implements Command {
         return "Successfully removed user from raid team!";
     }
 
-    @Override
-    public List<ActionRow> getActionRows() {
-        return actionRows;
-    }
 
     private MessageEmbed form(){
         EmbedBuilder builder = new EmbedBuilder();
