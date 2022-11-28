@@ -1,10 +1,13 @@
 skademaskinen/Listeners/SlashCommandListener.class
 skademaskinen/Bot.class
-skademaskinen/Commands/Roll.class
 skademaskinen/Utils/Utils.class
-skademaskinen/Commands/Command.class
 skademaskinen/Utils/Loggable.class
-skademaskinen/Listeners/ModalListener.class
-skademaskinen/Commands/Version.class
 skademaskinen/Utils/Shell.class
 skademaskinen/Utils/Config.class
+skademaskinen/Listeners/AutoCompleteListener.class
+skademaskinen/WorldOfWarcraft/RaidTeam.class
+skademaskinen/Commands/Team.class
+skademaskinen/Commands/Roll.class
+skademaskinen/Commands/Command.class
+skademaskinen/Listeners/ModalListener.class
+skademaskinen/Commands/Version.class

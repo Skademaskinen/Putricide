@@ -1,6 +1,9 @@
 package skademaskinen.Commands;
 
+import java.util.List;
+
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 import skademaskinen.Utils.Loggable;
 
 public interface Command extends Loggable {
@@ -11,6 +14,8 @@ public interface Command extends Loggable {
     default public boolean shouldDefer(){
         return true;
     }
+    public List<ActionRow> getActionRows();
+
     public Object run(SlashCommandInteractionEvent event);
     public default Object execute(SlashCommandInteractionEvent event){
         Object response = run(event);
@@ -28,8 +33,9 @@ public interface Command extends Loggable {
     default public Object ButtonExecute(){
         return null;
     }
-
-    public static String getName(){
-        return null;
+    default public String buildButtonId(String id, String data){
+        if(data != null) return this.getClass().getSimpleName()+"::"+id+"::"+data;
+        else return this.getClass().getSimpleName()+"::"+id;
     }
+
 }

@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -14,6 +15,7 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
 
 public class Roll implements Command{
     private boolean success;
@@ -34,6 +36,11 @@ public class Roll implements Command{
 
     public boolean isEphemeral(){
         return false;
+    }
+    
+    @Override
+    public List<ActionRow> getActionRows() {
+        return null;
     }
 
     @Override

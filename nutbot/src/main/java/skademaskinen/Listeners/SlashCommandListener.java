@@ -6,6 +6,7 @@ import net.dv8tion.jda.internal.interactions.modal.ModalImpl;
 import skademaskinen.Bot;
 import skademaskinen.Commands.Command;
 import skademaskinen.Commands.Roll;
+import skademaskinen.Commands.Team;
 import skademaskinen.Commands.Version;
 
 public class SlashCommandListener extends ListenerAdapter{
@@ -19,10 +20,14 @@ public class SlashCommandListener extends ListenerAdapter{
             case "roll":
                 command = new Roll();
                 break;
+            case "team":
+                command = new Team(event);
+                break;
             default:
                 event.reply("Error, invalid command").queue();
                 return;
         }
+
         if(command.shouldDefer()){
             event.deferReply(command.isEphemeral()).queue();
         }
@@ -31,7 +36,7 @@ public class SlashCommandListener extends ListenerAdapter{
             event.replyModal((ModalImpl) replyContent).queue();
         }
         else{
-            Bot.replyToEvent(event.getHook(), replyContent);
+            Bot.replyToEvent(event.getHook(), replyContent, command.getActionRows());
         }
     }
 }
