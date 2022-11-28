@@ -18,6 +18,7 @@ import skademaskinen.Utils.Utils;
 
 public class RaidTeam implements Loggable {
     private static String filepath = "files/team.json";
+    private static Map<String, Character> characters = new HashMap<>();
 
     public static boolean add(User user, String name, String role, String server){
         if(!verifyCharacter(name, server)){
@@ -31,6 +32,7 @@ public class RaidTeam implements Loggable {
         raider.put("role", role);
         team.put(user.getId(), raider);
         Utils.writeJSON(filepath, team);
+        characters.put(user.getId(), new Character(name, server));
         update();
         return true;
     }
@@ -41,6 +43,7 @@ public class RaidTeam implements Loggable {
         Utils.writeJSON(filepath, team);
     }
 
+    @SuppressWarnings("null")
     public static String update() {
         if(Bot.getConfig().get("teamMessageId") == null || Bot.getConfig().get("teamMessageChannelId") == null){
             return "Failed to update raid team, the configuration id might be wrong";
@@ -123,7 +126,6 @@ public class RaidTeam implements Loggable {
         }
         builder.addField("Melee Damage:", meleeMessage, true);
 
-        message.editMessage(" ").queue();
         message.editMessageEmbeds(builder.build()).queue();
 
 

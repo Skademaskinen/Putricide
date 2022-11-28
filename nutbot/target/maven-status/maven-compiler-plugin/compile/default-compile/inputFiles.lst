@@ -1,8 +1,10 @@
 /home/mast3r/git/nutbot/nutbot/src/main/java/skademaskinen/Listeners/AutoCompleteListener.java
+/home/mast3r/git/nutbot/nutbot/src/main/java/skademaskinen/WorldOfWarcraft/BattleNetAPI.java
 /home/mast3r/git/nutbot/nutbot/src/main/java/skademaskinen/Utils/Config.java
 /home/mast3r/git/nutbot/nutbot/src/main/java/skademaskinen/Commands/Roll.java
 /home/mast3r/git/nutbot/nutbot/src/main/java/skademaskinen/Utils/Loggable.java
 /home/mast3r/git/nutbot/nutbot/src/main/java/skademaskinen/WorldOfWarcraft/RaidTeam.java
+/home/mast3r/git/nutbot/nutbot/src/main/java/skademaskinen/WorldOfWarcraft/Character.java
 /home/mast3r/git/nutbot/nutbot/src/main/java/skademaskinen/Listeners/ModalListener.java
 /home/mast3r/git/nutbot/nutbot/src/main/java/skademaskinen/Listeners/SlashCommandListener.java
 /home/mast3r/git/nutbot/nutbot/src/main/java/skademaskinen/Commands/Command.java

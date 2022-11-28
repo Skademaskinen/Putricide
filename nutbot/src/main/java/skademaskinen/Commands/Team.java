@@ -23,6 +23,7 @@ public class Team implements Command {
     private boolean shouldEphemeral = true;
     private List<ActionRow> actionRows = new ArrayList<>();
 
+    @SuppressWarnings("null")
     public static CommandData configure(){
         SlashCommandData command = Commands.slash(Team.class.getSimpleName().toLowerCase(), "Admin command: Handle the raid team");
         SubcommandData add = new SubcommandData("add", "Add a raider to the raid team manually");
@@ -53,6 +54,7 @@ public class Team implements Command {
         return actionRows;
     }
 
+    @SuppressWarnings("null")
     public Team(SlashCommandInteractionEvent event){
         switch(event.getSubcommandName()){
             case "add":
@@ -66,7 +68,8 @@ public class Team implements Command {
         }
     }
 
-    @Override
+    
+    @SuppressWarnings("null")
     public Object run(SlashCommandInteractionEvent event) {
         Object result = "";
         switch(event.getSubcommandName()){
@@ -108,6 +111,7 @@ public class Team implements Command {
     }
 
 
+    @SuppressWarnings("null")
     private MessageEmbed form(){
         EmbedBuilder builder = new EmbedBuilder();
         String guildName = Bot.getConfig().get("guildName");

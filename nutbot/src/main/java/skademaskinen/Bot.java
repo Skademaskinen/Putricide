@@ -2,7 +2,8 @@ package skademaskinen;
 
 import java.util.List;
 
-import net.dv8tion.jda.api.EmbedBuilder;
+import org.json.JSONObject;
+
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Message;
@@ -14,6 +15,7 @@ import net.dv8tion.jda.api.requests.restaction.WebhookMessageEditAction;
 import skademaskinen.Utils.Config;
 import skademaskinen.Utils.Loggable;
 import skademaskinen.Utils.Shell;
+import skademaskinen.WorldOfWarcraft.BattleNetAPI;
 import skademaskinen.Commands.*;
 import skademaskinen.Listeners.ModalListener;
 import skademaskinen.Listeners.SlashCommandListener;
@@ -24,10 +26,12 @@ public class Bot implements Loggable{
     private static Shell shell;
     private static CommandData[] commands = {Version.configure(), Roll.configure(), Team.configure()};
     public static void main(String[] args) {
-        new Bot();
+        String accessToken = new JSONObject(args[0]).getString("access_token");
+        System.out.println("Access token: "+accessToken);
+        new Bot(accessToken);
     }
 
-    public Bot(){
+    public Bot(String token){
         try{
             config = new Config();
             jda = JDABuilder.createDefault(config.get("token")).build();
@@ -35,6 +39,7 @@ public class Bot implements Loggable{
             jda.addEventListener(new ModalListener());
             jda.updateCommands().addCommands(commands).queue();
             shell = new Shell();
+            BattleNetAPI.init(token);
             jda.awaitReady();
             //jda.getGuildById("692410386657574952").getTextChannelById("1046840206562709514").sendMessageEmbeds(new EmbedBuilder().setTitle("init").build()).queue();
             new Thread(shell).start();

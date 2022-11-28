@@ -119,5 +119,6 @@ public class Shell implements Runnable {
     }
 
     public static void exceptionHandler(Exception e) {
+        e.printStackTrace();
     }
 }
