@@ -1,0 +1,1 @@
+mvn clean compile package -q -f nutbot
