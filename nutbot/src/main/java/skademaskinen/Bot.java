@@ -7,13 +7,15 @@ import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import skademaskinen.Utils.Config;
 import skademaskinen.Utils.Loggable;
+import skademaskinen.Utils.Shell;
 import skademaskinen.Commands.*;
 import skademaskinen.Listeners.ModalListener;
 import skademaskinen.Listeners.SlashCommandListener;
 
 public class Bot implements Loggable{
-    private static JDA jda;
     private static Config config;
+    private static JDA jda;
+    private static Shell shell;
     private static CommandData[] commands = {Version.configure(), Roll.configure()};
     public static void main(String[] args) {
         new Bot();
@@ -26,6 +28,9 @@ public class Bot implements Loggable{
             jda.addEventListener(new SlashCommandListener());
             jda.addEventListener(new ModalListener());
             jda.updateCommands().addCommands(commands).queue();
+            shell = new Shell();
+            jda.awaitReady();
+            new Thread(shell).start();
             log(true, new String[]{});
         }
         catch(Exception e){
@@ -39,6 +44,9 @@ public class Bot implements Loggable{
     }
     public static Config getConfig(){
         return config;
+    }
+    public static Shell getShell(){
+        return shell;
     }
 
     public static void replyToEvent(InteractionHook hook, Object replyContent) {
