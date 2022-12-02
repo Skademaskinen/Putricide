@@ -5,12 +5,22 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.internal.interactions.modal.ModalImpl;
 import skademaskinen.Bot;
 import skademaskinen.Commands.Command;
+import skademaskinen.Commands.Configure;
 import skademaskinen.Commands.Roll;
 import skademaskinen.Commands.Version;
 
 public class SlashCommandListener extends ListenerAdapter{
     
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
+        Bot.getShell().print("""
+            Slash Command Event!
+            Member: """+event.getUser().getAsTag()+"""
+
+            Guild: """+event.getGuild().getName()+"""
+
+            Command name: """+event.getName()+"""
+            """);
+
         Command command;
         switch(event.getName().toLowerCase()){
             case "version":
@@ -18,6 +28,9 @@ public class SlashCommandListener extends ListenerAdapter{
                 break;
             case "roll":
                 command = new Roll();
+                break;
+            case "configure":
+                command = new Configure();
                 break;
             default:
                 event.reply("Error, invalid command").queue();
