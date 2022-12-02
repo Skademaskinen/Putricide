@@ -16,7 +16,7 @@ public class Bot implements Loggable{
     private static Config config;
     private static JDA jda;
     private static Shell shell;
-    private static CommandData[] commands = {Version.configure(), Roll.configure()};
+    private static CommandData[] commands = {Version.configure(), Roll.configure(), Configure.configure()};
     public static void main(String[] args) {
         new Bot();
     }
