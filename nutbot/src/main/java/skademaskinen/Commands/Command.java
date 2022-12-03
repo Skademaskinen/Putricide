@@ -2,6 +2,7 @@ package skademaskinen.Commands;
 
 import java.util.List;
 
+import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import skademaskinen.Utils.Loggable;
@@ -26,7 +27,7 @@ public interface Command extends Loggable {
         return response;
     }
 
-    default public Object ModalExecute(){
+    default public Object ModalExecute(ModalInteractionEvent event){
         return null;
     }
 
@@ -38,4 +39,8 @@ public interface Command extends Loggable {
         else return this.getClass().getSimpleName()+"::"+id;
     }
 
+    default public String buildSubId(String id, String data){
+        if(data != null) return this.getClass().getSimpleName()+"::"+id+"::"+data;
+        else return this.getClass().getSimpleName()+"::"+id;
+    }
 }
