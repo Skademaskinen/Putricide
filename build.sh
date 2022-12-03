@@ -7,3 +7,4 @@ else
 fi
 echo "compiling program..."
 mvn clean compile package -q -f nutbot
+java -jar nutbot-3.1a.jar $(curl -u $(bash config.sh clientId):$(bash config.sh clientSecret) -d grant_type=client_credentials https://oauth.battle.net/token)
