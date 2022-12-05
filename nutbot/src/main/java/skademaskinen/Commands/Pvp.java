@@ -58,6 +58,7 @@ public class Pvp extends Raid {
 
     @Override
     public Object ButtonExecute(ButtonInteractionEvent event) {
+        Object result;
         switch(event.getComponentId().split("::")[1]){
             case "apply":
                 TextInput name = TextInput.create("name", "Character name", TextInputStyle.SHORT)
@@ -74,19 +75,29 @@ public class Pvp extends Raid {
                 Modal modal = Modal.create(buildSubId("modal", null), "Application form")
                     .addActionRows(ActionRow.of(name), ActionRow.of(role), ActionRow.of(server))
                     .build();
-                return modal;
+                success = true;
+                result = modal;
+                break;
             case "approve":
                 String[] data = event.getComponentId().split("::")[2].split(",");
                 PvpTeam.add(event.getUser(), data[0], data[2], data[1]);
                 event.getMessageChannel().deleteMessageById(event.getMessageId()).queue();
-                return "Successfully added user: `"+data[0]+"` to pvp team";
+                success = true;
+                result = "Successfully added user: `"+data[0]+"` to pvp team";
+                break;
             case "decline":
                 String[] data1 = event.getComponentId().split("::")[2].split(",");
                 event.getMessageChannel().deleteMessageById(event.getMessageId()).queue();
-                return "Successfully declined application for: `"+data1[0]+"`!";
+                success = true;
+                result = "Successfully declined application for: `"+data1[0]+"`!";
+                break;
             default:
-                return "Error, invalid button identified by id: "+event.getComponentId();
+                success = false;
+                result = "Error, invalid button identified by id: "+event.getComponentId();
+                break;
         }
+        log(success, new String[]{event.getComponentId().split("::")[1]});
+        return result;
     }
     @Override
     public Object ModalExecute(ModalInteractionEvent event) {
@@ -95,9 +106,13 @@ public class Pvp extends Raid {
         String role = event.getValue("role").getAsString();
 
         if(!BattleNetAPI.verifyCharacter(name, server)){
+            success = false;
+            log(success, new String[]{name+", "+server+", "+role});
             return "Error, this character is not valid - check the name or server, or check your battle.net account's security settings";
         }
         if(!role.toLowerCase().matches("tank|healer|melee damage|ranged damage")){
+            success = false;
+            log(success, new String[]{name+", "+server+", "+role});
             return "Error, the specified role does not match any of the valid roles!";
         }
 
@@ -138,7 +153,8 @@ public class Pvp extends Raid {
             Button.success(buildSubId("approve", name+","+server+","+role), "Approve"),
             Button.danger(buildSubId("decline", name+","+server+","+role), "Decline")
         ));
-
+        success = true;
+        log(success, new String[]{name+", "+server+", "+role});
         return builder.build();
     }
     
@@ -164,6 +180,7 @@ public class Pvp extends Raid {
             success = false;
             return "Command failed!";
         }
+        success = true;
         return result;
     }
     private String add(User user, String name, String role, String server){

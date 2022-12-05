@@ -101,7 +101,7 @@ public class Raid implements Command {
                 result = event.getOption("server") == null ? 
                     add(event.getOption("raider").getAsUser(), event.getOption("name").getAsString(), event.getOption("role").getAsString(), "argent-dawn") :
                     add(event.getOption("raider").getAsUser(), event.getOption("name").getAsString(), event.getOption("role").getAsString(), event.getOption("server").getAsString());
-
+                
                 break;
             case "remove":
                 result = remove(event.getOption("raider").getAsUser());
@@ -116,6 +116,7 @@ public class Raid implements Command {
             success = false;
             return "Command failed!";
         }
+        success = true;
         return result;
     }
 
@@ -149,6 +150,7 @@ public class Raid implements Command {
 
     @Override
     public Object ButtonExecute(ButtonInteractionEvent event) {
+        Object result;
         switch(event.getComponentId().split("::")[1]){
             case "apply":
                 TextInput name = TextInput.create("name", "Character name", TextInputStyle.SHORT)
@@ -169,19 +171,29 @@ public class Raid implements Command {
                 Modal modal = Modal.create(buildSubId("modal", null), "Application form")
                     .addActionRows(ActionRow.of(name), ActionRow.of(role), ActionRow.of(server), ActionRow.of(raidtimes))
                     .build();
-                return modal;
+                success = true;
+                result = modal;
+                break;
             case "approve":
                 String[] data = event.getComponentId().split("::")[2].split(",");
                 RaidTeam.add(event.getUser(), data[0], data[2], data[1]);
                 event.getMessageChannel().deleteMessageById(event.getMessageId()).queue();
-                return "Successfully added raider: `"+data[0]+"` to raid team";
+                success = true;
+                result = "Successfully added raider: `"+data[0]+"` to raid team";
+                break;
             case "decline":
                 String[] data1 = event.getComponentId().split("::")[2].split(",");
                 event.getMessageChannel().deleteMessageById(event.getMessageId()).queue();
-                return "Successfully declined application for: `"+data1[0]+"`!";
+                success = true;
+                result = "Successfully declined application for: `"+data1[0]+"`!";
+                break;
             default:
-                return "Error, invalid button identified by id: "+event.getComponentId();
+                success = false;
+                result = "Error, invalid button identified by id: "+event.getComponentId();
+                break;
         }
+        log(success, new String[]{event.getComponentId().split("::")[1]});
+        return result;
 
     }
 
@@ -193,9 +205,13 @@ public class Raid implements Command {
         boolean raidtimes = event.getValue("raidtimes").getAsString().equalsIgnoreCase("yes") ? true : false;
 
         if(!BattleNetAPI.verifyCharacter(name, server)){
+            success = false;
+            log(success, new String[]{name+", "+server+", "+role});
             return "Error, this character is not valid - check the name or server, or check your battle.net account's security settings";
         }
         if(!role.toLowerCase().matches("tank|healer|melee damage|ranged damage")){
+            success = false;
+            log(success, new String[]{name+", "+server+", "+role});
             return "Error, the specified role does not match any of the valid roles!";
         }
 
@@ -239,6 +255,8 @@ public class Raid implements Command {
             Button.danger(buildSubId("decline", name+","+server+","+role), "Decline")
         ));
 
+        success = true;
+        log(success, new String[]{name+", "+server+", "+role});
         return builder.build();
     }
     
