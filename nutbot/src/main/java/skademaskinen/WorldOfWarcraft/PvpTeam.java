@@ -14,8 +14,8 @@ import skademaskinen.Bot;
 import skademaskinen.Utils.Loggable;
 import skademaskinen.Utils.Utils;
 
-public class RaidTeam implements Loggable {
-    private static String filepath = "files/raid.json";
+public class PvpTeam implements Loggable {
+    private static String filepath = "files/pvp.json";
     private static Map<String, Character> characters = new HashMap<>();
 
     public static boolean add(User user, String name, String role, String server){
@@ -48,19 +48,19 @@ public class RaidTeam implements Loggable {
     }
 
     public static String update() {
-        if(Bot.getConfig().get("raid:message") == null || Bot.getConfig().get("raid:channel") == null){
-            return "Failed to update raid team, the configuration id might be wrong";
+        if(Bot.getConfig().get("pvp:message") == null || Bot.getConfig().get("pvp:channel") == null){
+            return "Failed to update pvp team, the configuration id might be wrong";
         }
         Guild guild = Bot.getJda().getGuildById(Bot.getConfig().get("guildId"));
-        TextChannel channel = guild.getTextChannelById(Bot.getConfig().get("raid:channel"));
-        Message message = channel.getHistoryAround(Bot.getConfig().get("raid:message"), 2).complete().getMessageById(Bot.getConfig().get("raid:message"));
+        TextChannel channel = guild.getTextChannelById(Bot.getConfig().get("pvp:channel"));
+        Message message = channel.getHistoryAround(Bot.getConfig().get("pvp:message"), 2).complete().getMessageById(Bot.getConfig().get("pvp:message"));
         JSONObject team = Utils.readJSON(filepath);
         EmbedBuilder builder = new EmbedBuilder()
-            .setTitle("Raid Team!")
-            .setDescription("This is the raid team, this message will get updated with raid team members!")
+            .setTitle("Pvp Team!")
+            .setDescription("This is the pvp team, this message will get updated with pvp team members!")
             .setImage(Bot.getConfig().get("guildImage"));
 
-		builder.appendDescription("\n**Raid team composition:** "+team.getJSONObject("Tank").length()+"/"+team.getJSONObject("Healer").length()+"/"+(team.getJSONObject("Ranged Damage").length()+team.getJSONObject("Melee Damage").length()));
+		builder.appendDescription("\n**Pvp team composition:** "+team.getJSONObject("Tank").length()+"/"+team.getJSONObject("Healer").length()+"/"+(team.getJSONObject("Ranged Damage").length()+team.getJSONObject("Melee Damage").length()));
 
         String[] roles = {"Tank", "Healer", "Ranged Damage", "Melee Damage"};
 
@@ -85,7 +85,7 @@ public class RaidTeam implements Loggable {
 
         message.editMessageEmbeds(builder.build()).queue();
 
-        return "Successfully updated raid team!";
+        return "Successfully updated pvp team!";
     }
 
 }

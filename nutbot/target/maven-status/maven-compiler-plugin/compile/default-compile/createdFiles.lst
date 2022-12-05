@@ -1,6 +1,7 @@
 skademaskinen/WorldOfWarcraft/BattleNetAPI.class
 skademaskinen/Listeners/SlashCommandListener.class
 skademaskinen/Bot.class
+skademaskinen/Commands/Pvp.class
 skademaskinen/Listeners/ButtonListener.class
 skademaskinen/Utils/Utils.class
 skademaskinen/Commands/Configure.class
@@ -12,6 +13,7 @@ skademaskinen/Commands/Raid.class
 skademaskinen/Listeners/AutoCompleteListener.class
 skademaskinen/WorldOfWarcraft/RaidTeam.class
 skademaskinen/Commands/Roll.class
+skademaskinen/WorldOfWarcraft/PvpTeam.class
 skademaskinen/Commands/Command.class
 skademaskinen/Listeners/ModalListener.class
 skademaskinen/Commands/Version.class

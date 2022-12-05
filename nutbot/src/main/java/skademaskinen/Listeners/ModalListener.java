@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import skademaskinen.Bot;
 import skademaskinen.Commands.Command;
 import skademaskinen.Commands.Configure;
+import skademaskinen.Commands.Pvp;
 import skademaskinen.Commands.Raid;
 import skademaskinen.Utils.Shell;
 
@@ -27,6 +28,9 @@ public class ModalListener extends ListenerAdapter{
                 break;
             case "raid":
                 command = new Raid(event);
+                break;
+            case "pvp":
+                command = new Pvp(event);
                 break;
             default:
                 event.reply("Error, invalid command").queue();
