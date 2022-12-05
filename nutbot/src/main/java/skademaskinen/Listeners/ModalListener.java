@@ -2,25 +2,26 @@ package skademaskinen.Listeners;
 
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 import skademaskinen.Bot;
 import skademaskinen.Commands.Command;
 import skademaskinen.Commands.Configure;
 import skademaskinen.Commands.Pvp;
 import skademaskinen.Commands.Raid;
 import skademaskinen.Utils.Shell;
+import skademaskinen.Utils.Utils;
 
 public class ModalListener extends ListenerAdapter{
     
     public void onModalInteraction(ModalInteractionEvent event) {
-        Shell.println("""
+        Shell.println(Shell.green("Modal event: "));
+        Shell.println(Shell.yellow("Timestamp:    ")+Utils.timestamp());
+        Shell.println(Shell.yellow("Guild:        ")+event.getGuild().getName());
+        Shell.println(Shell.yellow("Member:       ")+event.getUser().getAsTag());
+        Shell.println(Shell.yellow("Modal ID:     ")+event.getModalId());
+        for(ModalMapping mapping : event.getValues()) Shell.println(Shell.yellow("value("+mapping.getId()+"): ")+mapping.getAsString());
 
-            Modal Event!
-            Member: """+event.getUser().getAsTag()+"""
 
-            Guild: """+event.getGuild().getName()+"""
-
-            Modal ID name: """+event.getModalId()+"""
-            """);
         Command command;
         switch(event.getModalId().split("::")[0].toLowerCase()){
             case "configure":

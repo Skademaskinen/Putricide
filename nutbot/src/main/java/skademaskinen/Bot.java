@@ -46,6 +46,7 @@ public class Bot implements Loggable{
             jda.awaitReady();
             RaidTeam.update();
             PvpTeam.update();
+            //exceptionTester();
             //jda.getGuildById("692410386657574952").getTextChannelById("1046840206562709514").sendMessageEmbeds(new EmbedBuilder().setTitle("init").build()).queue();
             new Thread(shell).start();
             log(true, new String[]{});
@@ -83,5 +84,12 @@ public class Bot implements Loggable{
             action.setComponents(actionRows);
         }
         action.queue();
+    }
+    private static void exceptionTester(){
+        try {
+            throw new Exception();
+        } catch (Exception e) {
+            Shell.exceptionHandler(e);
+        }
     }
 }
