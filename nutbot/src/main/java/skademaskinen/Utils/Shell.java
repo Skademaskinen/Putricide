@@ -36,6 +36,8 @@ public class Shell implements Runnable {
         for(String line = ""; !line.equals("exit"); line = reader.readLine(prompt())){
             String[] args = line.split(" ");
             switch(args[0]){
+                case "":
+                    continue;
                 case "channel":
                     channel(args);
                     break;
@@ -51,7 +53,7 @@ public class Shell implements Runnable {
                     }
                     break;
                 default:
-                    print("Error, invalid command");
+                    print("Error, invalid command by ["+args[0]+"]");
                     break;
 
             }

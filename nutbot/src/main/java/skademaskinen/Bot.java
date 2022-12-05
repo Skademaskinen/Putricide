@@ -16,7 +16,9 @@ import skademaskinen.Utils.Config;
 import skademaskinen.Utils.Loggable;
 import skademaskinen.Utils.Shell;
 import skademaskinen.WorldOfWarcraft.BattleNetAPI;
+import skademaskinen.WorldOfWarcraft.RaidTeam;
 import skademaskinen.Commands.*;
+import skademaskinen.Listeners.ButtonListener;
 import skademaskinen.Listeners.ModalListener;
 import skademaskinen.Listeners.SlashCommandListener;
 
@@ -24,10 +26,9 @@ public class Bot implements Loggable{
     private static Config config;
     private static JDA jda;
     private static Shell shell;
-    private static CommandData[] commands = {Version.configure(), Roll.configure(), Configure.configure(), Team.configure()};
+    private static CommandData[] commands = {Version.configure(), Roll.configure(), Configure.configure(), Raid.configure()};
     public static void main(String[] args) {
         String accessToken = new JSONObject(args[0]).getString("access_token");
-        System.out.println("Access token: "+accessToken);
         new Bot(accessToken);
     }
 
@@ -37,16 +38,19 @@ public class Bot implements Loggable{
             jda = JDABuilder.createDefault(config.get("token")).build();
             jda.addEventListener(new SlashCommandListener());
             jda.addEventListener(new ModalListener());
+            jda.addEventListener(new ButtonListener());
             jda.updateCommands().addCommands(commands).queue();
             shell = new Shell();
             BattleNetAPI.init(token);
             jda.awaitReady();
+            RaidTeam.update();
             //jda.getGuildById("692410386657574952").getTextChannelById("1046840206562709514").sendMessageEmbeds(new EmbedBuilder().setTitle("init").build()).queue();
             new Thread(shell).start();
             log(true, new String[]{});
         }
         catch(Exception e){
             log(false, new String[]{e.getMessage()});
+            Shell.exceptionHandler(e);
 
         }
     }

@@ -6,5 +6,7 @@ else
     echo "token=" >> files/config.conf
 fi
 echo "compiling program..."
+rm *.jar
 mvn clean compile package -q -f nutbot
-java -jar nutbot-3.1a.jar $(curl -u $(bash config.sh clientId):$(bash config.sh clientSecret) -d grant_type=client_credentials https://oauth.battle.net/token)
+mv *.jar nutbot.jar
+java -jar nutbot.jar $(curl -u $(bash config.sh clientId):$(bash config.sh clientSecret) -d grant_type=client_credentials https://oauth.battle.net/token)

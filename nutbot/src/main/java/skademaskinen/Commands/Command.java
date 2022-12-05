@@ -4,6 +4,7 @@ import java.util.List;
 
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import skademaskinen.Utils.Loggable;
 
@@ -31,7 +32,7 @@ public interface Command extends Loggable {
         return null;
     }
 
-    default public Object ButtonExecute(){
+    default public Object ButtonExecute(ButtonInteractionEvent event){
         return null;
     }
     default public String buildButtonId(String id, String data){

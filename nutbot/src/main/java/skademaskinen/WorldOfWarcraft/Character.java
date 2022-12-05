@@ -1,10 +1,11 @@
 package skademaskinen.WorldOfWarcraft;
 
+import org.json.JSONException;
 import org.json.JSONObject;
-
 
 import skademaskinen.Bot;
 import skademaskinen.Utils.Shell;
+
 
 public class Character {
     private String name;
@@ -13,15 +14,17 @@ public class Character {
     private String specialization;
     private int ilvl;
     private int averageIlvl;
+    private String avatarUrl;
 
     public Character(String name, String realm) {
-        String region = Bot.getConfig().get("region");
-        try{
-            
-        }
-        catch(Exception e){
-            Shell.exceptionHandler(e);
-        }
+        JSONObject data = BattleNetAPI.getCharacterData(name.toLowerCase(), realm);
+        this.name = name;
+        this.realm = realm;
+        this.Class = data.getJSONObject("character_class").getString("name");
+        this.specialization = data.getJSONObject("active_spec").getString("name");
+        this.ilvl = data.getInt("equipped_item_level");
+        this.averageIlvl = data.getInt("average_item_level");
+        avatarUrl = data.getJSONObject("media").getString("href");
     }
     public String getName(){
         return name;
@@ -40,5 +43,14 @@ public class Character {
     }
     public int getAverageIlvl(){
         return averageIlvl;
+    }
+    public String getAvatarURL(){
+        try{
+            return BattleNetAPI.executeSubRequest(avatarUrl).getJSONArray("assets").getJSONObject(0).getString("value");
+        }
+        catch(JSONException e){
+            Shell.exceptionHandler(e);
+            return Bot.getJda().getGuildById(Bot.getConfig().get("guildId")).getIconUrl();
+        }
     }
 }
