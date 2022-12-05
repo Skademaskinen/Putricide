@@ -26,14 +26,14 @@ import skademaskinen.WorldOfWarcraft.BattleNetAPI;
 import skademaskinen.WorldOfWarcraft.Character;
 import skademaskinen.WorldOfWarcraft.RaidTeam;
 
-public class Team implements Command {
+public class Raid implements Command {
     private boolean success = false;
     private boolean shouldEphemeral = true;
     private List<ActionRow> actionRows = new ArrayList<>();
     private boolean defer = true;
 
     public static CommandData configure(){
-        SlashCommandData command = Commands.slash(Team.class.getSimpleName().toLowerCase(), "Admin command: Handle the raid team");
+        SlashCommandData command = Commands.slash(Raid.class.getSimpleName().toLowerCase(), "Admin command: Handle the raid team");
         SubcommandData add = new SubcommandData("add", "Add a raider to the raid team manually");
         OptionData raider = new OptionData(OptionType.USER, "raider", "Mention of the raider", true);
         OptionData name = new OptionData(OptionType.STRING, "name", "Character name", true);
@@ -67,17 +67,17 @@ public class Team implements Command {
         return defer;
     }
 
-    public Team(ButtonInteractionEvent event) {
+    public Raid(ButtonInteractionEvent event) {
         defer = false;
         shouldEphemeral = false;
     }
 
-    public Team(ModalInteractionEvent event){
+    public Raid(ModalInteractionEvent event){
         defer = true;
         shouldEphemeral = false;
     }
 
-    public Team(SlashCommandInteractionEvent event){
+    public Raid(SlashCommandInteractionEvent event){
         switch(event.getSubcommandName()){
             case "add":
             case "remove":

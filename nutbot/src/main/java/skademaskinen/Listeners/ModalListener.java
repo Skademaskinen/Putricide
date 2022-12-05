@@ -5,7 +5,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import skademaskinen.Bot;
 import skademaskinen.Commands.Command;
 import skademaskinen.Commands.Configure;
-import skademaskinen.Commands.Team;
+import skademaskinen.Commands.Raid;
 import skademaskinen.Utils.Shell;
 
 public class ModalListener extends ListenerAdapter{
@@ -25,15 +25,17 @@ public class ModalListener extends ListenerAdapter{
             case "configure":
                 command = new Configure();
                 break;
-            case "team":
-                command = new Team(event);
+            case "raid":
+                command = new Raid(event);
                 break;
             default:
                 event.reply("Error, invalid command").queue();
                 return;
         }
+        if(command.shouldDefer()){
+            event.deferReply(command.isEphemeral()).queue();
 
-        event.deferReply(command.isEphemeral()).queue();
+        }
         Object replyContent = command.ModalExecute(event);
         Bot.replyToEvent(event.getHook(), replyContent, command.getActionRows());
     }

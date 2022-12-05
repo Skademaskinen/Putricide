@@ -7,7 +7,7 @@ import skademaskinen.Bot;
 import skademaskinen.Commands.Command;
 import skademaskinen.Commands.Configure;
 import skademaskinen.Commands.Roll;
-import skademaskinen.Commands.Team;
+import skademaskinen.Commands.Raid;
 import skademaskinen.Commands.Version;
 
 public class SlashCommandListener extends ListenerAdapter{
@@ -33,8 +33,8 @@ public class SlashCommandListener extends ListenerAdapter{
             case "configure":
                 command = new Configure();
                 break;
-            case "team":
-                command = new Team(event);
+            case "raid":
+                command = new Raid(event);
                 break;
             default:
                 event.reply("Error, invalid command").queue();

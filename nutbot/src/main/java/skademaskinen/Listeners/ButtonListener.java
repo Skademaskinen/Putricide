@@ -5,7 +5,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.internal.interactions.modal.ModalImpl;
 import skademaskinen.Bot;
 import skademaskinen.Commands.Command;
-import skademaskinen.Commands.Team;
+import skademaskinen.Commands.Raid;
 import skademaskinen.Utils.Shell;
 
 public class ButtonListener extends ListenerAdapter {
@@ -23,8 +23,8 @@ public class ButtonListener extends ListenerAdapter {
 
         Command command;
         switch(event.getButton().getId().split("::")[0].toLowerCase()){
-            case "team":
-                command = new Team(event);
+            case "raid":
+                command = new Raid(event);
                 break;
             default:
                 event.reply("Error, invalid button").setEphemeral(true).queue();

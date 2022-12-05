@@ -26,7 +26,7 @@ public class Bot implements Loggable{
     private static Config config;
     private static JDA jda;
     private static Shell shell;
-    private static CommandData[] commands = {Version.configure(), Roll.configure(), Configure.configure(), Team.configure()};
+    private static CommandData[] commands = {Version.configure(), Roll.configure(), Configure.configure(), Raid.configure()};
     public static void main(String[] args) {
         String accessToken = new JSONObject(args[0]).getString("access_token");
         new Bot(accessToken);
