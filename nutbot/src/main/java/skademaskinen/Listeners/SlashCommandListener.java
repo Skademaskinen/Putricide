@@ -6,6 +6,7 @@ import net.dv8tion.jda.internal.interactions.modal.ModalImpl;
 import skademaskinen.Bot;
 import skademaskinen.Commands.Command;
 import skademaskinen.Commands.Configure;
+import skademaskinen.Commands.Message;
 import skademaskinen.Commands.Pvp;
 import skademaskinen.Commands.Roll;
 import skademaskinen.Commands.Raid;
@@ -39,6 +40,9 @@ public class SlashCommandListener extends ListenerAdapter{
                 break;
             case "pvp":
                 command = new Pvp(event);
+                break;
+            case "message":
+                command = new Message();
                 break;
             default:
                 event.reply("Error, invalid command").queue();

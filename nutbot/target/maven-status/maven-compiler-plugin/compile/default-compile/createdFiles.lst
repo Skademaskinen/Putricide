@@ -10,6 +10,7 @@ skademaskinen/Utils/Shell.class
 skademaskinen/Utils/Config.class
 skademaskinen/WorldOfWarcraft/Character.class
 skademaskinen/Commands/Raid.class
+skademaskinen/Commands/Message.class
 skademaskinen/Listeners/AutoCompleteListener.class
 skademaskinen/WorldOfWarcraft/RaidTeam.class
 skademaskinen/Commands/Roll.class
