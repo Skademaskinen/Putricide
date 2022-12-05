@@ -1,11 +1,13 @@
 package skademaskinen.Commands;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.MessageEmbed.Field;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
@@ -193,8 +195,33 @@ public class Raid implements Command {
         builder.appendDescription("\n**Role**: "+Utils.capitalize(role));
         builder.appendDescription("\n**Item level**: "+character.getIlvl()+"/"+character.getAverageIlvl());
         builder.appendDescription("\n**Availability**: "+ (raidtimes ? "yes" : "no"));
-
         builder.setThumbnail(character.getAvatarURL());
+
+        int score = 0;
+        List<String> filled = Arrays.asList(Bot.getConfig().get("raid:filled").split(","));
+        List<String> preferred = Arrays.asList(Bot.getConfig().get("raid:preferred").split(","));
+        List<String> needed = Arrays.asList(Bot.getConfig().get("raid:needed").split(","));
+
+        int ilvl = Integer.parseInt(Bot.getConfig().get("raid:ilvl"));
+        List<Field> fields = new ArrayList<>();
+        if(filled.contains(role.toLowerCase())){
+            if(character.getAverageIlvl() >= ilvl){
+                score++;
+            }
+            else{
+                fields.add(new Field("Too low item level", "", true));
+            }
+            if(preferred.contains(role.toLowerCase())){
+                score++;
+            }
+            else{
+                fields.add(new Field("We are not actively looking for: "+role, "", true));
+            }
+            if(needed.contains(character._getClass().toLowerCase())){
+                
+            }
+        }
+
 
         return builder.build();
     }

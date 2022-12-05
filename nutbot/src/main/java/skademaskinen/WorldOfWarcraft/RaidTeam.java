@@ -15,7 +15,7 @@ import skademaskinen.Utils.Loggable;
 import skademaskinen.Utils.Utils;
 
 public class RaidTeam implements Loggable {
-    private static String filepath = "files/team.json";
+    private static String filepath = "files/raid.json";
     private static Map<String, Character> characters = new HashMap<>();
 
     public static boolean add(User user, String name, String role, String server){
@@ -47,12 +47,12 @@ public class RaidTeam implements Loggable {
     }
 
     public static String update() {
-        if(Bot.getConfig().get("teamMessageId") == null || Bot.getConfig().get("teamMessageChannelId") == null){
+        if(Bot.getConfig().get("raid:message") == null || Bot.getConfig().get("raid:channel") == null){
             return "Failed to update raid team, the configuration id might be wrong";
         }
         Guild guild = Bot.getJda().getGuildById(Bot.getConfig().get("guildId"));
-        TextChannel channel = guild.getTextChannelById(Bot.getConfig().get("teamMessageChannelId"));
-        Message message = channel.getHistoryAround(Bot.getConfig().get("teamMessageId"), 2).complete().getMessageById(Bot.getConfig().get("teamMessageId"));
+        TextChannel channel = guild.getTextChannelById(Bot.getConfig().get("raid:channel"));
+        Message message = channel.getHistoryAround(Bot.getConfig().get("raid:message"), 2).complete().getMessageById(Bot.getConfig().get("raid:message"));
         JSONObject team = Utils.readJSON(filepath);
         EmbedBuilder builder = new EmbedBuilder()
             .setTitle("Raid Team!")
