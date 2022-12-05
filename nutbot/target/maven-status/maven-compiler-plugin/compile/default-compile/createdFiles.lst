@@ -1,8 +1,8 @@
 skademaskinen/WorldOfWarcraft/BattleNetAPI.class
 skademaskinen/Listeners/SlashCommandListener.class
 skademaskinen/Bot.class
-skademaskinen/Utils/Utils.class
 skademaskinen/Listeners/ButtonListener.class
+skademaskinen/Utils/Utils.class
 skademaskinen/Commands/Configure.class
 skademaskinen/Utils/Loggable.class
 skademaskinen/Utils/Shell.class

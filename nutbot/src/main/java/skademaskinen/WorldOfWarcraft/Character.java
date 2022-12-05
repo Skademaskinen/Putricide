@@ -1,6 +1,10 @@
 package skademaskinen.WorldOfWarcraft;
 
+import org.json.JSONException;
 import org.json.JSONObject;
+
+import skademaskinen.Bot;
+import skademaskinen.Utils.Shell;
 
 
 public class Character {
@@ -41,6 +45,12 @@ public class Character {
         return averageIlvl;
     }
     public String getAvatarURL(){
-        return BattleNetAPI.executeSubRequest(avatarUrl).getJSONArray("assets").getJSONObject(0).getString("value");
+        try{
+            return BattleNetAPI.executeSubRequest(avatarUrl).getJSONArray("assets").getJSONObject(0).getString("value");
+        }
+        catch(JSONException e){
+            Shell.exceptionHandler(e);
+            return Bot.getJda().getGuildById(Bot.getConfig().get("guildId")).getIconUrl();
+        }
     }
 }

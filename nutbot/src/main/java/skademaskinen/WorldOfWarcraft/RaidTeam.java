@@ -22,6 +22,8 @@ public class RaidTeam implements Loggable {
         if(!BattleNetAPI.verifyCharacter(name.toLowerCase(), server)){
             return false;
         }
+        remove(user);
+
         JSONObject team = Utils.readJSON(filepath);
         JSONObject raider = new JSONObject();
         raider.put("name", name);

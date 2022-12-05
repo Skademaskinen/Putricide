@@ -1,5 +1,6 @@
 package skademaskinen.Commands;
 
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -23,6 +24,7 @@ import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import skademaskinen.Bot;
+import skademaskinen.Utils.Shell;
 import skademaskinen.Utils.Utils;
 import skademaskinen.WorldOfWarcraft.BattleNetAPI;
 import skademaskinen.WorldOfWarcraft.Character;
@@ -70,8 +72,8 @@ public class Raid implements Command {
     }
 
     public Raid(ButtonInteractionEvent event) {
-        defer = false;
-        shouldEphemeral = false;
+        defer = !event.getComponentId().split("::")[1].equals("apply");
+        shouldEphemeral = !event.getComponentId().split("::")[1].equals("apply");
     }
 
     public Raid(ModalInteractionEvent event){
@@ -142,31 +144,45 @@ public class Raid implements Command {
         if(Bot.getConfig().get("guildImage") != null){
             builder.setImage(Bot.getConfig().get("guildImage"));
         }
-        actionRows.add(ActionRow.of(Button.primary(buildButtonId("button", null), "Apply here!")));
+        actionRows.add(ActionRow.of(Button.primary(buildButtonId("apply", null), "Apply here!")));
         return builder.build();
     }
 
     @Override
-    public Modal ButtonExecute(ButtonInteractionEvent event) {
-        TextInput name = TextInput.create("name", "Character name", TextInputStyle.SHORT)
-                .setPlaceholder("Your character name")
-                .build();
-            TextInput server = TextInput.create("server", "Character server", TextInputStyle.SHORT)
-                .setPlaceholder("Your character server, example: argent-dawn")
-                .setValue("argent-dawn")
-                .build();
-            TextInput role = TextInput.create("role", "Your role", TextInputStyle.SHORT)
-                .setPlaceholder("Healer, Tank, Ranged Damage or Melee Damage")
-                .build();
-            TextInput raidtimes = TextInput.create("raidtimes", "Wednesday and Sunday 19:30 - 22:30?", TextInputStyle.SHORT)
-                .setPlaceholder("Can you raid with us? (yes/no)")
-                .setValue("yes")
-                .build();
-
-            Modal modal = Modal.create(buildSubId("modal", null), "Application form")
-                .addActionRows(ActionRow.of(name), ActionRow.of(role), ActionRow.of(server), ActionRow.of(raidtimes))
-                .build();
-            return modal;
+    public Object ButtonExecute(ButtonInteractionEvent event) {
+        switch(event.getComponentId().split("::")[1]){
+            case "apply":
+                TextInput name = TextInput.create("name", "Character name", TextInputStyle.SHORT)
+                    .setPlaceholder("Your character name")
+                    .build();
+                TextInput server = TextInput.create("server", "Character server", TextInputStyle.SHORT)
+                    .setPlaceholder("Your character server, example: argent-dawn")
+                    .setValue("argent-dawn")
+                    .build();
+                TextInput role = TextInput.create("role", "Your role", TextInputStyle.SHORT)
+                    .setPlaceholder("Healer, Tank, Ranged Damage or Melee Damage")
+                    .build();
+                TextInput raidtimes = TextInput.create("raidtimes", "Wednesday and Sunday 19:30 - 22:30?", TextInputStyle.SHORT)
+                    .setPlaceholder("Can you raid with us? (yes/no)")
+                    .setValue("yes")
+                    .build();
+    
+                Modal modal = Modal.create(buildSubId("modal", null), "Application form")
+                    .addActionRows(ActionRow.of(name), ActionRow.of(role), ActionRow.of(server), ActionRow.of(raidtimes))
+                    .build();
+                return modal;
+            case "approve":
+                String[] data = event.getComponentId().split("::")[2].split(",");
+                RaidTeam.add(event.getUser(), data[0], data[2], data[1]);
+                event.getMessageChannel().deleteMessageById(event.getMessageId()).queue();
+                return "Successfully added raider: `"+data[0]+"` to raid team";
+            case "decline":
+                String[] data1 = event.getComponentId().split("::")[2].split(",");
+                event.getMessageChannel().deleteMessageById(event.getMessageId()).queue();
+                return "Successfully declined application for: `"+data1[0]+"`!";
+            default:
+                return "Error, invalid button identified by id: "+event.getComponentId();
+        }
 
     }
 
@@ -195,6 +211,7 @@ public class Raid implements Command {
         builder.appendDescription("\n**Role**: "+Utils.capitalize(role));
         builder.appendDescription("\n**Item level**: "+character.getIlvl()+"/"+character.getAverageIlvl());
         builder.appendDescription("\n**Availability**: "+ (raidtimes ? "yes" : "no"));
+        builder.appendDescription("\n----------------------------");
         builder.setThumbnail(character.getAvatarURL());
 
         int score = 0;
@@ -204,24 +221,24 @@ public class Raid implements Command {
 
         int ilvl = Integer.parseInt(Bot.getConfig().get("raid:ilvl"));
         List<Field> fields = new ArrayList<>();
-        if(filled.contains(role.toLowerCase())){
-            if(character.getAverageIlvl() >= ilvl){
-                score++;
-            }
-            else{
-                fields.add(new Field("Too low item level", "", true));
-            }
-            if(preferred.contains(role.toLowerCase())){
-                score++;
-            }
-            else{
-                fields.add(new Field("We are not actively looking for: "+role, "", true));
-            }
-            if(needed.contains(character._getClass().toLowerCase())){
-                
-            }
+        if(!filled.contains(role.toLowerCase())){
+            if(character.getAverageIlvl() >= ilvl) score++;
+            else fields.add(new Field("Too low item level", "", true));
+            if(preferred.contains(character._getClass().toLowerCase())) score++;
+            else fields.add(new Field("We are not actively looking for:\n"+character._getClass(), "", true));
+            if(needed.contains(role.toLowerCase())) score++;
+            else fields.add(new Field("We do not need any more:\n"+role, "", true));
+            if(raidtimes) score++;
         }
+        else fields.add(new Field("We do not need any more:\n"+role, "", false));
+        
+        for(Field field : fields) builder.addField(field);
+        builder.setColor(score >= 3 ? Color.GREEN : (score > 0 ? Color.YELLOW : Color.RED));
 
+        actionRows.add(ActionRow.of(
+            Button.success(buildSubId("approve", name+","+server+","+role), "Approve"),
+            Button.danger(buildSubId("decline", name+","+server+","+role), "Decline")
+        ));
 
         return builder.build();
     }
