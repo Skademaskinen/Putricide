@@ -8,19 +8,16 @@ import skademaskinen.Commands.Command;
 import skademaskinen.Commands.Pvp;
 import skademaskinen.Commands.Raid;
 import skademaskinen.Utils.Shell;
+import skademaskinen.Utils.Utils;
 
 public class ButtonListener extends ListenerAdapter {
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
-        Shell.println("""
-
-            Button Event!
-            Member: """+event.getUser().getAsTag()+"""
-
-            Guild: """+event.getGuild().getName()+"""
-
-            Button ID name: """+event.getButton().getId()+"""
-            """);
+        Shell.println(Shell.green("Button event: "));
+        Shell.println(Shell.yellow("Timestamp:    ")+Utils.timestamp());
+        Shell.println(Shell.yellow("Guild:        ")+event.getGuild().getName());
+        Shell.println(Shell.yellow("Member:       ")+event.getUser().getAsTag());
+        Shell.println(Shell.yellow("Button ID:    ")+event.getComponentId());
 
         Command command;
         switch(event.getButton().getId().split("::")[0].toLowerCase()){

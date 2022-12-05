@@ -2,6 +2,7 @@ package skademaskinen.Listeners;
 
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.internal.interactions.modal.ModalImpl;
 import skademaskinen.Bot;
 import skademaskinen.Commands.Command;
@@ -10,18 +11,19 @@ import skademaskinen.Commands.Pvp;
 import skademaskinen.Commands.Roll;
 import skademaskinen.Commands.Raid;
 import skademaskinen.Commands.Version;
+import skademaskinen.Utils.Shell;
+import skademaskinen.Utils.Utils;
 
 public class SlashCommandListener extends ListenerAdapter{
     
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
-        Bot.getShell().print("""
-            Slash Command Event!
-            Member: """+event.getUser().getAsTag()+"""
-
-            Guild: """+event.getGuild().getName()+"""
-
-            Command name: """+event.getName()+"""
-            """);
+        Shell.println(Shell.green("Slash command event:  "));
+        Shell.println(Shell.yellow("Timestamp:     ")+Utils.timestamp());
+        Shell.println(Shell.yellow("Guild:         ")+event.getGuild().getName());
+        Shell.println(Shell.yellow("Member:        ")+event.getUser().getAsTag());
+        Shell.println(Shell.yellow("Command ID:    ")+event.getName());
+        if(event.getSubcommandName() != null) Shell.println(Shell.yellow("Subcommand ID: ")+event.getSubcommandName());
+        for(OptionMapping option : event.getOptions()) Shell.println(Shell.yellow("option("+option.getName()+"): ")+option.getAsString());
 
         Command command;
         switch(event.getName().toLowerCase()){
