@@ -18,7 +18,6 @@ public class Config {
             for(String line : reader.lines().toList()){
                 String key = line.split("=")[0];
                 String value = line.split("=").length == 2 ? line.split("=")[1] : "";
-                System.out.println("Initialized config key: "+key);
                 config.put(key, value);
             }
         }

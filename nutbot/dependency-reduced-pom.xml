@@ -4,7 +4,7 @@
   <groupId>skademaskinen</groupId>
   <artifactId>nutbot</artifactId>
   <name>nutbot</name>
-  <version>3.1a</version>
+  <version>3.2a</version>
   <url>skademaskinen.win</url>
   <build>
     <plugins>

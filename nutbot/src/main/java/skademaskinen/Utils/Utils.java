@@ -57,4 +57,14 @@ public class Utils {
             Shell.exceptionHandler(e);
         }
     }
+
+    public static String capitalize(String input){
+        String[] temp = input.split(" ");
+        String output = "";
+        for(String word : temp){
+            output+=word.substring(0, 1).toUpperCase()+word.substring(1, word.length())+" ";
+        }
+        output = output.substring(0, output.length()-1);
+        return output;
+    }
 }

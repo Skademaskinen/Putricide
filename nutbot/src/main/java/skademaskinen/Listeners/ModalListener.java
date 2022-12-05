@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import skademaskinen.Bot;
 import skademaskinen.Commands.Command;
 import skademaskinen.Commands.Configure;
+import skademaskinen.Commands.Team;
 import skademaskinen.Utils.Shell;
 
 public class ModalListener extends ListenerAdapter{
@@ -12,7 +13,7 @@ public class ModalListener extends ListenerAdapter{
     public void onModalInteraction(ModalInteractionEvent event) {
         Shell.println("""
 
-            Slash Command Event!
+            Modal Event!
             Member: """+event.getUser().getAsTag()+"""
 
             Guild: """+event.getGuild().getName()+"""
@@ -24,6 +25,9 @@ public class ModalListener extends ListenerAdapter{
             case "configure":
                 command = new Configure();
                 break;
+            case "team":
+                command = new Team(event);
+                break;
             default:
                 event.reply("Error, invalid command").queue();
                 return;
@@ -31,6 +35,6 @@ public class ModalListener extends ListenerAdapter{
 
         event.deferReply(command.isEphemeral()).queue();
         Object replyContent = command.ModalExecute(event);
-        Bot.replyToEvent(event.getHook(), replyContent);
+        Bot.replyToEvent(event.getHook(), replyContent, command.getActionRows());
     }
 }
