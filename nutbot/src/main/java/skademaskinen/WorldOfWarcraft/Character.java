@@ -3,9 +3,6 @@ package skademaskinen.WorldOfWarcraft;
 import org.json.JSONObject;
 
 
-import skademaskinen.Bot;
-import skademaskinen.Utils.Shell;
-
 public class Character {
     private String name;
     private String realm;

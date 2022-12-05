@@ -1,7 +1,5 @@
 package skademaskinen.WorldOfWarcraft;
 
-import java.io.IOException;
-
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -56,7 +54,6 @@ public class BattleNetAPI {
     }
 
     public static JSONObject executeSubRequest(String url){
-        String region = Bot.getConfig().get("region");
         HttpGet request = new HttpGet(url+"&access_token="+token);
         try {
             HttpResponse response = httpClient.execute(request);
