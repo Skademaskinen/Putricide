@@ -72,7 +72,7 @@ public class PvpTeam implements Loggable {
 
                 temp+= "\n\n"+ guild.retrieveMemberById(raiderId).complete().getAsMention();
                 temp+= "\n"+ Utils.capitalize(character.getName());
-                if(!character.getRealm().equals("argent-dawn")){
+                if(!character.getRealm().toLowerCase().replace(" ", "-").equals("argent-dawn")){
                     temp+= " (" + Utils.capitalize(raider.getString("server").replace("-", " ")) + ")";
                 }
                 temp+= "\n"+character._getClass();

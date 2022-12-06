@@ -4,15 +4,21 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.json.JSONObject;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.MessageEmbed.Field;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.Command.Choice;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -94,6 +100,9 @@ public class Raid implements Command {
     }
 
     
+    public Raid(CommandAutoCompleteInteractionEvent event) {
+    }
+
     public Object run(SlashCommandInteractionEvent event) {
         Object result = "";
         switch(event.getSubcommandName()){
@@ -258,6 +267,30 @@ public class Raid implements Command {
         success = true;
         log(success, new String[]{name+", "+server+", "+role});
         return builder.build();
+    }
+    @Override
+    public List<Choice> AutoComplete(CommandAutoCompleteInteractionEvent event) {
+        switch(event.getFocusedOption().getName()){
+            case "role":
+                String[] roles = {"Tank", "Healer", "Melee Damage", "Ranged Damage"};
+                return Stream.of(roles)
+                    .filter(role -> role.toLowerCase().startsWith(event.getFocusedOption().getValue().toLowerCase()))
+                    .map(role -> new Choice(role, role))
+                    .collect(Collectors.toList());
+            case "server":
+                JSONObject classJSON = BattleNetAPI.getClassData();
+                List<String> servers = new ArrayList<>();
+                for(Object object : classJSON.getJSONArray("realms")){
+                    servers.add(((JSONObject) object).getString("name"));
+                }
+                return Stream.of(servers.toArray(new String[0]))
+                    .filter(server -> server.toLowerCase().startsWith(event.getFocusedOption().getValue().toLowerCase()))
+                    .map(server -> new Choice(server, server))
+                    .limit(25)
+                    .collect(Collectors.toList());
+            default:
+                return null;
+        }
     }
     
 }

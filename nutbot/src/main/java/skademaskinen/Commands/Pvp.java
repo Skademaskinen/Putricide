@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.MessageEmbed.Field;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -53,6 +54,10 @@ public class Pvp extends Raid {
         super(event);
     }
     public Pvp(SlashCommandInteractionEvent event) {
+        super(event);
+    }
+
+    public Pvp(CommandAutoCompleteInteractionEvent event) {
         super(event);
     }
 
@@ -163,8 +168,8 @@ public class Pvp extends Raid {
         switch(event.getSubcommandName()){
             case "add":
                 result = event.getOption("server") == null ? 
-                    add(event.getOption("raider").getAsUser(), event.getOption("name").getAsString(), event.getOption("role").getAsString(), "argent-dawn") :
-                    add(event.getOption("raider").getAsUser(), event.getOption("name").getAsString(), event.getOption("role").getAsString(), event.getOption("server").getAsString());
+                    add(event.getOption("user").getAsUser(), event.getOption("name").getAsString(), event.getOption("role").getAsString(), "argent-dawn") :
+                    add(event.getOption("user").getAsUser(), event.getOption("name").getAsString(), event.getOption("role").getAsString(), event.getOption("server").getAsString());
 
                 break;
             case "remove":

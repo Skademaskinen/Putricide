@@ -19,6 +19,7 @@ import skademaskinen.WorldOfWarcraft.BattleNetAPI;
 import skademaskinen.WorldOfWarcraft.PvpTeam;
 import skademaskinen.WorldOfWarcraft.RaidTeam;
 import skademaskinen.Commands.*;
+import skademaskinen.Listeners.AutoCompleteListener;
 import skademaskinen.Listeners.ButtonListener;
 import skademaskinen.Listeners.ModalListener;
 import skademaskinen.Listeners.SlashCommandListener;
@@ -40,6 +41,7 @@ public class Bot implements Loggable{
             jda.addEventListener(new SlashCommandListener());
             jda.addEventListener(new ModalListener());
             jda.addEventListener(new ButtonListener());
+            jda.addEventListener(new AutoCompleteListener());
             jda.updateCommands().addCommands(commands).queue();
             shell = new Shell();
             BattleNetAPI.init(token);
