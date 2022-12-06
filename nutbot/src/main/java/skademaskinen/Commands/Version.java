@@ -27,5 +27,9 @@ public class Version implements Command {
     public boolean isSuccess(){
         return success;
     }
+    @Override
+    public boolean requiresAdmin() {
+        return false;
+    }
 
 }

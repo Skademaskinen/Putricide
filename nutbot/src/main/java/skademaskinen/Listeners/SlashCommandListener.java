@@ -1,5 +1,6 @@
 package skademaskinen.Listeners;
 
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
@@ -45,6 +46,11 @@ public class SlashCommandListener extends ListenerAdapter{
             default:
                 event.reply("Error, invalid command").queue();
                 return;
+        }
+
+        if(command.requiresAdmin() && !event.getMember().hasPermission(Permission.ADMINISTRATOR)){
+            event.reply("Error, you are not an administrator!").setEphemeral(true).queue();
+            return;
         }
 
         if(command.shouldDefer()){

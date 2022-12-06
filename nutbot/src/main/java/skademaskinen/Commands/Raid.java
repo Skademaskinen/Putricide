@@ -40,6 +40,7 @@ public class Raid implements Command {
     private boolean shouldEphemeral = true;
     protected List<ActionRow> actionRows = new ArrayList<>();
     private boolean defer = true;
+    private boolean requiresAdmin = true;
 
     public static CommandData configure(){
         SlashCommandData command = Commands.slash(Raid.class.getSimpleName().toLowerCase(), "Admin command: Handle the raid team");
@@ -79,11 +80,16 @@ public class Raid implements Command {
     public Raid(ButtonInteractionEvent event) {
         defer = !event.getComponentId().split("::")[1].equals("apply");
         shouldEphemeral = !event.getComponentId().split("::")[1].equals("apply");
+        switch(event.getComponentId()){
+            case "apply":
+                requiresAdmin = false;
+        }
     }
 
     public Raid(ModalInteractionEvent event){
         defer = true;
         shouldEphemeral = false;
+        requiresAdmin = false;
     }
 
     public Raid(SlashCommandInteractionEvent event){
@@ -300,6 +306,11 @@ public class Raid implements Command {
             default:
                 return null;
         }
+    }
+
+    @Override
+    public boolean requiresAdmin() {
+        return requiresAdmin;
     }
     
 }

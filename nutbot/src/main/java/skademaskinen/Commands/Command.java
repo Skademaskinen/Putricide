@@ -30,6 +30,8 @@ public interface Command extends Loggable {
         return response;
     }
 
+    public boolean requiresAdmin();
+
     default public Object ModalExecute(ModalInteractionEvent event){
         return null;
     }

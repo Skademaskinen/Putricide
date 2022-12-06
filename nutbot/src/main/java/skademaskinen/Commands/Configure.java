@@ -70,5 +70,10 @@ public class Configure implements Command {
     public List<ActionRow> getActionRows() {
         return null;
     }
+
+    @Override
+    public boolean requiresAdmin() {
+        return true;
+    }
     
 }

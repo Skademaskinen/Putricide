@@ -1,5 +1,6 @@
 package skademaskinen.Listeners;
 
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.modals.ModalMapping;
@@ -37,6 +38,12 @@ public class ModalListener extends ListenerAdapter{
                 event.reply("Error, invalid command").queue();
                 return;
         }
+
+        if(command.requiresAdmin() && !event.getMember().hasPermission(Permission.ADMINISTRATOR)){
+            event.reply("Error, you are not an administrator!").setEphemeral(true).queue();
+            return;
+        }
+
         if(command.shouldDefer()){
             event.deferReply(command.isEphemeral()).queue();
 
