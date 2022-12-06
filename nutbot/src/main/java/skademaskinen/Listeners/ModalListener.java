@@ -48,7 +48,20 @@ public class ModalListener extends ListenerAdapter{
             event.deferReply(command.isEphemeral()).queue();
 
         }
-        Object replyContent = command.ModalExecute(event);
+        Object replyContent;
+        try{
+            replyContent = command.ModalExecute(event);
+        }
+        catch(Exception e){
+            Shell.exceptionHandler(e);
+            if(command.shouldDefer()){
+                event.getHook().editOriginal(e.getMessage()).queue();
+            }
+            else{
+                event.reply(e.getMessage()).queue();
+            }
+            return;
+        }
         Bot.replyToEvent(event.getHook(), replyContent, command.getActionRows());
     }
 }

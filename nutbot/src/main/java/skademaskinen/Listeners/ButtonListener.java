@@ -40,7 +40,20 @@ public class ButtonListener extends ListenerAdapter {
         if(command.shouldDefer()){
             event.deferReply(command.isEphemeral()).queue();
         }
-        Object replyContent = command.ButtonExecute(event);
+        Object replyContent;
+        try{
+            replyContent = command.ButtonExecute(event);
+        }
+        catch(Exception e){
+            Shell.exceptionHandler(e);
+            if(command.shouldDefer()){
+                event.getHook().editOriginal(e.getMessage()).queue();
+            }
+            else{
+                event.reply(e.getMessage()).queue();
+            }
+            return;
+        }
         if(replyContent.getClass().equals(ModalImpl.class)){
             event.replyModal((ModalImpl) replyContent).queue();
         }
