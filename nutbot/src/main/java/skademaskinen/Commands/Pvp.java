@@ -35,7 +35,7 @@ public class Pvp extends Raid {
         SlashCommandData command = Commands.slash(Pvp.class.getSimpleName().toLowerCase(), "Admin command: Handle the pvp team");
         SubcommandData add = new SubcommandData("add", "Add a user to the pvp team manually");
         OptionData raider = new OptionData(OptionType.USER, "user", "Mention of the user", true);
-        OptionData name = new OptionData(OptionType.STRING, "name", "Character name", true);
+        OptionData name = new OptionData(OptionType.STRING, "name", "Character name", true, true);
         OptionData server = new OptionData(OptionType.STRING, "server", "Character server", false, true);
         OptionData role = new OptionData(OptionType.STRING, "role", "Character role", true, true);
         add.addOptions(raider,name,role,server);
@@ -70,8 +70,8 @@ public class Pvp extends Raid {
                     .setPlaceholder("Your character name")
                     .build();
                 TextInput server = TextInput.create("server", "Character server", TextInputStyle.SHORT)
-                    .setPlaceholder("Your character server, example: argent-dawn")
-                    .setValue("argent-dawn")
+                    .setPlaceholder("Your character server, example: "+Bot.getConfig().get("guildServer"))
+                    .setValue(Bot.getConfig().get("guildServer"))
                     .build();
                 TextInput role = TextInput.create("role", "Your role", TextInputStyle.SHORT)
                     .setPlaceholder("Healer, Tank, Ranged Damage or Melee Damage")
@@ -168,7 +168,7 @@ public class Pvp extends Raid {
         switch(event.getSubcommandName()){
             case "add":
                 result = event.getOption("server") == null ? 
-                    add(event.getOption("user").getAsUser(), event.getOption("name").getAsString(), event.getOption("role").getAsString(), "argent-dawn") :
+                    add(event.getOption("user").getAsUser(), event.getOption("name").getAsString(), event.getOption("role").getAsString(), Bot.getConfig().get("guildServer")) :
                     add(event.getOption("user").getAsUser(), event.getOption("name").getAsString(), event.getOption("role").getAsString(), event.getOption("server").getAsString());
 
                 break;
