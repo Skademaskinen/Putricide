@@ -13,6 +13,7 @@ import skademaskinen.Utils.Shell;
 public class BattleNetAPI {
     private static HttpClient httpClient = HttpClients.createDefault();
     private static String token;
+    private static JSONObject classData = null;
 
     public Character getCharacter(String name, String realm){
         return new Character(name, realm);
@@ -34,7 +35,7 @@ public class BattleNetAPI {
         //if the json key 'code' = 404, then this method returns false
         //if its null then return true and handle the loss of a valid member
         String region = Bot.getConfig().get("region");
-        String url = "https://"+region+".api.blizzard.com/profile/wow/character/"+server+"/"+name+"?namespace=profile-"+region+"&locale=en_GB&access_token="+token;
+        String url = "https://"+region+".api.blizzard.com/profile/wow/character/"+server.toLowerCase().replace(" ", "-")+"/"+name+"?namespace=profile-"+region+"&locale=en_GB&access_token="+token;
         //Shell.println(url);
         HttpGet request = new HttpGet(url);
         try {
@@ -51,6 +52,11 @@ public class BattleNetAPI {
         }
         
         return false;
+    }
+
+    public static JSONObject getClassData(){
+        if(classData != null) return classData;
+        return executeSubRequest("https://eu.api.blizzard.com/data/wow/realm/index?namespace=dynamic-eu&locale=en_GB");
     }
 
     public static JSONObject executeSubRequest(String url){
@@ -71,7 +77,7 @@ public class BattleNetAPI {
     
     public static JSONObject getCharacterData(String name, String server){
         String region = Bot.getConfig().get("region");
-        String url = "https://"+region+".api.blizzard.com/profile/wow/character/"+server+"/"+name+"?namespace=profile-"+region+"&locale=en_GB&access_token="+token;
+        String url = "https://"+region+".api.blizzard.com/profile/wow/character/"+server.toLowerCase().replace(" ", "-")+"/"+name+"?namespace=profile-"+region+"&locale=en_GB&access_token="+token;
 
         HttpGet request = new HttpGet(url);
 
