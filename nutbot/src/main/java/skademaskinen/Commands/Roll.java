@@ -71,5 +71,10 @@ public class Roll implements Command{
 
         return builder.build();
     }
+
+    @Override
+    public boolean requiresAdmin() {
+        return false;
+    }
     
 }
