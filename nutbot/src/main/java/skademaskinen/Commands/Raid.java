@@ -114,7 +114,7 @@ public class Raid implements Command {
         switch(event.getSubcommandName()){
             case "add":
                 result = event.getOption("server") == null ? 
-                    add(event.getOption("raider").getAsUser(), event.getOption("name").getAsString(), event.getOption("role").getAsString(), Bot.getConfig().get("guildServer")) :
+                    add(event.getOption("raider").getAsUser(), event.getOption("name").getAsString(), event.getOption("role").getAsString(), Bot.getConfig().get("guild:realm")) :
                     add(event.getOption("raider").getAsUser(), event.getOption("name").getAsString(), event.getOption("role").getAsString(), event.getOption("server").getAsString());
                 
                 break;
@@ -153,11 +153,11 @@ public class Raid implements Command {
 
     protected MessageEmbed form(){
         EmbedBuilder builder = new EmbedBuilder();
-        String guildName = Bot.getConfig().get("guildName");
+        String guildName = Bot.getConfig().get("guild:name");
         builder.setTitle("Apply to the "+this.getClass().getSimpleName().toLowerCase()+" team of "+guildName+"!");
         builder.setDescription("Hi, here you can apply to the "+this.getClass().getSimpleName().toLowerCase()+" team!\nYou will receive a pop-up form to add your character's details.");
-        if(Bot.getConfig().get("guildImage") != null){
-            builder.setImage(Bot.getConfig().get("guildImage"));
+        if(Bot.getConfig().get("guild:image") != null){
+            builder.setImage(Bot.getConfig().get("guild:image"));
         }
         actionRows.add(ActionRow.of(Button.primary(buildButtonId("apply", null), "Apply here!")));
         return builder.build();
@@ -172,8 +172,8 @@ public class Raid implements Command {
                     .setPlaceholder("Your character name")
                     .build();
                 TextInput server = TextInput.create("server", "Character server", TextInputStyle.SHORT)
-                    .setPlaceholder("Your character server, example: "+Bot.getConfig().get("guildServer"))
-                    .setValue(Bot.getConfig().get("guildServer"))
+                    .setPlaceholder("Your character server, example: "+Bot.getConfig().get("guild:realm"))
+                    .setValue(Bot.getConfig().get("guild:realm"))
                     .build();
                 TextInput role = TextInput.create("role", "Your role", TextInputStyle.SHORT)
                     .setPlaceholder("Healer, Tank, Ranged Damage or Melee Damage")

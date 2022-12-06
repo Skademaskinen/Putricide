@@ -51,14 +51,14 @@ public class RaidTeam implements Loggable {
         if(Bot.getConfig().get("raid:message") == null || Bot.getConfig().get("raid:channel") == null){
             return "Failed to update raid team, the configuration id might be wrong";
         }
-        Guild guild = Bot.getJda().getGuildById(Bot.getConfig().get("guildId"));
+        Guild guild = Bot.getJda().getGuildById(Bot.getConfig().get("guild:id"));
         TextChannel channel = guild.getTextChannelById(Bot.getConfig().get("raid:channel"));
         Message message = channel.getHistoryAround(Bot.getConfig().get("raid:message"), 2).complete().getMessageById(Bot.getConfig().get("raid:message"));
         JSONObject team = Utils.readJSON(filepath);
         EmbedBuilder builder = new EmbedBuilder()
             .setTitle("Raid Team!")
             .setDescription("This is the raid team, this message will get updated with raid team members!")
-            .setImage(Bot.getConfig().get("guildImage"));
+            .setImage(Bot.getConfig().get("guild:image"));
 
 		builder.appendDescription("\n**Raid team composition:** "+team.getJSONObject("Tank").length()+"/"+team.getJSONObject("Healer").length()+"/"+(team.getJSONObject("Ranged Damage").length()+team.getJSONObject("Melee Damage").length()));
 
