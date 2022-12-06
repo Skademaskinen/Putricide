@@ -1,6 +1,5 @@
 package skademaskinen.Commands;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -10,7 +9,6 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
@@ -65,12 +63,7 @@ public class Configure implements Command {
         success = true;
         return modal;
     }
-
-    @Override
-    public List<ActionRow> getActionRows() {
-        return null;
-    }
-
+    
     @Override
     public boolean requiresAdmin() {
         return true;

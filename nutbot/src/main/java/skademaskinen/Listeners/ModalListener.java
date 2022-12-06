@@ -12,8 +12,15 @@ import skademaskinen.Commands.Raid;
 import skademaskinen.Utils.Shell;
 import skademaskinen.Utils.Utils;
 
+/**
+ * This is the modal listener class, it handles modals sent to the bot
+ */
 public class ModalListener extends ListenerAdapter{
     
+    /**
+     * This is the listener method, it handles modal interaction events by initializing a corresponding command object and executing its modal execution method and prints its result
+     * @param event This is the event, it contains a lot of information about how this event happened
+     */
     public void onModalInteraction(ModalInteractionEvent event) {
         Shell.println(Shell.green("Modal event: "));
         Shell.println(Shell.yellow("Timestamp:    ")+Utils.timestamp());

@@ -7,6 +7,9 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import skademaskinen.Bot;
 
+/**
+ * This class represents the Command Line Interface (CLI), or shell where a lot of commands can be run instead of being typed directly into discord. This also can function as a chatting function through the bot
+ */
 public class Shell implements Runnable {
     private LineReader reader;
     private TextChannel channel = null;
@@ -29,10 +32,17 @@ public class Shell implements Runnable {
     public static String cyan(String string){return CYAN+string+RESET;}
     public static String white(String string){return WHITE+string+RESET;}
 
+    /**
+     * This is the constructor for the Shell class, it initializes the terminal reader, this is needed such that we are sure when the object is initialized
+     */
     public Shell() {
         reader = LineReaderBuilder.builder().build();
     }
 
+    /**
+     * This method generates a prompt based on data around this class
+     * @return a String containing the prompt that is shown in the command line
+     */
     public String prompt(){
         String prompt = "["+green(Bot.getJda().getSelfUser().getName())+" /";
         
@@ -42,12 +52,13 @@ public class Shell implements Runnable {
                 prompt += yellow(channel.getName())+"/";
             }
         }
-        
-
         return prompt+"] "+CYAN+">"+RESET+" ";
     }
 
 
+    /**
+     * This is the supertype method run of the interface Runnable, it handles the terminal input and executes the commands given to the command line.
+     */
     @Override
     public void run() {
         for(String line = ""; !line.equals("exit"); line = reader.readLine(prompt())){
@@ -66,17 +77,22 @@ public class Shell implements Runnable {
                         send(args[1]);
                     }
                     else{
-                        print("Invalid arguments");
+                        println("Invalid arguments");
                     }
                     break;
                 default:
-                    print("Error, invalid command by ["+args[0]+"]");
+                    println("Error, invalid command by ["+args[0]+"]");
                     break;
 
             }
         }
         System.exit(0);
     }
+
+    /**
+     * This method handles the channel command, it can list all channels for a server or choose a specific channel for a server.
+     * @param args The arguments passed to the command line, it specifies subcommands and values
+     */
     private void channel(String[] args){
         if(guild == null){
             print("invalid guild");
@@ -85,7 +101,7 @@ public class Shell implements Runnable {
         switch(args[1]){
             case "list":
                 for(TextChannel channel : guild.getTextChannels()){
-                    print(channel.getId()+": "+channel.getName());
+                    println(channel.getId()+": "+channel.getName());
                 }
                 break;
             case "set":
@@ -93,17 +109,21 @@ public class Shell implements Runnable {
                     channel = guild.getTextChannelById(args[2]);
                 }
                 else{
-                    print("Too few arguments");
+                    println("Too few arguments");
                 }
                 break;
         }
     }
 
+    /**
+     * This method handles the guild command, it can list all guilds or choose a specific guild.
+     * @param args The arguments passed to the command line, it specifies subcommands and values
+     */
     private void guild(String[] args){
         switch(args[1]){
             case "list":
                 for(Guild guild : Bot.getJda().getGuilds()){
-                    print(guild.getId()+": "+guild.getName());
+                    println(guild.getId()+": "+guild.getName());
                 }
                 break;
             case "set":
@@ -112,20 +132,32 @@ public class Shell implements Runnable {
                     guild = Bot.getJda().getGuildById(args[2]);
                 }
                 else{
-                    print("Too few arguments");
+                    println("Too few arguments");
                 }
         }
     }
 
+    /**
+     * This method handles the send command, it sends a message to the channel that is selected
+     * @param message The message to be sent
+     */
     private void send(String message){
         channel.sendMessage(message).queue();
-        print("Successfully sent message: "+message);
+        println("Successfully sent message: "+message);
     }
 
+    /**
+     * Prints a string above the prompt
+     * @param message The string to be printed
+     */
     public void print(String message){
         reader.printAbove(message);
     }
 
+    /**
+     * Static method to call the initialized shell object and print the inputted object
+     * @param message The message object to be printed
+     */
     public static void println(Object message){
         if(message.getClass().equals(String.class))
             Bot.getShell().print((String) message);
@@ -135,8 +167,15 @@ public class Shell implements Runnable {
             message.getClass().equals(Double.class) || 
             message.getClass().equals(Float.class))
                 Bot.getShell().print(String.valueOf(message));
+        else{
+            Bot.getShell().print(message.toString());
+        }
     }
 
+    /**
+     * This is the global exceptionhandler for the entire Bot software, it prints the stack trace above the prompt and sends it as a message to the configured log channel
+     * @param e The exception to be logged
+     */
     public static void exceptionHandler(Exception e) {
         String message = "```\n"+e.toString()+": "+e.getMessage();
         println(yellow(e.toString()+": "+e.getMessage()));
@@ -144,7 +183,7 @@ public class Shell implements Runnable {
             message+="\n\t"+element.toString();
             println("\t"+red(element.toString()));
         }
-        Bot.getJda().getGuildById("692410386657574952").getTextChannelById("958070914245886113").sendMessage(message+"```").queue();
+        Bot.getJda().getGuildById(Bot.getConfig().get("guild:id")).getTextChannelById(Bot.getConfig().get("log:channel")).sendMessage(message+"```").queue();
     }
 
 }

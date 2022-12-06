@@ -26,16 +26,28 @@ import skademaskinen.Listeners.LoggingListener;
 import skademaskinen.Listeners.ModalListener;
 import skademaskinen.Listeners.SlashCommandListener;
 
+/**
+ * The main class of The Nut Bot
+ * It handles class abstractions and handles the main api, it also handles initialization.
+ */
 public class Bot implements Loggable{
     private static Config config;
     private static JDA jda;
     private static Shell shell;
     private static CommandData[] commands = {Version.configure(), Roll.configure(), Configure.configure(), Raid.configure(), Pvp.configure()};
+    /**
+     * The main method of the software, this method initializes everything and runs it.
+     * @param args command line arguments that are passed after compilation, args[0] is always the access token for blizzard servers
+     */
     public static void main(String[] args) {
         String accessToken = new JSONObject(args[0]).getString("access_token");
         new Bot(accessToken);
     }
 
+    /**
+     * The constructor, it is used to ensure that the main method never just throws exceptions but logs them instead
+     * @param token The access token for the blizzard servers
+     */
     public Bot(String token){
         try{
             config = new Config();
@@ -65,16 +77,36 @@ public class Bot implements Loggable{
         }
     }
 
+    /**
+     * Getter for the api object of the Discord Java API
+     * @return the initialized jda object of type JDA
+     */
     public static JDA getJda() {
         return jda;
     }
+
+    /**
+     * Getter for the configuration object, this is used to ensure initialization
+     * @return The config object of type Config
+     */
     public static Config getConfig(){
         return config;
     }
+
+    /**
+     * The getter for the shell object, this is used to ensure initialization
+     * @return The shell object of type Shell
+     */
     public static Shell getShell(){
         return shell;
     }
 
+    /**
+     * This method is used to ensure consistency in replies to events across the interaction events for the bot, they always call this method at the end
+     * @param hook The InteractionHook object, this is a callback that we can use to edit already sent acknowledgements to interactions
+     * @param replyContent The content to add to this reply, it can have type MessageEmbed or String
+     * @param actionRows If there is any actionRows this variable can be used, or null if there are no actionrows.
+     */
     public static void replyToEvent(InteractionHook hook, Object replyContent, List<ActionRow> actionRows) {
         Class<?> ContentClass = replyContent.getClass();
         WebhookMessageEditAction<Message> action;
@@ -92,7 +124,7 @@ public class Bot implements Loggable{
         }
         action.queue();
     }
-    private static void exceptionTester(){
+    public static void exceptionTester(){
         try {
             throw new Exception();
         } catch (Exception e) {

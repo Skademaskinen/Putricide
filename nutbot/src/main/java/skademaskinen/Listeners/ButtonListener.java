@@ -11,7 +11,15 @@ import skademaskinen.Commands.Raid;
 import skademaskinen.Utils.Shell;
 import skademaskinen.Utils.Utils;
 
+/**
+ * This is the listener class for button events, it handles whenever a button has been pressed in discord
+ */
 public class ButtonListener extends ListenerAdapter {
+
+    /**
+     * This is the button handler method, it initializes a command object corresponding to the button pressed, executes it and writes the result as a reply
+     * @param event This is the event, it contains a lot of information about how this event happened
+     */
     @Override
     public void onButtonInteraction(ButtonInteractionEvent event) {
         Shell.println(Shell.green("Button event: "));

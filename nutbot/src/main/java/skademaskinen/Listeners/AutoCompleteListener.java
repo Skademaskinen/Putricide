@@ -9,8 +9,15 @@ import skademaskinen.Commands.Pvp;
 import skademaskinen.Commands.Raid;
 import net.dv8tion.jda.api.interactions.commands.Command.Choice;
 
+/**
+ * This is the autocomplete listener, it handles autocompletion of commands
+ */
 public class AutoCompleteListener extends ListenerAdapter {
     
+    /**
+     * This is the autocomplete handler method of this class, it initializes a corresponding command object for the given command, executes its autocomplete method and replies with the result
+     * @param event This is the event, it contains a lot of information about how this event happened
+     */
     @Override
     public void onCommandAutoCompleteInteraction(CommandAutoCompleteInteractionEvent event) {
         Command command;
