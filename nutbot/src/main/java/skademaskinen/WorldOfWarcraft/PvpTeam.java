@@ -51,14 +51,14 @@ public class PvpTeam implements Loggable {
         if(Bot.getConfig().get("pvp:message") == null || Bot.getConfig().get("pvp:channel") == null){
             return "Failed to update pvp team, the configuration id might be wrong";
         }
-        Guild guild = Bot.getJda().getGuildById(Bot.getConfig().get("guildId"));
+        Guild guild = Bot.getJda().getGuildById(Bot.getConfig().get("guild:id"));
         TextChannel channel = guild.getTextChannelById(Bot.getConfig().get("pvp:channel"));
         Message message = channel.getHistoryAround(Bot.getConfig().get("pvp:message"), 2).complete().getMessageById(Bot.getConfig().get("pvp:message"));
         JSONObject team = Utils.readJSON(filepath);
         EmbedBuilder builder = new EmbedBuilder()
             .setTitle("Pvp Team!")
             .setDescription("This is the pvp team, this message will get updated with pvp team members!")
-            .setImage(Bot.getConfig().get("guildImage"));
+            .setImage(Bot.getConfig().get("guild:image"));
 
 		builder.appendDescription("\n**Pvp team composition:** "+team.getJSONObject("Tank").length()+"/"+team.getJSONObject("Healer").length()+"/"+(team.getJSONObject("Ranged Damage").length()+team.getJSONObject("Melee Damage").length()));
 

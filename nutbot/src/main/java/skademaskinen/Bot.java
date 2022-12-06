@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.requests.restaction.WebhookMessageEditAction;
 import skademaskinen.Utils.Config;
 import skademaskinen.Utils.Loggable;
@@ -21,6 +22,7 @@ import skademaskinen.WorldOfWarcraft.RaidTeam;
 import skademaskinen.Commands.*;
 import skademaskinen.Listeners.AutoCompleteListener;
 import skademaskinen.Listeners.ButtonListener;
+import skademaskinen.Listeners.LoggingListener;
 import skademaskinen.Listeners.ModalListener;
 import skademaskinen.Listeners.SlashCommandListener;
 
@@ -37,11 +39,14 @@ public class Bot implements Loggable{
     public Bot(String token){
         try{
             config = new Config();
-            jda = JDABuilder.createDefault(config.get("token")).build();
+            jda = JDABuilder.createDefault(config.get("token"))
+                .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.GUILD_MESSAGES)
+                .build();
             jda.addEventListener(new SlashCommandListener());
             jda.addEventListener(new ModalListener());
             jda.addEventListener(new ButtonListener());
             jda.addEventListener(new AutoCompleteListener());
+            jda.addEventListener(new LoggingListener());
             jda.updateCommands().addCommands(commands).queue();
             shell = new Shell();
             BattleNetAPI.init(token);

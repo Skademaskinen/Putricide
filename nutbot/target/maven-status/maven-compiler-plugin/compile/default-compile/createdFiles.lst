@@ -6,6 +6,7 @@ skademaskinen/Utils/Utils.class
 skademaskinen/Listeners/ButtonListener.class
 skademaskinen/Commands/Configure.class
 skademaskinen/Utils/Loggable.class
+skademaskinen/Listeners/LoggingListener.class
 skademaskinen/Utils/Shell.class
 skademaskinen/Utils/Config.class
 skademaskinen/WorldOfWarcraft/Character.class

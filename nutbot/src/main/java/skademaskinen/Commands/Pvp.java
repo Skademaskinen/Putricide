@@ -70,8 +70,8 @@ public class Pvp extends Raid {
                     .setPlaceholder("Your character name")
                     .build();
                 TextInput server = TextInput.create("server", "Character server", TextInputStyle.SHORT)
-                    .setPlaceholder("Your character server, example: "+Bot.getConfig().get("guildServer"))
-                    .setValue(Bot.getConfig().get("guildServer"))
+                    .setPlaceholder("Your character server, example: "+Bot.getConfig().get("guild:realm"))
+                    .setValue(Bot.getConfig().get("guild:realm"))
                     .build();
                 TextInput role = TextInput.create("role", "Your role", TextInputStyle.SHORT)
                     .setPlaceholder("Healer, Tank, Ranged Damage or Melee Damage")
@@ -168,7 +168,7 @@ public class Pvp extends Raid {
         switch(event.getSubcommandName()){
             case "add":
                 result = event.getOption("server") == null ? 
-                    add(event.getOption("user").getAsUser(), event.getOption("name").getAsString(), event.getOption("role").getAsString(), Bot.getConfig().get("guildServer")) :
+                    add(event.getOption("user").getAsUser(), event.getOption("name").getAsString(), event.getOption("role").getAsString(), Bot.getConfig().get("guild:realm")) :
                     add(event.getOption("user").getAsUser(), event.getOption("name").getAsString(), event.getOption("role").getAsString(), event.getOption("server").getAsString());
 
                 break;

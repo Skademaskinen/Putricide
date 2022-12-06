@@ -98,7 +98,7 @@ public class BattleNetAPI {
 
     public static JSONObject getGuildMemberList() {
         if(guildData != null) return guildData;
-        guildData = executeSubRequest("https://eu.api.blizzard.com/data/wow/guild/"+Bot.getConfig().get("guildServer").toLowerCase().replace(" ", "-")+"/"+Bot.getConfig().get("guildName").toLowerCase().replace(" ", "-")+"/roster?namespace=profile-eu&locale=en_GB");
+        guildData = executeSubRequest("https://eu.api.blizzard.com/data/wow/guild/"+Bot.getConfig().get("guild:realm").toLowerCase().replace(" ", "-")+"/"+Bot.getConfig().get("guild:name").toLowerCase().replace(" ", "-")+"/roster?namespace=profile-eu&locale=en_GB");
         return guildData;
     }
 }
