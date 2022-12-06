@@ -13,7 +13,8 @@ import skademaskinen.Utils.Shell;
 public class BattleNetAPI {
     private static HttpClient httpClient = HttpClients.createDefault();
     private static String token;
-    private static JSONObject classData = null;
+    private static JSONObject realmData = null;
+    private static JSONObject guildData = null;
 
     public Character getCharacter(String name, String realm){
         return new Character(name, realm);
@@ -54,9 +55,10 @@ public class BattleNetAPI {
         return false;
     }
 
-    public static JSONObject getClassData(){
-        if(classData != null) return classData;
-        return executeSubRequest("https://eu.api.blizzard.com/data/wow/realm/index?namespace=dynamic-eu&locale=en_GB");
+    public static JSONObject getRealmData(){
+        if(realmData != null) return realmData;
+        realmData = executeSubRequest("https://eu.api.blizzard.com/data/wow/realm/index?namespace=dynamic-eu&locale=en_GB");
+        return realmData;
     }
 
     public static JSONObject executeSubRequest(String url){
@@ -92,5 +94,11 @@ public class BattleNetAPI {
 
         return null;
 
+    }
+
+    public static JSONObject getGuildMemberList() {
+        if(guildData != null) return guildData;
+        guildData = executeSubRequest("https://eu.api.blizzard.com/data/wow/guild/"+Bot.getConfig().get("guildServer").toLowerCase().replace(" ", "-")+"/"+Bot.getConfig().get("guildName").toLowerCase().replace(" ", "-")+"/roster?namespace=profile-eu&locale=en_GB");
+        return guildData;
     }
 }

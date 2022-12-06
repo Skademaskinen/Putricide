@@ -45,7 +45,7 @@ public class Raid implements Command {
         SlashCommandData command = Commands.slash(Raid.class.getSimpleName().toLowerCase(), "Admin command: Handle the raid team");
         SubcommandData add = new SubcommandData("add", "Add a raider to the raid team manually");
         OptionData raider = new OptionData(OptionType.USER, "raider", "Mention of the raider", true);
-        OptionData name = new OptionData(OptionType.STRING, "name", "Character name", true);
+        OptionData name = new OptionData(OptionType.STRING, "name", "Character name", true, true);
         OptionData server = new OptionData(OptionType.STRING, "server", "Character server", false, true);
         OptionData role = new OptionData(OptionType.STRING, "role", "Character role", true, true);
         add.addOptions(raider,name,role,server);
@@ -108,7 +108,7 @@ public class Raid implements Command {
         switch(event.getSubcommandName()){
             case "add":
                 result = event.getOption("server") == null ? 
-                    add(event.getOption("raider").getAsUser(), event.getOption("name").getAsString(), event.getOption("role").getAsString(), "argent-dawn") :
+                    add(event.getOption("raider").getAsUser(), event.getOption("name").getAsString(), event.getOption("role").getAsString(), Bot.getConfig().get("guildServer")) :
                     add(event.getOption("raider").getAsUser(), event.getOption("name").getAsString(), event.getOption("role").getAsString(), event.getOption("server").getAsString());
                 
                 break;
@@ -166,8 +166,8 @@ public class Raid implements Command {
                     .setPlaceholder("Your character name")
                     .build();
                 TextInput server = TextInput.create("server", "Character server", TextInputStyle.SHORT)
-                    .setPlaceholder("Your character server, example: argent-dawn")
-                    .setValue("argent-dawn")
+                    .setPlaceholder("Your character server, example: "+Bot.getConfig().get("guildServer"))
+                    .setValue(Bot.getConfig().get("guildServer"))
                     .build();
                 TextInput role = TextInput.create("role", "Your role", TextInputStyle.SHORT)
                     .setPlaceholder("Healer, Tank, Ranged Damage or Melee Damage")
@@ -278,14 +278,23 @@ public class Raid implements Command {
                     .map(role -> new Choice(role, role))
                     .collect(Collectors.toList());
             case "server":
-                JSONObject classJSON = BattleNetAPI.getClassData();
+                JSONObject serverJSON = BattleNetAPI.getRealmData();
                 List<String> servers = new ArrayList<>();
-                for(Object object : classJSON.getJSONArray("realms")){
+                for(Object object : serverJSON.getJSONArray("realms")){
                     servers.add(((JSONObject) object).getString("name"));
                 }
                 return Stream.of(servers.toArray(new String[0]))
                     .filter(server -> server.toLowerCase().startsWith(event.getFocusedOption().getValue().toLowerCase()))
                     .map(server -> new Choice(server, server))
+                    .limit(25)
+                    .collect(Collectors.toList());
+            case "name":
+                JSONObject guildJSON = BattleNetAPI.getGuildMemberList();
+                List<String> members = new ArrayList<>();
+                for(Object object : guildJSON.getJSONArray("members")) members.add(((JSONObject) object).getJSONObject("character").getString("name"));
+                return Stream.of(members.toArray(new String[0]))
+                    .filter(member -> member.toLowerCase().startsWith(event.getFocusedOption().getValue().toLowerCase()))
+                    .map(member -> new Choice(member, member))
                     .limit(25)
                     .collect(Collectors.toList());
             default:
