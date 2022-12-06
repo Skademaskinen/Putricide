@@ -5,6 +5,7 @@ import org.jline.reader.LineReaderBuilder;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import skademaskinen.Bot;
 
 /**
@@ -184,6 +185,17 @@ public class Shell implements Runnable {
             println("\t"+red(element.toString()));
         }
         Bot.getJda().getGuildById(Bot.getConfig().get("guild:id")).getTextChannelById(Bot.getConfig().get("log:channel")).sendMessage(message+"```").queue();
+    }
+
+    /**
+     * This channel checks if the shell is currently configured to be in a specific channel
+     * @param guild The guild being checked for
+     * @param channel The channel being checked
+     * @return
+     */
+    public boolean isInChannel(Guild guild, MessageChannelUnion channel) {
+        if(guild.equals(this.guild) && channel.asTextChannel().equals(this.channel)) return true;
+        return false;
     }
 
 }

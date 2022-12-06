@@ -61,7 +61,8 @@ public class Raid implements Command {
         remove.addOptions(raider);
         SubcommandData update = new SubcommandData("update", "Update the raid team message");
         SubcommandData form = new SubcommandData("form", "Create a raid team application form");
-        command.addSubcommands(add,remove,update,form);
+        SubcommandData configure = new SubcommandData("configure", "Configure the requirements for the raid team");
+        command.addSubcommands(add,remove,update,form, configure);
         return command;
     }
 
@@ -103,7 +104,7 @@ public class Raid implements Command {
      */
     public Raid(ModalInteractionEvent event){
         defer = true;
-        shouldEphemeral = false;
+        shouldEphemeral = event.getModalId().split("::")[1].equals("configure");
         requiresAdmin = false;
     }
 
@@ -120,6 +121,9 @@ public class Raid implements Command {
                 break;
             case "form":
                 shouldEphemeral = false;
+                break;
+            case "configure":
+                defer = false;
                 break;
         }
     }
@@ -148,6 +152,10 @@ public class Raid implements Command {
                 break;
             case "form":
                 result = form();
+                break;
+            case "configure":
+                result = configureCommand(event);
+                break;
         }                
         if(result == null){
             success = false;
@@ -253,6 +261,7 @@ public class Raid implements Command {
 
     @Override
     public Object ModalExecute(ModalInteractionEvent event) {
+        if(event.getModalId().split("::")[1].equals("configure")) return configureModal(event);
         String name = event.getValue("name").getAsString();
         String server = event.getValue("server").getAsString().toLowerCase().replace(" ", "-");
         String role = event.getValue("role").getAsString();
@@ -313,6 +322,72 @@ public class Raid implements Command {
         log(success, new String[]{name+", "+server+", "+role});
         return builder.build();
     }
+    /**
+     * This method runs the configure modal
+     * @param event The object containing information about the event
+     * @return A response to be shown in discord
+     */
+    protected Object configureModal(ModalInteractionEvent event) {
+        String className = this.getClass().getSimpleName().toLowerCase();
+        String[] entries = event.getValues().get(0).getAsString().split("\n");
+        for(String entry : entries){
+            String key = entry.split(": ")[0];
+            String value = entry.split(": ")[1];
+            String configKey;
+            switch(key){
+                case "Filled Roles":
+                    configKey = className+":filled";
+                    break;
+                case "Preferred Classes":
+                    configKey = className+":preferred";
+                    break;
+                case "Needed Roles":
+                    configKey = className+":needed";
+                    break;
+                case "Minimum Item Level":
+                    configKey = className+":ilvl";
+                    break;
+                case "Channel ID":
+                    configKey = className+":channel";
+                    break;
+                case "Message ID":
+                    configKey = className+":message";
+                    break;
+                default:
+                    return "Error, the configuration option: "+key+" is invalid!";
+            }
+            Bot.getConfig().set(configKey, value);
+        }
+        Bot.getConfig().write();
+        return "Succesfully configured the "+className+" team";
+    }
+
+    /**
+     * This method is run when a slash command subcommand has the configure command.
+     * @param event The object containing a lot of information about a slash command event
+     * @return A response to be shown in discord
+     */
+    protected Object configureCommand(SlashCommandInteractionEvent event){
+        String className = this.getClass().getSimpleName().toLowerCase();
+        String filled = Bot.getConfig().get(className+":"+"filled");
+        String preferred = Bot.getConfig().get(className+":"+"preferred");
+        String needed = Bot.getConfig().get(className+":"+"needed");
+        String ilvl = Bot.getConfig().get(className+":"+"ilvl");
+        String channel = Bot.getConfig().get(className+":"+"channel");
+        String message = Bot.getConfig().get(className+":"+"message");
+        String value = "Filled Roles: "+filled+"\n";
+        value+="Preferred Classes: "+preferred+"\n";
+        value+="Needed Roles: "+needed+"\n";
+        value+="Minimum Item Level: "+ilvl+"\n";
+        value+="Channel ID: "+channel+"\n";
+        value+="Message ID: "+message;
+        TextInput input = TextInput.create("input", "Filled, preferred and needed has to be comma seperated", TextInputStyle.PARAGRAPH)
+            .setValue(value)
+            .build();
+        return Modal.create(buildSubId("configure", null), "Configure "+className+" options").addActionRow(input).build();
+
+    }
+
     @Override
     public List<Choice> AutoComplete(CommandAutoCompleteInteractionEvent event) {
         switch(event.getFocusedOption().getName()){

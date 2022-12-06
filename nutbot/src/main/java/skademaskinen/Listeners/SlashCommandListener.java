@@ -2,6 +2,7 @@ package skademaskinen.Listeners;
 
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.internal.interactions.modal.ModalImpl;
@@ -42,7 +43,7 @@ public class SlashCommandListener extends ListenerAdapter{
                 command = new Roll();
                 break;
             case "configure":
-                command = new Configure();
+                command = new Configure(event);
                 break;
             case "raid":
                 command = new Raid(event);
@@ -82,6 +83,13 @@ public class SlashCommandListener extends ListenerAdapter{
         }
         else{
             Bot.replyToEvent(event.getHook(), replyContent, command.getActionRows());
+        }
+    }
+
+    @Override
+    public void onMessageReceived(MessageReceivedEvent event) {
+        if(Bot.getShell().isInChannel(event.getGuild(), event.getChannel())){
+            Shell.println(Shell.cyan(event.getMember().getUser().getAsTag())+": \n"+event.getMessage().getContentDisplay());
         }
     }
 }

@@ -52,7 +52,7 @@ public class Bot implements Loggable{
         try{
             config = new Config();
             jda = JDABuilder.createDefault(config.get("token"))
-                .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.GUILD_MESSAGES)
+                .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT)
                 .build();
             jda.addEventListener(new SlashCommandListener());
             jda.addEventListener(new ModalListener());
