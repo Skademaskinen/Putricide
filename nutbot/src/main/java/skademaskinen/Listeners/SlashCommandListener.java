@@ -15,8 +15,15 @@ import skademaskinen.Commands.Version;
 import skademaskinen.Utils.Shell;
 import skademaskinen.Utils.Utils;
 
+/**
+ * This class listens for slash commands and handles them accordingly
+ */
 public class SlashCommandListener extends ListenerAdapter{
     
+    /**
+     * This method is the listener for slash commands, it initializes a command object for the given type of command, executes that command and replies the result of that command in discord
+     * @param event This is the event object specified in the JDA library
+     */
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         Shell.println(Shell.green("Slash command event:  "));
         Shell.println(Shell.yellow("Timestamp:     ")+Utils.timestamp());

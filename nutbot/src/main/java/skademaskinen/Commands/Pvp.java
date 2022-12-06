@@ -29,8 +29,12 @@ import skademaskinen.WorldOfWarcraft.BattleNetAPI;
 import skademaskinen.WorldOfWarcraft.Character;
 import skademaskinen.WorldOfWarcraft.PvpTeam;
 
-public class Pvp extends Raid {
+public class Pvp extends Raid {    
     
+    /**
+    * The method to configure a given command, this must be implemented as a static method of each command
+    * @return All command data to register a command in discord
+    */
     public static CommandData configure(){
         SlashCommandData command = Commands.slash(Pvp.class.getSimpleName().toLowerCase(), "Admin command: Handle the pvp team");
         SubcommandData add = new SubcommandData("add", "Add a user to the pvp team manually");
@@ -188,6 +192,15 @@ public class Pvp extends Raid {
         success = true;
         return result;
     }
+
+    /**
+     * This is the method to add a user to the pvp team
+     * @param user The Discord user to be added
+     * @param name The name of the discord user's wow character
+     * @param role The role ingame this character has
+     * @param server The server this character is on
+     * @return A message showing the result of this command
+     */
     private String add(User user, String name, String role, String server){
         success = PvpTeam.add(user,name,role,server);
         if(success){
@@ -197,6 +210,12 @@ public class Pvp extends Raid {
             return "Error, failed to add member to raid team!";
         }
     }
+
+    /**
+     * This is the method to remove a user from the raid team
+     * @param user The Discord user to be removed
+     * @return A message showing the result of the command
+     */
     private String remove(User user){
         PvpTeam.remove(user);
         return "Successfully removed user from raid team!";

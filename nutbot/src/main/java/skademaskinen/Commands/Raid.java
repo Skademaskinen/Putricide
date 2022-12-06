@@ -35,6 +35,9 @@ import skademaskinen.WorldOfWarcraft.BattleNetAPI;
 import skademaskinen.WorldOfWarcraft.Character;
 import skademaskinen.WorldOfWarcraft.RaidTeam;
 
+/**
+ * This class handles the raid commands to manage the raid team
+ */
 public class Raid implements Command {
     protected boolean success = false;
     private boolean shouldEphemeral = true;
@@ -42,6 +45,10 @@ public class Raid implements Command {
     private boolean defer = true;
     private boolean requiresAdmin = true;
 
+    /**
+     * The method to configure a given command, this must be implemented as a static method of each command
+     * @return All command data to register a command in discord
+     */
     public static CommandData configure(){
         SlashCommandData command = Commands.slash(Raid.class.getSimpleName().toLowerCase(), "Admin command: Handle the raid team");
         SubcommandData add = new SubcommandData("add", "Add a raider to the raid team manually");
@@ -77,6 +84,10 @@ public class Raid implements Command {
         return defer;
     }
 
+    /**
+     * This is the constructor for a button interaction event
+     * @param event The button interaction event
+     */
     public Raid(ButtonInteractionEvent event) {
         defer = !event.getComponentId().split("::")[1].equals("apply");
         shouldEphemeral = !event.getComponentId().split("::")[1].equals("apply");
@@ -86,12 +97,20 @@ public class Raid implements Command {
         }
     }
 
+    /**
+     * This is the constructor for the modal interaction event
+     * @param event The modal interaction event
+     */
     public Raid(ModalInteractionEvent event){
         defer = true;
         shouldEphemeral = false;
         requiresAdmin = false;
     }
 
+    /**
+     * This is the constructor for a slash command interaction event
+     * @param event This is the slash command interaction event
+     */
     public Raid(SlashCommandInteractionEvent event){
         switch(event.getSubcommandName()){
             case "add":
@@ -105,7 +124,10 @@ public class Raid implements Command {
         }
     }
 
-    
+    /**
+     * This is the constructor for a auto complete interaction event
+     * @param event This is the auto complete interaction event
+     */
     public Raid(CommandAutoCompleteInteractionEvent event) {
     }
 
@@ -135,6 +157,14 @@ public class Raid implements Command {
         return result;
     }
 
+    /**
+     * This is the method to add a user to the raid team
+     * @param user The Discord user to be added
+     * @param name The name of the discord user's wow character
+     * @param role The role ingame this character has
+     * @param server The server this character is on
+     * @return A message showing the result of this command
+     */
     private String add(User user, String name, String role, String server){
         success = RaidTeam.add(user,name,role,server);
         if(success){
@@ -145,12 +175,20 @@ public class Raid implements Command {
         }
     }
 
+    /**
+     * This is the method to remove a user from the raid team
+     * @param user The Discord user to be removed
+     * @return A message showing the result of the command
+     */
     private String remove(User user){
         RaidTeam.remove(user);
         return "Successfully removed user from raid team!";
     }
 
-
+    /**
+     * This method returns a message that can spawn a modal to apply to the raid team
+     * @return THe message embed to be used to apply to the raid team
+     */
     protected MessageEmbed form(){
         EmbedBuilder builder = new EmbedBuilder();
         String guildName = Bot.getConfig().get("guild:name");
@@ -159,9 +197,10 @@ public class Raid implements Command {
         if(Bot.getConfig().get("guild:image") != null){
             builder.setImage(Bot.getConfig().get("guild:image"));
         }
-        actionRows.add(ActionRow.of(Button.primary(buildButtonId("apply", null), "Apply here!")));
+        actionRows.add(ActionRow.of(Button.primary(buildSubId("apply", null), "Apply here!")));
         return builder.build();
     }
+
 
     @Override
     public Object ButtonExecute(ButtonInteractionEvent event) {
