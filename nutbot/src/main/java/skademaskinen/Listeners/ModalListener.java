@@ -33,7 +33,7 @@ public class ModalListener extends ListenerAdapter{
         Command command;
         switch(event.getModalId().split("::")[0].toLowerCase()){
             case "configure":
-                command = new Configure();
+                command = new Configure(event);
                 break;
             case "raid":
                 command = new Raid(event);

@@ -47,7 +47,8 @@ public class Pvp extends Raid {
         remove.addOptions(raider);
         SubcommandData update = new SubcommandData("update", "Update the pvp team message");
         SubcommandData form = new SubcommandData("form", "Create a pvp team application form");
-        command.addSubcommands(add,remove,update,form);
+        SubcommandData configure = new SubcommandData("configure", "Configure the requirements for the raid team");
+        command.addSubcommands(add,remove,update,form, configure);
         return command;
     }
 
@@ -110,6 +111,7 @@ public class Pvp extends Raid {
     }
     @Override
     public Object ModalExecute(ModalInteractionEvent event) {
+        if(event.getModalId().split("::")[1].equals("configure")) return configureModal(event);
         String name = event.getValue("name").getAsString();
         String server = event.getValue("server").getAsString().toLowerCase().replace(" ", "-");
         String role = event.getValue("role").getAsString();
@@ -184,6 +186,10 @@ public class Pvp extends Raid {
                 break;
             case "form":
                 result = form();
+                break;
+            case "configure":
+                result = configureCommand(event);
+                break;
         }                
         if(result == null){
             success = false;

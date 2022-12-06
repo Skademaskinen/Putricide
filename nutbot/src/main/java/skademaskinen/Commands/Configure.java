@@ -1,7 +1,6 @@
 package skademaskinen.Commands;
 
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.List;
 
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
@@ -13,14 +12,31 @@ import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import skademaskinen.Bot;
+import skademaskinen.Utils.Config.Entry;
 
+/**
+ * This command can edit the configuration of the bot from within discord
+ */
 public class Configure implements Command {
     private boolean success = false;
+    private boolean defer = true;
 
+    /**
+     * The method to configure a given command, this must be implemented as a static method of each command
+     * @return All command data to register a command in discord
+     */
     public static CommandData configure() {
         SlashCommandData command = Commands.slash(Configure.class.getSimpleName().toLowerCase(), "Edit the bot configuration");
 
         return command;
+    }
+
+    public Configure(SlashCommandInteractionEvent event) {
+        defer = false;
+    }
+
+    public Configure(ModalInteractionEvent event) {
+        defer = true;
     }
 
     @Override
@@ -30,7 +46,7 @@ public class Configure implements Command {
 
     @Override
     public boolean shouldDefer() {
-        return false;
+        return defer;
     }
 
     @Override
@@ -41,19 +57,17 @@ public class Configure implements Command {
             String value = option.split("=").length == 2 ? option.split("=")[1] : "";
             Bot.getConfig().set(key, value);
         }
+        Bot.getConfig().write();
         success = true;
         return "Successfully updated configuration";
     }
 
     @Override
     public Object run(SlashCommandInteractionEvent event) {
-        if(!event.getMember().hasPermission(Permission.ADMINISTRATOR)){
-            return "Error, you are not an administrator!";
-        }
-        Map<String, String> config = Bot.getConfig().getConfig();
+        List<Entry> config = Bot.getConfig().getConfig();
         TextInput.Builder builder = TextInput.create("config", "Edit configuration", TextInputStyle.PARAGRAPH);
         String content = "";
-        for(Entry<String, String> entry : config.entrySet()){
+        for(Entry entry : config){
             content+= entry.getKey()+"="+entry.getValue()+"\n";
         }
         builder.setValue(content);
