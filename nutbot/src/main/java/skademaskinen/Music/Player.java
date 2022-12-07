@@ -1,6 +1,7 @@
 package skademaskinen.Music;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CyclicBarrier;
 
@@ -126,6 +127,42 @@ public class Player {
             Shell.exceptionHandler(e);
         }
         return handler.getResult();
+    }
+
+    public List<AudioTrack> getQueue() {
+        return scheduler.getQueue();
+    }
+
+    public AudioTrack skip() {
+        AudioTrack track;
+        if(getQueue().size() > 0) track = scheduler.getNext();
+        else track = null;
+        player.stopTrack();
+        return track;
+    }
+
+    public AudioTrack put(int index, String searchTerm) {
+        barrier = new CyclicBarrier(2);
+        ResultHandler handler = new ResultHandler(this, index);
+        playerManager.loadItem(searchTerm, handler);
+        try {
+            barrier.await();
+        } catch (Exception e) {
+            Shell.exceptionHandler(e);
+        }
+        switch(handler.getType()){
+            case "playlist":
+            case "single":
+                return handler.getTrack();
+            case "fail":
+            default:
+                return null;
+        }
+    }
+
+    public void disconnect(Guild guild) {
+        audioManager.closeAudioConnection();
+        players.remove(guild);
     }
     
 

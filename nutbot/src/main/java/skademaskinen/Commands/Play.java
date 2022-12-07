@@ -24,6 +24,7 @@ public class Play implements Command{
         SlashCommandData command = Commands.slash(Play.class.getSimpleName().toLowerCase(), "Play a track or playlist on the musicbot");
         command.addOption(OptionType.STRING, "track", "URL or search term", true, true);
         command.addOption(OptionType.BOOLEAN, "soundcloud", "Should the bot search soundcloud", false);
+        command.addOption(OptionType.BOOLEAN, "top", "Should this song be placed at the top of the queue?", false);
         return command;
     }
 
@@ -64,7 +65,9 @@ public class Play implements Command{
             }
 
         }
-        AudioTrack track = Player.getPlayer(event.getGuild()).enqueue(searchTerm);
+        AudioTrack track;
+        if(event.getOption("top") != null && event.getOption("top").getAsBoolean()) track = Player.getPlayer(event.getGuild()).put(0, searchTerm);
+        else track = Player.getPlayer(event.getGuild()).enqueue(searchTerm);
         if(track == null) return "Error, failed to load track!";
         EmbedBuilder builder = new EmbedBuilder();
         builder.setTitle("Successfully queued track!");

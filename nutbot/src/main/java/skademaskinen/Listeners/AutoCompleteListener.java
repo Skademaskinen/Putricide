@@ -1,13 +1,13 @@
 package skademaskinen.Listeners;
 
+import java.lang.reflect.Constructor;
 import java.util.List;
 
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import skademaskinen.Commands.Command;
-import skademaskinen.Commands.Play;
-import skademaskinen.Commands.Pvp;
-import skademaskinen.Commands.Raid;
+import skademaskinen.Utils.Shell;
+import skademaskinen.Utils.Utils;
 import net.dv8tion.jda.api.interactions.commands.Command.Choice;
 
 /**
@@ -21,22 +21,18 @@ public class AutoCompleteListener extends ListenerAdapter {
      */
     @Override
     public void onCommandAutoCompleteInteraction(CommandAutoCompleteInteractionEvent event) {
-        Command command;
-        switch(event.getName()){
-            case "raid":
-                command = new Raid(event);
-                break;
-            case "pvp":
-                command = new Pvp(event);
-                break;
-            case "play":
-                command = new Play(event);
-                break;
-            default:
-                return;
+        try{
+
+            Class<?> CommandClass = Class.forName("skademaskinen.Commands."+Utils.capitalize(event.getName()));
+            Constructor<?> constructor = CommandClass.getConstructor(CommandAutoCompleteInteractionEvent.class);
+            Command command = (Command) constructor.newInstance(new Object[]{event});
+            
+            List<Choice> choices = command.AutoComplete(event);
+            if(choices == null) return;
+            event.replyChoices(choices).queue();
         }
-        List<Choice> choices = command.AutoComplete(event);
-        if(choices == null) return;
-        event.replyChoices(choices).queue();
+        catch(Exception e){
+            Shell.exceptionHandler(e);
+        }
     }
 }

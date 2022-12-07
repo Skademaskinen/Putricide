@@ -118,4 +118,5 @@ public interface Command extends Loggable {
     public static CommandData configure(){
         return null;
     }
+
 }

@@ -43,6 +43,9 @@ public class Roll implements Command{
         return false;
     }
 
+    public Roll(SlashCommandInteractionEvent event) {
+    }
+
     @Override
     public MessageEmbed run(SlashCommandInteractionEvent event) {
         EmbedBuilder builder = new EmbedBuilder();

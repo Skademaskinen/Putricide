@@ -18,11 +18,21 @@ public class ResultHandler implements AudioLoadResultHandler {
     private AudioTrack track;
     private AudioPlayer player;
     private Scheduler scheduler;
+    private boolean shouldPut;
+    private int index;
 
     public ResultHandler(Player player) {
         this.player = player.getPlayer();
         this.scheduler = player.getScheduler();
         this.barrier = player.getBarrier();
+    }
+
+    public ResultHandler(Player player, int index) {
+        this.player = player.getPlayer();
+        this.scheduler = player.getScheduler();
+        this.barrier = player.getBarrier();
+        this.shouldPut = true;
+        this.index = index;
     }
 
     @Override
@@ -53,7 +63,8 @@ public class ResultHandler implements AudioLoadResultHandler {
 
     @Override
     public void trackLoaded(AudioTrack track){
-        if(player.getPlayingTrack() != null){
+        if(shouldPut) scheduler.getQueue().add(index, track);
+        else if(player.getPlayingTrack() != null){
             scheduler.enqueue(track);
         }
         else{

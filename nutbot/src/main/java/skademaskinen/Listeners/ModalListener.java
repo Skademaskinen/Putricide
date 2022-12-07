@@ -1,14 +1,13 @@
 package skademaskinen.Listeners;
 
+import java.lang.reflect.Constructor;
+
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 import skademaskinen.Bot;
 import skademaskinen.Commands.Command;
-import skademaskinen.Commands.Configure;
-import skademaskinen.Commands.Pvp;
-import skademaskinen.Commands.Raid;
 import skademaskinen.Utils.Shell;
 import skademaskinen.Utils.Utils;
 
@@ -29,46 +28,39 @@ public class ModalListener extends ListenerAdapter{
         Shell.println(Shell.yellow("Modal ID:     ")+event.getModalId());
         for(ModalMapping mapping : event.getValues()) Shell.println(Shell.yellow("value("+mapping.getId()+"): ")+mapping.getAsString());
 
-
-        Command command;
-        switch(event.getModalId().split("::")[0].toLowerCase()){
-            case "configure":
-                command = new Configure(event);
-                break;
-            case "raid":
-                command = new Raid(event);
-                break;
-            case "pvp":
-                command = new Pvp(event);
-                break;
-            default:
-                event.reply("Error, invalid command").queue();
-                return;
-        }
-
-        if(command.requiresAdmin() && !event.getMember().hasPermission(Permission.ADMINISTRATOR)){
-            event.reply("Error, you are not an administrator!").setEphemeral(true).queue();
-            return;
-        }
-
-        if(command.shouldDefer()){
-            event.deferReply(command.isEphemeral()).queue();
-
-        }
-        Object replyContent;
         try{
-            replyContent = command.ModalExecute(event);
+
+            Class<?> CommandClass = Class.forName("skademaskinen.Commands."+Utils.capitalize(event.getModalId().split("::")[0]));
+            Constructor<?> constructor = CommandClass.getConstructor(ModalInteractionEvent.class);
+            Command command = (Command) constructor.newInstance(new Object[]{event});
+            
+            if(command.requiresAdmin() && !event.getMember().hasPermission(Permission.ADMINISTRATOR)){
+                event.reply("Error, you are not an administrator!").setEphemeral(true).queue();
+                return;
+            }
+            
+            if(command.shouldDefer()){
+                event.deferReply(command.isEphemeral()).queue();
+                
+            }
+            Object replyContent;
+            try{
+                replyContent = command.ModalExecute(event);
+            }
+            catch(Exception e){
+                Shell.exceptionHandler(e);
+                if(command.shouldDefer()){
+                    event.getHook().editOriginal(e.getMessage()).queue();
+                }
+                else{
+                    event.reply(e.getMessage()).queue();
+                }
+                return;
+            }
+            Bot.replyToEvent(event.getHook(), replyContent, command.getActionRows());
         }
         catch(Exception e){
             Shell.exceptionHandler(e);
-            if(command.shouldDefer()){
-                event.getHook().editOriginal(e.getMessage()).queue();
-            }
-            else{
-                event.reply(e.getMessage()).queue();
-            }
-            return;
         }
-        Bot.replyToEvent(event.getHook(), replyContent, command.getActionRows());
     }
 }

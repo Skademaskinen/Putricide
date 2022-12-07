@@ -28,4 +28,12 @@ public class Scheduler extends AudioEventAdapter {
     public void enqueue(AudioTrack track) {
         queue.add(track);
     }
+
+    public List<AudioTrack> getQueue() {
+        return queue;
+    }
+
+    public AudioTrack getNext() {
+        return queue.get(0);
+    }
 }
