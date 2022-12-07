@@ -24,6 +24,9 @@ public class Version implements Command {
         return "```Refactoring work, reimplemented the following features: Version, Roll\nImplemented shell\nreimplemented raid team manager```";
     }
 
+    public Version(SlashCommandInteractionEvent event) {
+    }
+
     public boolean isSuccess(){
         return success;
     }

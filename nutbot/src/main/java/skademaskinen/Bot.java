@@ -1,5 +1,9 @@
 package skademaskinen;
 
+import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.json.JSONObject;
@@ -19,7 +23,6 @@ import skademaskinen.Utils.Shell;
 import skademaskinen.WorldOfWarcraft.BattleNetAPI;
 import skademaskinen.WorldOfWarcraft.PvpTeam;
 import skademaskinen.WorldOfWarcraft.RaidTeam;
-import skademaskinen.Commands.*;
 import skademaskinen.Listeners.AutoCompleteListener;
 import skademaskinen.Listeners.ButtonListener;
 import skademaskinen.Listeners.LoggingListener;
@@ -34,7 +37,7 @@ public class Bot implements Loggable{
     private static Config config;
     private static JDA jda;
     private static Shell shell;
-    private static CommandData[] commands = {Version.configure(), Roll.configure(), Configure.configure(), Raid.configure(), Pvp.configure()};
+    private static List<CommandData> commands;
     /**
      * The main method of the software, this method initializes everything and runs it.
      * @param args command line arguments that are passed after compilation, args[0] is always the access token for blizzard servers
@@ -42,6 +45,27 @@ public class Bot implements Loggable{
     public static void main(String[] args) {
         String accessToken = new JSONObject(args[0]).getString("access_token");
         new Bot(accessToken);
+    }
+
+    private static List<CommandData> generateCommands() {
+        File[] files = new File("nutbot/src/main/java/skademaskinen/Commands").listFiles();
+        List<CommandData> result = new ArrayList<>();
+        for(File file : files){
+            if(file.getName().equals("Command.java")) continue;
+            try {
+                Class<?> commandClass = Class.forName("skademaskinen.Commands."+file.getName().replace(".java", ""));
+                Shell.println("Initializing command: "+ commandClass.getSimpleName());
+                Method method = commandClass.getMethod("configure");
+                result.add((CommandData) method.invoke(commandClass));
+            } 
+            catch (Exception e) {
+                Shell.exceptionHandler(e);
+                if(e.getClass().equals(InvocationTargetException.class)){
+                    Shell.exceptionHandler(((InvocationTargetException)e).getTargetException());
+                }
+            }
+        }
+        return result;
     }
 
     /**
@@ -59,10 +83,11 @@ public class Bot implements Loggable{
             jda.addEventListener(new ButtonListener());
             jda.addEventListener(new AutoCompleteListener());
             jda.addEventListener(new LoggingListener());
-            jda.updateCommands().addCommands(commands).queue();
             shell = new Shell();
             BattleNetAPI.init(token);
             jda.awaitReady();
+            commands = generateCommands();
+            jda.updateCommands().addCommands(commands).queue();
             RaidTeam.update();
             PvpTeam.update();
             //exceptionTester();

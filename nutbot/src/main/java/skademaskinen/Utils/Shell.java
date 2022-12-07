@@ -177,9 +177,9 @@ public class Shell implements Runnable {
      * This is the global exceptionhandler for the entire Bot software, it prints the stack trace above the prompt and sends it as a message to the configured log channel
      * @param e The exception to be logged
      */
-    public static void exceptionHandler(Exception e) {
-        String message = "```\n"+e.toString()+": "+e.getMessage();
-        println(yellow(e.toString()+": "+e.getMessage()));
+    public static void exceptionHandler(Throwable e) {
+        String message = "```\n"+e.toString();
+        println(yellow(e.toString()));
         for(StackTraceElement element : e.getStackTrace()){
             message+="\n\t"+element.toString();
             println("\t"+red(element.toString()));
