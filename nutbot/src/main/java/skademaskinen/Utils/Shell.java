@@ -4,7 +4,9 @@ import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import skademaskinen.Bot;
 
@@ -81,6 +83,14 @@ public class Shell implements Runnable {
                         println("Invalid arguments");
                     }
                     break;
+                case "cd":
+                    if(args.length == 2) cd(args[1]);
+                    else println("Invalid arguments");
+                    break;
+                case "ls":
+                    if(args.length == 2) ls(args[1]);
+                    else ls(guild != null ? guild.getName() : ".");
+                    break;
                 default:
                     println("Error, invalid command by ["+args[0]+"]");
                     break;
@@ -135,6 +145,38 @@ public class Shell implements Runnable {
                 else{
                     println("Too few arguments");
                 }
+        }
+    }
+
+    private void cd(String path){
+        String guildName = guild == null ? path.split("/")[0] : guild.getName();
+        String channelName = guild == null ? (path.split("/").length == 2 ? path.split("/")[1] : null) : path.split("/")[path.split("/").length-1];
+        if(channelName == null) this.channel = null;
+        for(Guild guild : Bot.getJda().getGuilds()){
+            if(guild.getName().equals(guildName)){
+                this.guild = guild;
+                break;
+            }
+        }
+        for(GuildChannel channel : this.guild.getChannels()){
+            if(channel.getName().equals(channelName)){
+                if(channel.getType().equals(ChannelType.TEXT)){
+                    this.channel = (TextChannel)channel;
+                }
+            }
+        }
+    }
+
+    private void ls(String path) {
+        if(path.equals(".")){
+            for(Guild guild : Bot.getJda().getGuilds()){
+                println(guild.getName());
+            }
+        }
+        else{
+            for(GuildChannel channel : Bot.getJda().getGuildsByName(path, false).get(0).getChannels()){
+                if(channel.getType().equals(ChannelType.TEXT)) println(channel.getName());
+            }
         }
     }
 
