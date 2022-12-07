@@ -8,7 +8,6 @@ import skademaskinen.Commands.Command;
 import skademaskinen.Commands.Play;
 import skademaskinen.Commands.Pvp;
 import skademaskinen.Commands.Raid;
-import skademaskinen.Utils.Shell;
 import net.dv8tion.jda.api.interactions.commands.Command.Choice;
 
 /**

@@ -14,9 +14,7 @@ import net.dv8tion.jda.api.interactions.commands.Command.Choice;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
-import skademaskinen.Bot;
 import skademaskinen.Music.Player;
-import skademaskinen.Utils.Shell;
 import skademaskinen.Utils.Utils;
 
 public class Play implements Command{

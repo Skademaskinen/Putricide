@@ -2,7 +2,6 @@ package skademaskinen.Music;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
