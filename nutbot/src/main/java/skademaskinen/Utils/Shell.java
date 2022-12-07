@@ -178,8 +178,8 @@ public class Shell implements Runnable {
      * @param e The exception to be logged
      */
     public static void exceptionHandler(Exception e) {
-        String message = "```\n"+e.toString()+": "+e.getMessage();
-        println(yellow(e.toString()+": "+e.getMessage()));
+        String message = "```\n"+e.toString();
+        println(yellow(e.toString()));
         for(StackTraceElement element : e.getStackTrace()){
             message+="\n\t"+element.toString();
             println("\t"+red(element.toString()));

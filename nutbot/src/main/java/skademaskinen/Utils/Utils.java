@@ -3,6 +3,8 @@ package skademaskinen.Utils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -94,5 +96,15 @@ public class Utils {
         }
         output = output.substring(0, output.length()-1);
         return output;
+    }
+
+    public static boolean isURLValid(String searchTerm) {
+        try{
+            new URL(searchTerm);
+            return true;
+        }
+        catch(MalformedURLException e){
+            return false;
+        }
     }
 }

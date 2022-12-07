@@ -34,7 +34,7 @@ public class Bot implements Loggable{
     private static Config config;
     private static JDA jda;
     private static Shell shell;
-    private static CommandData[] commands = {Version.configure(), Roll.configure(), Configure.configure(), Raid.configure(), Pvp.configure()};
+    private static CommandData[] commands = {Version.configure(), Roll.configure(), Configure.configure(), Raid.configure(), Pvp.configure(), Play.configure()};
     /**
      * The main method of the software, this method initializes everything and runs it.
      * @param args command line arguments that are passed after compilation, args[0] is always the access token for blizzard servers
