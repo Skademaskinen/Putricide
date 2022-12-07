@@ -15,6 +15,10 @@ public class Scheduler extends AudioEventAdapter {
     private List<AudioTrack> queue = new ArrayList<>();
     private Guild guild;
 
+    public Scheduler(Guild guild){
+        this.guild = guild;
+    }
+
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
         if(queue.size() > 0) player.playTrack(queue.remove(0));
         else guild.getAudioManager().closeAudioConnection();

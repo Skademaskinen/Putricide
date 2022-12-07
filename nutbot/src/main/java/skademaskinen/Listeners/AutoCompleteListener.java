@@ -5,8 +5,10 @@ import java.util.List;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import skademaskinen.Commands.Command;
+import skademaskinen.Commands.Play;
 import skademaskinen.Commands.Pvp;
 import skademaskinen.Commands.Raid;
+import skademaskinen.Utils.Shell;
 import net.dv8tion.jda.api.interactions.commands.Command.Choice;
 
 /**
@@ -28,10 +30,14 @@ public class AutoCompleteListener extends ListenerAdapter {
             case "pvp":
                 command = new Pvp(event);
                 break;
+            case "play":
+                command = new Play(event);
+                break;
             default:
                 return;
         }
         List<Choice> choices = command.AutoComplete(event);
+        if(choices == null) return;
         event.replyChoices(choices).queue();
     }
 }

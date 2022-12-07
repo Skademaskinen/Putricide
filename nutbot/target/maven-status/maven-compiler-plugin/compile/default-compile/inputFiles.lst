@@ -7,8 +7,8 @@
 /home/mast3r/git/nutbot/nutbot/src/main/java/skademaskinen/Commands/Roll.java
 /home/mast3r/git/nutbot/nutbot/src/main/java/skademaskinen/Listeners/ModalListener.java
 /home/mast3r/git/nutbot/nutbot/src/main/java/skademaskinen/Listeners/SlashCommandListener.java
-/home/mast3r/git/nutbot/nutbot/src/main/java/skademaskinen/Commands/Command.java
 /home/mast3r/git/nutbot/nutbot/src/main/java/skademaskinen/Commands/Raid.java
+/home/mast3r/git/nutbot/nutbot/src/main/java/skademaskinen/Commands/Command.java
 /home/mast3r/git/nutbot/nutbot/src/main/java/skademaskinen/Music/Player.java
 /home/mast3r/git/nutbot/nutbot/src/main/java/skademaskinen/Bot.java
 /home/mast3r/git/nutbot/nutbot/src/main/java/skademaskinen/Commands/Configure.java
@@ -16,9 +16,9 @@
 /home/mast3r/git/nutbot/nutbot/src/main/java/skademaskinen/Listeners/AutoCompleteListener.java
 /home/mast3r/git/nutbot/nutbot/src/main/java/skademaskinen/Utils/Config.java
 /home/mast3r/git/nutbot/nutbot/src/main/java/skademaskinen/Utils/Loggable.java
-/home/mast3r/git/nutbot/nutbot/src/main/java/skademaskinen/Music/ResultHandler.java
 /home/mast3r/git/nutbot/nutbot/src/main/java/skademaskinen/WorldOfWarcraft/Character.java
 /home/mast3r/git/nutbot/nutbot/src/main/java/skademaskinen/WorldOfWarcraft/RaidTeam.java
+/home/mast3r/git/nutbot/nutbot/src/main/java/skademaskinen/Music/ResultHandler.java
 /home/mast3r/git/nutbot/nutbot/src/main/java/skademaskinen/Commands/Pvp.java
 /home/mast3r/git/nutbot/nutbot/src/main/java/skademaskinen/Commands/Version.java
 /home/mast3r/git/nutbot/nutbot/src/main/java/skademaskinen/Utils/Shell.java
