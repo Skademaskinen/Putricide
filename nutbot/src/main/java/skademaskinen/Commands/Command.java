@@ -102,6 +102,13 @@ public interface Command extends Loggable {
         else return this.getClass().getSimpleName()+"::"+id;
     }
 
+    default public String getSubId(ButtonInteractionEvent event){
+        return event.getComponentId().split("::")[1];
+    }
+    default public String getSubId(ModalInteractionEvent event){
+        return event.getModalId().split("::")[1];
+    }
+
     /**
      * This method executes the auto complete handling function for a given event
      * @param event The auto complete interaction event, this object contains a lot of data about the event
