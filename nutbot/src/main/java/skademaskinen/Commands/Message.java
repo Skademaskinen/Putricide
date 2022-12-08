@@ -19,6 +19,7 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
+import skademaskinen.Bot;
 
 public class Message implements Command{
     private boolean success;
@@ -36,7 +37,15 @@ public class Message implements Command{
             .addOption(OptionType.STRING, "title", "title of the field", true)
             .addOption(OptionType.STRING, "description", "Description of the field", true)
             .addOption(OptionType.BOOLEAN, "inline", "Should the field be inline", false);
-        data.addSubcommands(create, clear, addfield);
+        SubcommandData title = new SubcommandData("settitle", "sets the title of the message")
+            .addOption(OptionType.STRING, "id", "The id of the message", true)
+            .addOption(OptionType.STRING, "title", "The title to be set");
+        SubcommandData description = new SubcommandData("setdescription", "sets the description of the message")
+            .addOption(OptionType.STRING, "id", "The id of the message", true)
+            .addOption(OptionType.STRING, "title", "The description to be set");
+        SubcommandData post = new SubcommandData("post", "Post the message in the announcements channel")
+            .addOption(OptionType.STRING, "id", "The id of the message", true);
+        data.addSubcommands(create, clear, addfield, title, description, post);
         return data;
     }
 
@@ -53,6 +62,9 @@ public class Message implements Command{
     public Message(ButtonInteractionEvent event){
         switch(getSubId(event)){
             case "addfield":
+            case "title":
+            case "description":
+            case "post":
                 defer = false;
         }
         isEphemeral = true;
@@ -84,11 +96,19 @@ public class Message implements Command{
     @Override
     public Object run(SlashCommandInteractionEvent event) {
         String id;
+        String title;
+        net.dv8tion.jda.api.entities.Message message;
+        EmbedBuilder builder;
+        String description;
+
         switch(event.getSubcommandName()){
             case "create":
                 actionRows.add(ActionRow.of(
-                    Button.secondary(buildSubId("clear", null), "clear"),
-                    Button.secondary(buildSubId("addfield", null), "Field")));
+                    Button.secondary(buildSubId("clear", null), "Clear"),
+                    Button.secondary(buildSubId("addfield", null), "Create Field"),
+                    Button.secondary(buildSubId("title", null), "Set Title"),
+                    Button.secondary(buildSubId("description", null), "Set Description"),
+                    Button.primary(buildSubId("post", null), "Post")));
                 return new EmbedBuilder().setTitle("init").build();
             case "clear":
                 id = event.getOption("id").getAsString();
@@ -96,14 +116,39 @@ public class Message implements Command{
                 return "cleared message";
             case "addfield":
                 id = event.getOption("id").getAsString();
-                String title = event.getOption("title").getAsString();
-                String description = event.getOption("description").getAsString();
+                title = event.getOption("title").getAsString();
+                description = event.getOption("description").getAsString();
                 boolean inline = event.getOption("inline") != null ? event.getOption("inline").getAsBoolean() : false;
-                net.dv8tion.jda.api.entities.Message message = event.getMessageChannel().getHistoryAround(id, 1).complete().getMessageById(id);
-                EmbedBuilder builder = reinit(message.getEmbeds().get(0));
+                message = event.getMessageChannel().getHistoryAround(id, 1).complete().getMessageById(id);
+                builder = reinit(message.getEmbeds().get(0));
                 builder.addField(title, description, inline);
                 message.editMessageEmbeds(builder.build()).queue();
                 return "Successfully added a field to the message";
+            case "settitle":
+                id = event.getOption("id").getAsString();
+                title = event.getOption("title").getAsString();
+                message = event.getMessageChannel().getHistoryAround(id, 1).complete().getMessageById(id);
+                builder = reinit(message.getEmbeds().get(0));
+                builder.setTitle(title);
+                message.editMessageEmbeds(builder.build()).queue();
+                return "Successfully set the title of the embed";
+            case "setdescription":
+                id = event.getOption("id").getAsString();
+                description = event.getOption("description").getAsString();
+                message = event.getMessageChannel().getHistoryAround(id, 1).complete().getMessageById(id);
+                builder = reinit(message.getEmbeds().get(0));
+                builder.setDescription(description);
+                message.editMessageEmbeds(builder.build()).queue();
+                return "Successfully set the title of the embed";
+            case "post":
+                id = event.getOption("id").getAsString();
+                message = event.getMessageChannel().getHistoryAround(id, 1).complete().getMessageById(id);
+                return Modal.create(buildSubId("post", message.getId()), "Are you sure?")
+                    .addActionRow(TextInput.create("confirmation", "Confirmation", TextInputStyle.SHORT).build())
+                    .build();
+
+
+                
             default:
                 return "Error, invalid subcommand";
         }
@@ -130,6 +175,19 @@ public class Message implements Command{
                     ActionRow.of(TextInput.create("title", "Title", TextInputStyle.SHORT).build()), 
                     ActionRow.of(TextInput.create("description", "Description", TextInputStyle.PARAGRAPH).build()),
                     ActionRow.of(TextInput.create("inline", "Inline? true/false", TextInputStyle.SHORT).setRequired(false).build())).build();
+            case "title":
+                return Modal.create(buildSubId("title", event.getMessageId()), "Set Title")
+                    .addActionRow(TextInput.create("title", "Title", TextInputStyle.SHORT).build())
+                    .build();
+            case "description":
+                return Modal.create(buildSubId("description", event.getMessageId()), "Set Description")
+                    .addActionRow(TextInput.create("description", "Description", TextInputStyle.PARAGRAPH).build())
+                    .build();
+            case "post":
+                return Modal.create(buildSubId("post", event.getMessage().getId()), "Are you sure?")
+                    .addActionRow(TextInput.create("confirmation", "Confirmation", TextInputStyle.SHORT).build())
+                    .build();
+
             default:
                 return "Error, invalid button";
         }
@@ -138,17 +196,48 @@ public class Message implements Command{
     @Override
     public Object ModalExecute(ModalInteractionEvent event) {
         String id;
+        net.dv8tion.jda.api.entities.Message message;
+        String title;
+        String description;
+        EmbedBuilder builder;
+
         switch(getSubId(event)){
             case "addfield":
                 id = event.getModalId().split("::")[2];
-                net.dv8tion.jda.api.entities.Message message = event.getChannel().getHistoryAround(id, 1).complete().getMessageById(id);
-                String title = event.getValue("title").getAsString();
-                String description = event.getValue("description").getAsString();
+                message = event.getChannel().getHistoryAround(id, 1).complete().getMessageById(id);
+                title = event.getValue("title").getAsString();
+                description = event.getValue("description").getAsString();
                 boolean inline = event.getValue("inline").getAsString().equalsIgnoreCase("true");
-                EmbedBuilder builder = reinit(message.getEmbeds().get(0));
+                builder = reinit(message.getEmbeds().get(0));
                 builder.addField(title, description, inline);
                 message.editMessageEmbeds(builder.build()).queue();
                 return "Successfully added a field to the message";
+            case "title":
+                id = event.getModalId().split("::")[2];
+                message = event.getChannel().getHistoryAround(id, 1).complete().getMessageById(id);
+                title = event.getValue("title").getAsString();
+                builder = reinit(message.getEmbeds().get(0));
+                builder.setTitle(title);
+                message.editMessageEmbeds(builder.build()).queue();
+                return "Successfully set the title of the message";
+            case "description":
+                id = event.getModalId().split("::")[2];
+                message = event.getChannel().getHistoryAround(id, 1).complete().getMessageById(id);
+                description = event.getValue("description").getAsString();
+                builder = reinit(message.getEmbeds().get(0));
+                builder.setDescription(description);
+                message.editMessageEmbeds(builder.build()).queue();
+                return "Successfully set the description of the message";
+            case "post":
+                id = event.getModalId().split("::")[2];
+                message = event.getChannel().getHistoryAround(id, 1).complete().getMessageById(id);
+                if(event.getValues().get(0).getAsString().equalsIgnoreCase("yes")){
+                    event.getGuild().getTextChannelById(Bot.getConfig().get("guild:announcements")).sendMessageEmbeds(message.getEmbeds().get(0)).queue();
+                    return "Sent announcement!";
+                }
+                return "Did not send announcement!";
+
+
             default:
                 return "Error, invalid modal!";
         }
