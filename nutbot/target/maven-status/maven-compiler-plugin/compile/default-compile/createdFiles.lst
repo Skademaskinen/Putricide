@@ -12,6 +12,8 @@ skademaskinen/Listeners/LoggingListener.class
 skademaskinen/Utils/Shell.class
 skademaskinen/Utils/Config.class
 skademaskinen/WorldOfWarcraft/Character.class
+skademaskinen/Commands/Raid.class
+skademaskinen/Commands/Message.class
 skademaskinen/Listeners/AutoCompleteListener.class
 skademaskinen/Commands/Command.class
 skademaskinen/Commands/Version.class
