@@ -14,10 +14,21 @@ import skademaskinen.Bot;
 import skademaskinen.Utils.Loggable;
 import skademaskinen.Utils.Utils;
 
+/**
+ * The RaidTeam manager object, despite the Raid command having a similar purpose, this class provides abstractions such that the Raid class can focus on handling the response to the user
+ */
 public class RaidTeam implements Loggable {
     private static String filepath = "files/raid.json";
     private static Map<String, Character> characters = new HashMap<>();
 
+    /**
+     * This method adds a user and their character to the raid team
+     * @param user The user object representing a discord user
+     * @param name The name of the World of Warcraft character they are joining with
+     * @param role The role they are planning to be on the raid team
+     * @param server The server this character is from
+     * @return
+     */
     public static boolean add(User user, String name, String role, String server){
         if(!BattleNetAPI.verifyCharacter(name.toLowerCase(), server)){
             return false;
@@ -36,6 +47,10 @@ public class RaidTeam implements Loggable {
         return true;
     }
 
+    /**
+     * This method removes a discord user from the raid team
+     * @param user The user object representing a Discord user
+     */
     public static void remove(User user){
         JSONObject team = Utils.readJSON(filepath);
         for(String key : team.keySet()){
@@ -47,18 +62,23 @@ public class RaidTeam implements Loggable {
         update();
     }
 
+    /**
+     * This method updates the raid team message, it requires the config file to contain fields:
+     * These are the raid:channel and raid:message, they are channel and message ids.
+     * @return The response for the user, it can be that it is updated successfully or an error message
+     */
     public static String update() {
         if(Bot.getConfig().get("raid:message") == null || Bot.getConfig().get("raid:channel") == null){
             return "Failed to update raid team, the configuration id might be wrong";
         }
-        Guild guild = Bot.getJda().getGuildById(Bot.getConfig().get("guildId"));
+        Guild guild = Bot.getJda().getGuildById(Bot.getConfig().get("guild:id"));
         TextChannel channel = guild.getTextChannelById(Bot.getConfig().get("raid:channel"));
         Message message = channel.getHistoryAround(Bot.getConfig().get("raid:message"), 2).complete().getMessageById(Bot.getConfig().get("raid:message"));
         JSONObject team = Utils.readJSON(filepath);
         EmbedBuilder builder = new EmbedBuilder()
             .setTitle("Raid Team!")
             .setDescription("This is the raid team, this message will get updated with raid team members!")
-            .setImage(Bot.getConfig().get("guildImage"));
+            .setImage(Bot.getConfig().get("guild:image"));
 
 		builder.appendDescription("\n**Raid team composition:** "+team.getJSONObject("Tank").length()+"/"+team.getJSONObject("Healer").length()+"/"+(team.getJSONObject("Ranged Damage").length()+team.getJSONObject("Melee Damage").length()));
 
@@ -72,7 +92,7 @@ public class RaidTeam implements Loggable {
 
                 temp+= "\n\n"+ guild.retrieveMemberById(raiderId).complete().getAsMention();
                 temp+= "\n"+ Utils.capitalize(character.getName());
-                if(!character.getRealm().equals("argent-dawn")){
+                if(!character.getRealm().toLowerCase().replace(" ", "-").equals("argent-dawn")){
                     temp+= " (" + Utils.capitalize(raider.getString("server").replace("-", " ")) + ")";
                 }
                 temp+= "\n"+character._getClass();
