@@ -54,7 +54,7 @@ public class Bot implements Loggable{
             if(file.getName().equals("Command.java")) continue;
             try {
                 Class<?> commandClass = Class.forName("skademaskinen.Commands."+file.getName().replace(".java", ""));
-                Shell.println("Initializing command: "+ commandClass.getSimpleName());
+                //Shell.println("Initializing command: "+ commandClass.getSimpleName());
                 Method method = commandClass.getMethod("configure");
                 result.add((CommandData) method.invoke(commandClass));
             } 
