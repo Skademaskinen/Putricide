@@ -10,6 +10,7 @@ import org.json.JSONObject;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.InteractionHook;
@@ -86,6 +87,7 @@ public class Bot implements Loggable{
             shell = new Shell();
             BattleNetAPI.init(token);
             jda.awaitReady();
+            jda.getPresence().setActivity(Activity.competing(Bot.getConfig().get("status")));;
             commands = generateCommands();
             jda.updateCommands().addCommands(commands).queue();
             RaidTeam.update();
