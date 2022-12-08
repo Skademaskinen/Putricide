@@ -3,6 +3,7 @@ skademaskinen/Utils/Config$Entry.class
 skademaskinen/Commands/Queue.class
 skademaskinen/Listeners/SlashCommandListener.class
 skademaskinen/Bot.class
+skademaskinen/Commands/Issue.class
 skademaskinen/Commands/Pvp.class
 skademaskinen/Music/Scheduler.class
 skademaskinen/Listeners/ButtonListener.class

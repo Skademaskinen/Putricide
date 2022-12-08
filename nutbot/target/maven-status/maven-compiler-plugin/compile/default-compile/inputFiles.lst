@@ -5,6 +5,7 @@
 /home/mast3r/git/nutbot/nutbot/src/main/java/skademaskinen/Listeners/ButtonListener.java
 /home/mast3r/git/nutbot/nutbot/src/main/java/skademaskinen/WorldOfWarcraft/BattleNetAPI.java
 /home/mast3r/git/nutbot/nutbot/src/main/java/skademaskinen/Commands/Roll.java
+/home/mast3r/git/nutbot/nutbot/src/main/java/skademaskinen/Commands/Issue.java
 /home/mast3r/git/nutbot/nutbot/src/main/java/skademaskinen/Listeners/ModalListener.java
 /home/mast3r/git/nutbot/nutbot/src/main/java/skademaskinen/Listeners/SlashCommandListener.java
 /home/mast3r/git/nutbot/nutbot/src/main/java/skademaskinen/Commands/Command.java
