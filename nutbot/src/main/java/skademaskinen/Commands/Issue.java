@@ -22,7 +22,6 @@ public class Issue implements Command{
 
     @Override
     public boolean isSuccess() {
-        // TODO Auto-generated method stub
         return success;
     }
 
@@ -46,7 +45,6 @@ public class Issue implements Command{
 
     @Override
     public boolean requiresAdmin() {
-        // TODO Auto-generated method stub
         return false;
     }
     

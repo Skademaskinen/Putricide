@@ -65,7 +65,6 @@ public class Rolepicker implements Command{
 
     @Override
     public boolean isSuccess() {
-        // TODO Auto-generated method stub
         return false;
     }
     @Override
@@ -90,7 +89,6 @@ public class Rolepicker implements Command{
 
     @Override
     public boolean requiresAdmin() {
-        // TODO Auto-generated method stub
         return true;
     }
 
