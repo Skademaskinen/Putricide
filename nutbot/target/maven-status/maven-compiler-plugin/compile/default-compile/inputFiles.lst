@@ -29,4 +29,5 @@
 /home/mast3r/git/nutbot/nutbot/src/main/java/skademaskinen/Commands/Queue.java
 /home/mast3r/git/nutbot/nutbot/src/main/java/skademaskinen/Commands/Version.java
 /home/mast3r/git/nutbot/nutbot/src/main/java/skademaskinen/Utils/Shell.java
+/home/mast3r/git/nutbot/nutbot/src/main/java/skademaskinen/Commands/Rolepicker.java
 /home/mast3r/git/nutbot/nutbot/src/main/java/skademaskinen/Listeners/LoggingListener.java

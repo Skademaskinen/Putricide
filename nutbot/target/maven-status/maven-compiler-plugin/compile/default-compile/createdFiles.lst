@@ -10,6 +10,7 @@ skademaskinen/Listeners/ButtonListener.class
 skademaskinen/Music/Player.class
 skademaskinen/Listeners/LoggingListener.class
 skademaskinen/Utils/Shell.class
+skademaskinen/Commands/Rolepicker.class
 skademaskinen/Utils/Config.class
 skademaskinen/WorldOfWarcraft/Character.class
 skademaskinen/Commands/Message.class
@@ -28,6 +29,7 @@ skademaskinen/Utils/Loggable.class
 skademaskinen/Music/AudioPlayerSendHandler.class
 skademaskinen/Commands/Raid.class
 skademaskinen/Commands/Disconnect.class
+skademaskinen/Commands/Rolepicker$Category.class
 skademaskinen/WorldOfWarcraft/RaidTeam.class
 skademaskinen/Commands/Roll.class
 skademaskinen/WorldOfWarcraft/PvpTeam.class
