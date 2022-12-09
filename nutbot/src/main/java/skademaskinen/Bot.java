@@ -28,6 +28,7 @@ import skademaskinen.Listeners.AutoCompleteListener;
 import skademaskinen.Listeners.ButtonListener;
 import skademaskinen.Listeners.LoggingListener;
 import skademaskinen.Listeners.ModalListener;
+import skademaskinen.Listeners.SelectMenuListener;
 import skademaskinen.Listeners.SlashCommandListener;
 
 /**
@@ -84,6 +85,7 @@ public class Bot implements Loggable{
             jda.addEventListener(new ButtonListener());
             jda.addEventListener(new AutoCompleteListener());
             jda.addEventListener(new LoggingListener());
+            jda.addEventListener(new SelectMenuListener());
             shell = new Shell();
             BattleNetAPI.init(token);
             jda.awaitReady();
