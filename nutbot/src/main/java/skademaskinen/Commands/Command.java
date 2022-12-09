@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.Command.Choice;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
@@ -88,6 +89,10 @@ public interface Command extends Loggable {
      * @return An object which is a button, a String, or a MessageEmbed.
      */
     default public Object ButtonExecute(ButtonInteractionEvent event){
+        return null;
+    }
+
+    default public Object SelectMenuExecute(StringSelectInteractionEvent event){
         return null;
     }
 
