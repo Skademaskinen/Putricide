@@ -18,6 +18,7 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.requests.restaction.WebhookMessageEditAction;
+import net.dv8tion.jda.api.utils.FileUpload;
 import skademaskinen.Utils.Config;
 import skademaskinen.Utils.Loggable;
 import skademaskinen.Utils.Shell;
@@ -144,6 +145,9 @@ public class Bot implements Loggable{
         }
         else if(ContentClass.equals(MessageEmbed.class)){
             action = hook.editOriginalEmbeds((MessageEmbed) replyContent);
+        }
+        else if(ContentClass.equals(FileUpload.class)){
+            action = hook.editOriginalAttachments((FileUpload)replyContent);
         }
         else{
             action = hook.editOriginal("Error invalid reply class identified by: "+replyContent.getClass().getName());
