@@ -1,7 +1,7 @@
-skademaskinen/Music/ResultHandler.class
 skademaskinen/Utils/Config$Entry.class
-skademaskinen/Commands/Queue.class
+skademaskinen/Music/ResultHandler.class
 skademaskinen/Listeners/SlashCommandListener.class
+skademaskinen/Commands/Queue.class
 skademaskinen/Bot.class
 skademaskinen/Commands/Issue.class
 skademaskinen/Commands/Pvp.class
@@ -15,14 +15,14 @@ skademaskinen/WorldOfWarcraft/Character.class
 skademaskinen/Commands/Message.class
 skademaskinen/Listeners/AutoCompleteListener.class
 skademaskinen/Commands/Command.class
-skademaskinen/Commands/Version.class
 skademaskinen/Listeners/ModalListener.class
+skademaskinen/Commands/Version.class
 skademaskinen/Music/Player$QueryHandler.class
 skademaskinen/Commands/Playing.class
 skademaskinen/WorldOfWarcraft/BattleNetAPI.class
 skademaskinen/Commands/Play.class
-skademaskinen/Commands/Skip.class
 skademaskinen/Utils/Utils.class
+skademaskinen/Commands/Skip.class
 skademaskinen/Commands/Configure.class
 skademaskinen/Utils/Loggable.class
 skademaskinen/Music/AudioPlayerSendHandler.class

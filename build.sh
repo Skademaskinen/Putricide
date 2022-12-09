@@ -9,4 +9,11 @@ echo "compiling program..."
 rm *.jar
 mvn clean compile package -q -f nutbot
 mv *.jar nutbot.jar
-java -jar nutbot.jar $(curl -s -u $(bash config.sh clientId):$(bash config.sh clientSecret) -d grant_type=client_credentials https://oauth.battle.net/token)
+
+token=$(curl -s -u $(bash config.sh clientId):$(bash config.sh clientSecret) -d grant_type=client_credentials https://oauth.battle.net/token)
+if [ "$1" = "--remote" ]; then
+	screen -dmS nutbot java -jar nutbot.jar $token
+else
+	java -jar nutbot.jar $token
+fi
+
