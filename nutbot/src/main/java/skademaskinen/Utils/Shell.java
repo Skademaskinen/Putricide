@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.entities.channel.ChannelType;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.middleman.GuildChannel;
 import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
+import net.dv8tion.jda.api.utils.FileUpload;
 import skademaskinen.Bot;
 
 /**
@@ -220,13 +221,17 @@ public class Shell implements Runnable {
      * @param e The exception to be logged
      */
     public static void exceptionHandler(Throwable e) {
-        String message = "```\n"+e.toString();
+        String message = e.toString();
         println(yellow(e.toString()));
         for(StackTraceElement element : e.getStackTrace()){
             message+="\n\t"+element.toString();
             println("\t"+red(element.toString()));
         }
-        Bot.getJda().getGuildById(Bot.getConfig().get("guild:id")).getTextChannelById(Bot.getConfig().get("log:channel")).sendMessage(message+"```").queue();
+        if(message.length() > 2000){
+            TextChannel channel = Bot.getJda().getGuildById(Bot.getConfig().get("guild:id")).getTextChannelById(Bot.getConfig().get("log:channel"));
+            channel.sendFiles(FileUpload.fromData(message.getBytes(), e.getClass().getSimpleName()+".txt")).queue();
+        }
+        else Bot.getJda().getGuildById(Bot.getConfig().get("guild:id")).getTextChannelById(Bot.getConfig().get("log:channel")).sendMessage("```\n"+message+"```").queue();
     }
 
     /**
