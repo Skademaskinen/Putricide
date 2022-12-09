@@ -1,14 +1,31 @@
-mkdir -v files
+verbose=""
+if [ "$1" == "--verbose" ]; then
+	verbose="-v"
+fi
+
+mkdir -p $verbose files
 if test -f "files/config.conf"; then
-    echo "file 'files/config.conf' already exists"
+    if [ $verbose == "-v" ]; then
+    	echo "file 'files/config.conf' already exists"
+    fi
 else
-    echo "initializing file 'files/config.conf'"
+    if [ $verbose == "-v" ]; then
+    	echo "initializing file 'files/config.conf'"
+    fi
     echo "token=" >> files/config.conf
 fi
-echo "compiling program..."
-rm *.jar
-mvn clean compile package -q -f nutbot
-mv *.jar nutbot.jar
+if [ $verbose == "-v" ]; then
+    echo "compiling program..."
+fi
+
+rm *.jar $verbose
+if [ $verbose == "-v" ]; then
+    mvn clean compile package -f nutbot
+else
+    mvn clean compile package -q -f nutbot
+fi
+
+mv *.jar nutbot.jar $verbose
 
 token=$(curl -s -u $(bash config.sh clientId):$(bash config.sh clientSecret) -d grant_type=client_credentials https://oauth.battle.net/token)
 if [ "$1" = "--remote" ]; then
