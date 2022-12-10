@@ -332,7 +332,7 @@ public class Raid implements Command {
         String[] entries = event.getValues().get(0).getAsString().split("\n");
         for(String entry : entries){
             String key = entry.split(": ")[0];
-            String value = entry.split(": ")[1];
+            String value = entry.split(": ").length == 2 ?entry.split(": ")[1] : "";
             String configKey;
             switch(key){
                 case "Filled Roles":
