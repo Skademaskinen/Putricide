@@ -6,6 +6,12 @@ files/
 ├─ config.conf
 ├─ raid.json
 ├─ pvp.json
+├─ rolepicker.conf
 ```
 
-additionally, config.conf needs an entry: `token=<insert your token here>`
+## Configuration
+The configuration file at `files/config.conf` requires the following configuration options:
+```
+token=<token>
+
+```
