@@ -381,7 +381,7 @@ public class Raid implements Command {
         value+="Minimum Item Level: "+ilvl+"\n";
         value+="Channel ID: "+channel+"\n";
         value+="Message ID: "+message;
-        TextInput input = TextInput.create("input", "Filled, preferred and needed has to be comma seperated", TextInputStyle.PARAGRAPH)
+        TextInput input = TextInput.create("input", "Lists are seperated by ', '", TextInputStyle.PARAGRAPH)
             .setValue(value)
             .build();
         return Modal.create(buildSubId("configure", null), "Configure "+className+" options").addActionRow(input).build();
