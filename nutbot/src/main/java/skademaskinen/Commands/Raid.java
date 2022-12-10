@@ -52,7 +52,7 @@ public class Raid implements Command {
     public static CommandData configure(){
         SlashCommandData command = Commands.slash(Raid.class.getSimpleName().toLowerCase(), "Admin command: Handle the raid team");
         SubcommandData add = new SubcommandData("add", "Add a raider to the raid team manually");
-        OptionData raider = new OptionData(OptionType.USER, "raider", "Mention of the raider", true);
+        OptionData raider = new OptionData(OptionType.USER, "user", "Mention of the user", true);
         OptionData name = new OptionData(OptionType.STRING, "name", "Character name", true, true);
         OptionData server = new OptionData(OptionType.STRING, "server", "Character server", false, true);
         OptionData role = new OptionData(OptionType.STRING, "role", "Character role", true, true);
@@ -145,7 +145,7 @@ public class Raid implements Command {
                 
                 break;
             case "remove":
-                result = remove(event.getOption("raider").getAsUser());
+                result = remove(event.getOption("user").getAsUser());
                 break;
             case "update":
                 result = RaidTeam.update();

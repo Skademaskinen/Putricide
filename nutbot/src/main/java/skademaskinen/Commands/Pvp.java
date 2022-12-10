@@ -179,7 +179,7 @@ public class Pvp extends Raid {
 
                 break;
             case "remove":
-                result = remove(event.getOption("raider").getAsUser());
+                result = remove(event.getOption("user").getAsUser());
                 break;
             case "update":
                 result = PvpTeam.update();
