@@ -1,4 +1,4 @@
-package skademaskinen.Commands;
+package skademaskinen.Features;
 
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
@@ -7,7 +7,7 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 /**
  * This command returns the changelog of the bot
  */
-public class Version implements Command {
+public class Version implements Feature {
 
     private boolean success;
 

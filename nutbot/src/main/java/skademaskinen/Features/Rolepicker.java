@@ -1,4 +1,4 @@
-package skademaskinen.Commands;
+package skademaskinen.Features;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -21,7 +21,7 @@ import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu.B
 import skademaskinen.Bot;
 import skademaskinen.Utils.Shell;
 
-public class Rolepicker implements Command{
+public class Rolepicker implements Feature{
     String filepath = "files/rolepicker.conf";
     List<Category> categories = new ArrayList<>();
     List<ActionRow> actionRows = new ArrayList<>();

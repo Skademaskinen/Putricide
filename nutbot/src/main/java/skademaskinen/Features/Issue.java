@@ -1,4 +1,4 @@
-package skademaskinen.Commands;
+package skademaskinen.Features;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -7,7 +7,7 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import skademaskinen.Bot;
 
-public class Issue implements Command{
+public class Issue implements Feature{
 
     public static CommandData configure(){
         return Commands.slash(Issue.class.getSimpleName().toLowerCase(), "Write an issue report, this can be a feature request or a bug report etc.")

@@ -1,4 +1,4 @@
-package skademaskinen.Commands;
+package skademaskinen.Features;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +21,7 @@ import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import skademaskinen.Bot;
 
-public class Message implements Command{
+public class Message implements Feature{
     private boolean success;
     private List<ActionRow> actionRows = new ArrayList<>();
     private boolean isEphemeral = false;

@@ -7,7 +7,7 @@ import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.internal.interactions.modal.ModalImpl;
 import skademaskinen.Bot;
-import skademaskinen.Commands.Command;
+import skademaskinen.Features.Feature;
 import skademaskinen.Utils.Shell;
 import skademaskinen.Utils.Utils;
 
@@ -30,25 +30,25 @@ public class ButtonListener extends ListenerAdapter {
 
         try{
 
-            Class<?> CommandClass = Class.forName("skademaskinen.Commands."+Utils.capitalize(event.getButton().getId().split("::")[0]));
-            Constructor<?> constructor = CommandClass.getConstructor(ButtonInteractionEvent.class);
-            Command command = (Command) constructor.newInstance(new Object[]{event});
+            Class<?> featureClass = Class.forName("skademaskinen.Features."+Utils.capitalize(event.getButton().getId().split("::")[0]));
+            Constructor<?> constructor = featureClass.getConstructor(ButtonInteractionEvent.class);
+            Feature feature = (Feature) constructor.newInstance(new Object[]{event});
             
-            if(command.requiresAdmin() && !event.getMember().hasPermission(Permission.ADMINISTRATOR)){
+            if(feature.requiresAdmin() && !event.getMember().hasPermission(Permission.ADMINISTRATOR)){
                 event.reply("Error, you are not an administrator!").setEphemeral(true).queue();
                 return;
             }
             
-            if(command.shouldDefer()){
-                event.deferReply(command.isEphemeral()).queue();
+            if(feature.shouldDefer()){
+                event.deferReply(feature.isEphemeral()).queue();
             }
             Object replyContent;
             try{
-                replyContent = command.ButtonExecute(event);
+                replyContent = feature.ButtonExecute(event);
             }
             catch(Exception e){
                 Shell.exceptionHandler(e);
-                if(command.shouldDefer()){
+                if(feature.shouldDefer()){
                     event.getHook().editOriginal(e.getMessage()).queue();
                 }
                 else{
@@ -60,7 +60,7 @@ public class ButtonListener extends ListenerAdapter {
                 event.replyModal((ModalImpl) replyContent).queue();
             }
             else{
-                Bot.replyToEvent(event.getHook(), replyContent, command.getActionRows());
+                Bot.replyToEvent(event.getHook(), replyContent, feature.getActionRows());
             }
         }
         catch(Exception e){

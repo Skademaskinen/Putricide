@@ -1,4 +1,4 @@
-package skademaskinen.Commands;
+package skademaskinen.Features;
 
 import java.util.List;
 
@@ -13,13 +13,13 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 import skademaskinen.Utils.Loggable;
 
 /**
- * This interface is used for each command, they will implement this such that many of the methods doesn't have to be written again and the execution is consistent
+ * This interface is used for each Feature, they will implement this such that many of the methods doesn't have to be written again and the execution is consistent
  */
-public interface Command extends Loggable {
+public interface Feature extends Loggable {
 
     /**
-     * This method returns whether the given command is successful or not
-     * @return successfulness of the command
+     * This method returns whether the given Feature is successful or not
+     * @return successfulness of the Feature
      */
     public boolean isSuccess();
 
@@ -124,8 +124,8 @@ public interface Command extends Loggable {
     }
 
     /**
-     * The method to configure a given command, this must be implemented as a static method of each command
-     * @return All command data to register a command in discord
+     * The method to configure a given feature, this must be implemented as a static method of each command
+     * @return All command data to register a feature in discord
      */
     public static CommandData configure(){
         return null;
