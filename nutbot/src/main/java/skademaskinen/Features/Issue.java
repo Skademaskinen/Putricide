@@ -47,5 +47,4 @@ public class Issue implements Feature{
     public boolean requiresAdmin() {
         return false;
     }
-    
 }

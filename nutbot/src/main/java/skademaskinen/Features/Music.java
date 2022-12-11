@@ -17,6 +17,7 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import skademaskinen.Music.Player;
+import skademaskinen.Utils.Shell;
 import skademaskinen.Utils.Utils;
 
 public class Music implements Feature {
@@ -77,28 +78,16 @@ public class Music implements Feature {
 
     @Override
     public Object run(SlashCommandInteractionEvent event) {
-        switch(event.getSubcommandName()){
-            case "play":
-                return play(event);
-            case "queue":
-                return queue(event);
-            case "pause":
-                return pause(event);
-            case "playing":
-                return playing(event);
-            case "skip":
-                return skip(event);
-            case "disconnect":
-                return disconnect(event);
-            case "loop":
-                return loop(event);
-            default:
-                return "Error, invalid command";
+        try {
+            return subCommandLoader(event).invoke(this, event);
+        } catch (Exception e) {
+            Shell.exceptionHandler(e);
+            return null;
         }
     }
 
     @Override
-    public List<Choice> AutoComplete(CommandAutoCompleteInteractionEvent event) {
+    public List<Choice> run(CommandAutoCompleteInteractionEvent event) {
         switch(event.getSubcommandName()){
             case "play":
                 String searchTerm = event.getFocusedOption().getValue();
@@ -124,7 +113,7 @@ public class Music implements Feature {
     }
 
 
-    private Object play(SlashCommandInteractionEvent event) {
+    public Object play(SlashCommandInteractionEvent event) {
         String searchTerm = event.getOption("track").getAsString();
         if(!Utils.isURLValid(searchTerm)){
             if(event.getOption("soundcloud") != null && event.getOption("soundcloud").getAsBoolean()){
@@ -147,7 +136,7 @@ public class Music implements Feature {
         return builder.build();
     }
 
-    private Object queue(SlashCommandInteractionEvent event) {
+    public Object queue(SlashCommandInteractionEvent event) {
         if(!Player.isInitialized(event.getGuild())) return "The queue is empty!";
         List<AudioTrack> queue = Player.getPlayer(event.getGuild()).getQueue();
         if(queue.size() == 0) return "The queue is empty!";
@@ -167,7 +156,7 @@ public class Music implements Feature {
         return builder.build();
     }
 
-    private Object pause(SlashCommandInteractionEvent event) {
+    public Object pause(SlashCommandInteractionEvent event) {
         if(!Player.isInitialized(event.getGuild())) return "The player is not active";
         if(Player.getPlayer(event.getGuild()).getPlayer().isPaused()){
             Player.getPlayer(event.getGuild()).getPlayer().setPaused(false);
@@ -179,7 +168,7 @@ public class Music implements Feature {
         return "Player paused!";
     }
 
-    private Object playing(SlashCommandInteractionEvent event) {
+    public Object playing(SlashCommandInteractionEvent event) {
         if(!Player.isInitialized(event.getGuild())) return "The player is not active";
         AudioTrack track = Player.getPlayer(event.getGuild()).getPlayer().getPlayingTrack();
         EmbedBuilder builder = new EmbedBuilder();
@@ -191,7 +180,7 @@ public class Music implements Feature {
         return builder.build();
     }
 
-    private Object skip(SlashCommandInteractionEvent event) {
+    public Object skip(SlashCommandInteractionEvent event) {
         if(!Player.isInitialized(event.getGuild())) return "The player is not active";
         if(event.getOption("index") != null) return remove(event);
         AudioTrack track = Player.getPlayer(event.getGuild()).skip();
@@ -204,7 +193,7 @@ public class Music implements Feature {
         return builder.build();
     }
 
-    private Object remove(SlashCommandInteractionEvent event) {
+    public Object remove(SlashCommandInteractionEvent event) {
         AudioTrack track = Player.getPlayer(event.getGuild()).getQueue().remove(event.getOption("index").getAsInt());
         EmbedBuilder builder = new EmbedBuilder();
         builder.setTitle("Successfully removed track!");
@@ -215,14 +204,14 @@ public class Music implements Feature {
         return builder.build();
     }
 
-    private Object disconnect(SlashCommandInteractionEvent event) {
+    public Object disconnect(SlashCommandInteractionEvent event) {
         if(!Player.isInitialized(event.getGuild())) return "The player is not active";
         Player.getPlayer(event.getGuild()).disconnect(event.getGuild());
         success = true;
         return "Successfully disconnected bot!";
     }
 
-    private Object loop(SlashCommandInteractionEvent event){
+    public Object loop(SlashCommandInteractionEvent event){
         if(!Player.isInitialized(event.getGuild())) return "The player is not active";
         return Player.getPlayer(event.getGuild()).getScheduler().toggleLoop();
         

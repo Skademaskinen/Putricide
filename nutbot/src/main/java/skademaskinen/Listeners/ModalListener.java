@@ -45,7 +45,7 @@ public class ModalListener extends ListenerAdapter{
             }
             Object replyContent;
             try{
-                replyContent = feature.ModalExecute(event);
+                replyContent = feature.execute(event);
             }
             catch(Exception e){
                 Shell.exceptionHandler(e);

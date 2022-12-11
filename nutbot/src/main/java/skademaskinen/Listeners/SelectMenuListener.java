@@ -34,7 +34,7 @@ public class SelectMenuListener extends ListenerAdapter {
             }
             Object replyContent;
             try{
-                replyContent = feature.SelectMenuExecute(event);
+                replyContent = feature.execute(event);
             }
             catch(Exception e){
                 Shell.exceptionHandler(e);
