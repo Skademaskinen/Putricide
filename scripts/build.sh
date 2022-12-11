@@ -21,9 +21,11 @@ fi
 
 rm *.jar -f $verbose
 if [ "$verbose" == "-v" ]; then
-    mvn clean compile package -f nutbot
+    mvn compile package -f nutbot
+    mvn clean -f nutbot
 else
-    mvn clean compile package -q -f nutbot
+    mvn compile package -q -f nutbot
+    mvn clean -f nutbot
 fi
 
 mv *.jar nutbot.jar $verbose
