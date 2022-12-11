@@ -57,7 +57,7 @@ public class Music implements Command {
     }
 
     public Music(CommandAutoCompleteInteractionEvent event) {
-        if(!Player.isInitialized(event.getGuild())){
+        if(!Player.isInitialized(event.getGuild()) && event.getMember().getVoiceState().getGuild().equals(event.getGuild())){
             Player.initialize(event.getMember().getVoiceState().getChannel().asVoiceChannel());
         }
     }
@@ -160,7 +160,7 @@ public class Music implements Command {
         }
         Long duration = 0L;
         for(AudioTrack track : queue) duration+= track.getDuration();
-        builder.setFooter("**Total queue size: **"+queue.size()+" tracks | Total queue duration: "+Utils.getTime(duration));
+        builder.setFooter("Total queue size: "+queue.size()+" tracks | Total queue duration: "+Utils.getTime(duration));
         AudioPlayer player = Player.getPlayer(event.getGuild()).getPlayer();
         builder.addField("Currently playing track:", "["+player.getPlayingTrack().getInfo().title+"]("+player.getPlayingTrack().getInfo().uri+")\nDuration: "+Utils.getTime(player.getPlayingTrack().getDuration()), false);
         success = true;
