@@ -9,6 +9,8 @@ import java.util.stream.Stream;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.Command.Choice;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
@@ -20,6 +22,7 @@ import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.utils.FileUpload;
 import skademaskinen.Bot;
+import skademaskinen.Utils.Shell;
 import skademaskinen.Utils.Config.Entry;
 
 /**
@@ -75,7 +78,27 @@ public class Configure implements Feature {
     }
 
     @Override
-    public Object ModalExecute(ModalInteractionEvent event) {
+    public Object run(SlashCommandInteractionEvent event) {
+        try {
+            return subCommandLoader(event).invoke(this, event);
+        } catch (Exception e) {
+            Shell.exceptionHandler(e);
+            return null;
+        }
+    }
+    
+    @Override
+    public boolean requiresAdmin() {
+        return true;
+    }
+
+    @Override
+    public Object run(ButtonInteractionEvent event) {
+        return null;
+    }
+
+    @Override
+    public Object run(ModalInteractionEvent event) {
         String config = event.getValue("config").getAsString();
         for(String option : config.split("\n")){
             String key = option.split("=")[0];
@@ -88,36 +111,12 @@ public class Configure implements Feature {
     }
 
     @Override
-    public Object run(SlashCommandInteractionEvent event) {
-        switch(event.getSubcommandName()){
-            case "edit":
-                List<Entry> config = Bot.getConfig().getConfig();
-                TextInput.Builder builder = TextInput.create("config", "Edit configuration", TextInputStyle.PARAGRAPH);
-                String content = "";
-                for(Entry entry : config){
-                    content+= entry.getKey()+"="+entry.getValue()+"\n";
-                }
-                builder.setValue(content);
-                String id = buildSubId("modal", null);
-                Modal modal = Modal.create(id, "Configure the configuration file").addActionRow(builder.build()).build();
-            
-                success = true;
-                return modal;
-            case "set":
-                Bot.getConfig().set(event.getOption("key").getAsString(), event.getOption("value").getAsString());
-                Bot.getConfig().write();
-                success = true;
-                return "Successfully set option '"+event.getOption("key").getAsString()+"' to '"+event.getOption("value").getAsString()+"'";
-            case "get":
-            success = true;
-            return FileUpload.fromData(new File("files/config.conf"));
-            default:
-                return "Error, invalid command";
-        }
+    public Object run(StringSelectInteractionEvent event) {
+        return null;
     }
 
     @Override
-    public List<Choice> AutoComplete(CommandAutoCompleteInteractionEvent event) {
+    public List<Choice> run(CommandAutoCompleteInteractionEvent event) {
         List<String> choices = new ArrayList<>();
         List<Entry> config = Bot.getConfig().getConfig();
         for(Entry entry : config){
@@ -130,10 +129,32 @@ public class Configure implements Feature {
             .collect(Collectors.toList());
         return result;
     }
+
+    public Object edit(SlashCommandInteractionEvent event){
+        List<Entry> config = Bot.getConfig().getConfig();
+        TextInput.Builder builder = TextInput.create("config", "Edit configuration", TextInputStyle.PARAGRAPH);
+        String content = "";
+        for(Entry entry : config){
+            content+= entry.getKey()+"="+entry.getValue()+"\n";
+        }
+        builder.setValue(content);
+        String id = buildSubId("modal", null);
+        Modal modal = Modal.create(id, "Configure the configuration file").addActionRow(builder.build()).build();
     
-    @Override
-    public boolean requiresAdmin() {
-        return true;
+        success = true;
+        return modal;
+    }
+
+    public Object set(SlashCommandInteractionEvent event){
+        Bot.getConfig().set(event.getOption("key").getAsString(), event.getOption("value").getAsString());
+        Bot.getConfig().write();
+        success = true;
+        return "Successfully set option '"+event.getOption("key").getAsString()+"' to '"+event.getOption("value").getAsString()+"'";
+    }
+
+    public Object get(SlashCommandInteractionEvent event){
+        success = true;
+        return FileUpload.fromData(new File("files/config.conf"));
     }
     
 }

@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.MessageEmbed.Field;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
@@ -24,6 +23,7 @@ import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import skademaskinen.Bot;
+import skademaskinen.Utils.Shell;
 import skademaskinen.Utils.Utils;
 import skademaskinen.WorldOfWarcraft.BattleNetAPI;
 import skademaskinen.WorldOfWarcraft.Character;
@@ -67,7 +67,7 @@ public class Pvp extends Raid {
     }
 
     @Override
-    public Object ButtonExecute(ButtonInteractionEvent event) {
+    public Object run(ButtonInteractionEvent event) {
         Object result;
         switch(event.getComponentId().split("::")[1]){
             case "apply":
@@ -110,7 +110,7 @@ public class Pvp extends Raid {
         return result;
     }
     @Override
-    public Object ModalExecute(ModalInteractionEvent event) {
+    public Object run(ModalInteractionEvent event) {
         if(event.getModalId().split("::")[1].equals("configure")) return configureModal(event);
         String name = event.getValue("name").getAsString();
         String server = event.getValue("server").getAsString().toLowerCase().replace(" ", "-");
@@ -169,34 +169,14 @@ public class Pvp extends Raid {
         return builder.build();
     }
     
+    @Override
     public Object run(SlashCommandInteractionEvent event) {
-        Object result = "";
-        switch(event.getSubcommandName()){
-            case "add":
-                result = event.getOption("server") == null ? 
-                    add(event.getOption("user").getAsUser(), event.getOption("name").getAsString(), event.getOption("role").getAsString(), Bot.getConfig().get("guild:realm")) :
-                    add(event.getOption("user").getAsUser(), event.getOption("name").getAsString(), event.getOption("role").getAsString(), event.getOption("server").getAsString());
-
-                break;
-            case "remove":
-                result = remove(event.getOption("user").getAsUser());
-                break;
-            case "update":
-                result = PvpTeam.update();
-                break;
-            case "form":
-                result = form();
-                break;
-            case "configure":
-                result = configureCommand(event);
-                break;
-        }                
-        if(result == null){
-            success = false;
-            return "Command failed!";
+        try {
+            return subCommandLoader(event).invoke(this, event);
+        } catch (Exception e) {
+            Shell.exceptionHandler(e);
+            return null;
         }
-        success = true;
-        return result;
     }
 
     /**
@@ -207,9 +187,13 @@ public class Pvp extends Raid {
      * @param server The server this character is on
      * @return A message showing the result of this command
      */
-    private String add(User user, String name, String role, String server){
-        success = PvpTeam.add(user,name,role,server);
-        if(success){
+    public String add(SlashCommandInteractionEvent event){
+        success = PvpTeam.add(event.getOption("user").getAsUser(), 
+            event.getOption("name").getAsString(),
+            event.getOption("role").getAsString(),
+            event.getOption("server") == null ? Bot.getConfig().get("guild:realm").toLowerCase().replace(" ", "-") : event.getOption("server").getAsString());
+        
+            if(success){
             return "Successfully added member to raid team!";
         }
         else{
@@ -222,8 +206,12 @@ public class Pvp extends Raid {
      * @param user The Discord user to be removed
      * @return A message showing the result of the command
      */
-    private String remove(User user){
-        PvpTeam.remove(user);
+    public String remove(SlashCommandInteractionEvent event){
+        PvpTeam.remove(event.getOption("user").getAsUser());
         return "Successfully removed user from raid team!";
+    }
+
+    public Object update(SlashCommandInteractionEvent event){
+        return PvpTeam.update();
     }
 }

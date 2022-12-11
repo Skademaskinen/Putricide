@@ -1,5 +1,6 @@
 package skademaskinen.Features;
 
+import java.lang.reflect.Method;
 import java.util.List;
 
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
@@ -11,6 +12,7 @@ import net.dv8tion.jda.api.interactions.commands.Command.Choice;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import skademaskinen.Utils.Loggable;
+import skademaskinen.Utils.Shell;
 
 /**
  * This interface is used for each Feature, they will implement this such that many of the methods doesn't have to be written again and the execution is consistent
@@ -68,33 +70,64 @@ public interface Feature extends Loggable {
         return response;
     }
 
+    public default Object run(ButtonInteractionEvent event){return null;}
+
+    public default Object execute(ButtonInteractionEvent event){
+        Object response = run(event);
+        log(isSuccess(),  new String[]{
+            "User: "+event.getUser().getAsTag(),
+            "Guild: "+event.getGuild().getName(),
+        });
+        return response;
+    }
+    
+    public default Object run(ModalInteractionEvent event){return null;}
+
+    public default Object execute(ModalInteractionEvent event){
+        Object response = run(event);
+        log(isSuccess(),  new String[]{
+            "User: "+event.getUser().getAsTag(),
+            "Guild: "+event.getGuild().getName(),
+        });
+        return response;
+    }
+
+    public default Object run(StringSelectInteractionEvent event){return null;}
+
+    public default Object execute(StringSelectInteractionEvent event){
+        Object response = run(event);
+        log(isSuccess(),  new String[]{
+            "User: "+event.getUser().getAsTag(),
+            "Guild: "+event.getGuild().getName(),
+        });
+        return response;
+    }
+
+    public default List<Choice> run(CommandAutoCompleteInteractionEvent event){return null;}
+
+    public default List<Choice> execute(CommandAutoCompleteInteractionEvent event){
+        List<Choice> response = run(event);
+        log(isSuccess(),  new String[]{
+            "User: "+event.getUser().getAsTag(),
+            "Guild: "+event.getGuild().getName(),
+        });
+        return response;
+    }
+
+    public default Method subCommandLoader(SlashCommandInteractionEvent event){
+        try {
+            return this.getClass().getMethod(event.getSubcommandName(), SlashCommandInteractionEvent.class);
+        } catch (Exception e) {
+            Shell.exceptionHandler(e);
+            return null;
+        }
+    }
+
     /**
      * This is a method that describes whether it is only administrators that can execute this command, or if all users can do it.
      * @return a boolean describing whether normal users can execute the command
      */
     public boolean requiresAdmin();
-
-    /**
-     * This method executes the modal handling function for a given event
-     * @param event The modal interaction event, this object contains a lot of data about the event
-     * @return An object which is a Modal, a String, or a MessageEmbed.
-     */
-    default public Object ModalExecute(ModalInteractionEvent event){
-        return null;
-    }
-
-    /**
-     * This method executes the button handling function for a given event
-     * @param event The button interaction event, this object contains a lot of data about the event
-     * @return An object which is a button, a String, or a MessageEmbed.
-     */
-    default public Object ButtonExecute(ButtonInteractionEvent event){
-        return null;
-    }
-
-    default public Object SelectMenuExecute(StringSelectInteractionEvent event){
-        return null;
-    }
 
     /**
      * This method builds an id that can be handled in the interaction handlers, that bases the id on the method that generated it, it also supports embedding data into the id
@@ -112,15 +145,6 @@ public interface Feature extends Loggable {
     }
     default public String getSubId(ModalInteractionEvent event){
         return event.getModalId().split("::")[1];
-    }
-
-    /**
-     * This method executes the auto complete handling function for a given event
-     * @param event The auto complete interaction event, this object contains a lot of data about the event
-     * @return A list of choices that can be replied to the event with.
-     */
-    default public List<Choice> AutoComplete(CommandAutoCompleteInteractionEvent event){
-        return null;
     }
 
     /**

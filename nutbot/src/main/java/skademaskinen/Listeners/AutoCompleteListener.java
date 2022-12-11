@@ -27,7 +27,7 @@ public class AutoCompleteListener extends ListenerAdapter {
             Constructor<?> constructor = featureClass.getConstructor(CommandAutoCompleteInteractionEvent.class);
             Feature feature = (Feature) constructor.newInstance(new Object[]{event});
             
-            List<Choice> choices = feature.AutoComplete(event);
+            List<Choice> choices = feature.execute(event);
             if(choices == null) return;
             event.replyChoices(choices).queue();
         }

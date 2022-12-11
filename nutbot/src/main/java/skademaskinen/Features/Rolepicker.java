@@ -115,7 +115,7 @@ public class Rolepicker implements Feature{
     }
 
     @Override
-    public Object SelectMenuExecute(StringSelectInteractionEvent event) {
+    public Object run(StringSelectInteractionEvent event) {
         Member member = event.getMember();
         List<Role> roles = new ArrayList<>(member.getRoles());
         for(SelectOption option : event.getSelectMenu().getOptions()){

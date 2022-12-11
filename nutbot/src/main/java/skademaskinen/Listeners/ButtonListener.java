@@ -44,7 +44,7 @@ public class ButtonListener extends ListenerAdapter {
             }
             Object replyContent;
             try{
-                replyContent = feature.ButtonExecute(event);
+                replyContent = feature.execute(event);
             }
             catch(Exception e){
                 Shell.exceptionHandler(e);

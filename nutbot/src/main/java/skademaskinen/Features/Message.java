@@ -20,6 +20,7 @@ import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import skademaskinen.Bot;
+import skademaskinen.Utils.Shell;
 
 public class Message implements Feature{
     private boolean success;
@@ -32,15 +33,15 @@ public class Message implements Feature{
         SubcommandData create = new SubcommandData("create", "creates a new embed");
         SubcommandData clear = new SubcommandData("clear", "clears an embed")
             .addOption(OptionType.STRING, "id", "The id of the message", true);
-        SubcommandData addfield = new SubcommandData("addfield", "add a field to the message")
+        SubcommandData addfield = new SubcommandData("field", "add a field to the message")
             .addOption(OptionType.STRING, "id", "The id of the message", true)
             .addOption(OptionType.STRING, "title", "title of the field", true)
             .addOption(OptionType.STRING, "description", "Description of the field", true)
             .addOption(OptionType.BOOLEAN, "inline", "Should the field be inline", false);
-        SubcommandData title = new SubcommandData("settitle", "sets the title of the message")
+        SubcommandData title = new SubcommandData("title", "sets the title of the message")
             .addOption(OptionType.STRING, "id", "The id of the message", true)
             .addOption(OptionType.STRING, "title", "The title to be set");
-        SubcommandData description = new SubcommandData("setdescription", "sets the description of the message")
+        SubcommandData description = new SubcommandData("description", "sets the description of the message")
             .addOption(OptionType.STRING, "id", "The id of the message", true)
             .addOption(OptionType.STRING, "title", "The description to be set");
         SubcommandData post = new SubcommandData("post", "Post the message in the announcements channel")
@@ -95,62 +96,11 @@ public class Message implements Feature{
 
     @Override
     public Object run(SlashCommandInteractionEvent event) {
-        String id;
-        String title;
-        net.dv8tion.jda.api.entities.Message message;
-        EmbedBuilder builder;
-        String description;
-
-        switch(event.getSubcommandName()){
-            case "create":
-                actionRows.add(ActionRow.of(
-                    Button.secondary(buildSubId("clear", null), "Clear"),
-                    Button.secondary(buildSubId("addfield", null), "Create Field"),
-                    Button.secondary(buildSubId("title", null), "Set Title"),
-                    Button.secondary(buildSubId("description", null), "Set Description"),
-                    Button.primary(buildSubId("post", null), "Post")));
-                return new EmbedBuilder().setTitle("init").build();
-            case "clear":
-                id = event.getOption("id").getAsString();
-                event.getMessageChannel().getHistoryAround(id, 1).complete().getMessageById(id).editMessageEmbeds(new EmbedBuilder().setTitle("init").build()).queue();
-                return "cleared message";
-            case "addfield":
-                id = event.getOption("id").getAsString();
-                title = event.getOption("title").getAsString();
-                description = event.getOption("description").getAsString();
-                boolean inline = event.getOption("inline") != null ? event.getOption("inline").getAsBoolean() : false;
-                message = event.getMessageChannel().getHistoryAround(id, 1).complete().getMessageById(id);
-                builder = reinit(message.getEmbeds().get(0));
-                builder.addField(title, description, inline);
-                message.editMessageEmbeds(builder.build()).queue();
-                return "Successfully added a field to the message";
-            case "settitle":
-                id = event.getOption("id").getAsString();
-                title = event.getOption("title").getAsString();
-                message = event.getMessageChannel().getHistoryAround(id, 1).complete().getMessageById(id);
-                builder = reinit(message.getEmbeds().get(0));
-                builder.setTitle(title);
-                message.editMessageEmbeds(builder.build()).queue();
-                return "Successfully set the title of the embed";
-            case "setdescription":
-                id = event.getOption("id").getAsString();
-                description = event.getOption("description").getAsString();
-                message = event.getMessageChannel().getHistoryAround(id, 1).complete().getMessageById(id);
-                builder = reinit(message.getEmbeds().get(0));
-                builder.setDescription(description);
-                message.editMessageEmbeds(builder.build()).queue();
-                return "Successfully set the title of the embed";
-            case "post":
-                id = event.getOption("id").getAsString();
-                message = event.getMessageChannel().getHistoryAround(id, 1).complete().getMessageById(id);
-                return Modal.create(buildSubId("post", message.getId()), "Are you sure?")
-                    .addActionRow(TextInput.create("confirmation", "Confirmation", TextInputStyle.SHORT).build())
-                    .build();
-
-
-                
-            default:
-                return "Error, invalid subcommand";
+        try {
+            return subCommandLoader(event).invoke(this, event);
+        } catch (Exception e) {
+            Shell.exceptionHandler(e);
+            return null;
         }
     }
 
@@ -165,7 +115,7 @@ public class Message implements Feature{
     }
 
     @Override
-    public Object ButtonExecute(ButtonInteractionEvent event) {
+    public Object run(ButtonInteractionEvent event) {
         switch(getSubId(event)){
             case "clear":
                 event.getMessage().editMessageEmbeds(new EmbedBuilder().setTitle("init").build()).queue();
@@ -194,7 +144,7 @@ public class Message implements Feature{
     }
 
     @Override
-    public Object ModalExecute(ModalInteractionEvent event) {
+    public Object run(ModalInteractionEvent event) {
         String id;
         net.dv8tion.jda.api.entities.Message message;
         String title;
@@ -246,6 +196,62 @@ public class Message implements Feature{
     @Override
     public boolean requiresAdmin() {
         return false;
+    }
+
+    public Object create(SlashCommandInteractionEvent event){
+        actionRows.add(ActionRow.of(
+            Button.secondary(buildSubId("clear", null), "Clear"),
+            Button.secondary(buildSubId("addfield", null), "Create Field"),
+            Button.secondary(buildSubId("title", null), "Set Title"),
+            Button.secondary(buildSubId("description", null), "Set Description"),
+            Button.primary(buildSubId("post", null), "Post")));
+        return new EmbedBuilder().setTitle("init").build();
+    }
+
+    public Object clear(SlashCommandInteractionEvent event){
+        String id = event.getOption("id").getAsString();
+        event.getMessageChannel().getHistoryAround(id, 1).complete().getMessageById(id).editMessageEmbeds(new EmbedBuilder().setTitle("init").build()).queue();
+        return "cleared message";
+    }
+
+    public Object field(SlashCommandInteractionEvent event){
+        String id = event.getOption("id").getAsString();
+        String title = event.getOption("title").getAsString();
+        String description = event.getOption("description").getAsString();
+        boolean inline = event.getOption("inline") != null ? event.getOption("inline").getAsBoolean() : false;
+        net.dv8tion.jda.api.entities.Message message = event.getMessageChannel().getHistoryAround(id, 1).complete().getMessageById(id);
+        EmbedBuilder builder = reinit(message.getEmbeds().get(0));
+        builder.addField(title, description, inline);
+        message.editMessageEmbeds(builder.build()).queue();
+        return "Successfully added a field to the message";
+    }
+
+    public Object title(SlashCommandInteractionEvent event){
+        String id = event.getOption("id").getAsString();
+        String title = event.getOption("title").getAsString();
+        net.dv8tion.jda.api.entities.Message message = event.getMessageChannel().getHistoryAround(id, 1).complete().getMessageById(id);
+        EmbedBuilder builder = reinit(message.getEmbeds().get(0));
+        builder.setTitle(title);
+        message.editMessageEmbeds(builder.build()).queue();
+        return "Successfully set the title of the embed";
+    }
+
+    public Object description(SlashCommandInteractionEvent event){
+        String id = event.getOption("id").getAsString();
+        String description = event.getOption("description").getAsString();
+        net.dv8tion.jda.api.entities.Message message = event.getMessageChannel().getHistoryAround(id, 1).complete().getMessageById(id);
+        EmbedBuilder builder = reinit(message.getEmbeds().get(0));
+        builder.setDescription(description);
+        message.editMessageEmbeds(builder.build()).queue();
+        return "Successfully set the title of the embed";
+    }
+
+    public Object post(SlashCommandInteractionEvent event){
+        String id = event.getOption("id").getAsString();
+        net.dv8tion.jda.api.entities.Message message = event.getMessageChannel().getHistoryAround(id, 1).complete().getMessageById(id);
+        return Modal.create(buildSubId("post", message.getId()), "Are you sure?")
+            .addActionRow(TextInput.create("confirmation", "Confirmation", TextInputStyle.SHORT).build())
+            .build();
     }
     
 }
