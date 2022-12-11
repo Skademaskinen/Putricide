@@ -14,13 +14,17 @@ import skademaskinen.Utils.Shell;
 public class Scheduler extends AudioEventAdapter {
     private List<AudioTrack> queue = new ArrayList<>();
     private Guild guild;
+    private boolean loop = false;
 
     public Scheduler(Guild guild){
         this.guild = guild;
     }
 
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
-        if(queue.size() > 0) player.playTrack(queue.remove(0));
+        if(loop && !endReason.equals(AudioTrackEndReason.STOPPED)){
+            player.playTrack(track.makeClone());
+        }
+        else if(queue.size() > 0) player.playTrack(queue.remove(0));
         else guild.getAudioManager().closeAudioConnection();
         Shell.println("Track ended! Queue size: "+queue.size());
     }
@@ -35,5 +39,11 @@ public class Scheduler extends AudioEventAdapter {
 
     public AudioTrack getNext() {
         return queue.get(0);
+    }
+
+    public Object toggleLoop() {
+        loop = !loop;
+        if(loop) return "Looping the current track";
+        else return "Stopped looping current track";
     }
 }
