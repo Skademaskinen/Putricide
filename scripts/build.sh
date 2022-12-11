@@ -25,7 +25,7 @@ if [ "$verbose" == "-v" ]; then
     mvn clean -f nutbot
 else
     mvn compile package -q -f nutbot
-    mvn clean -f nutbot
+    mvn clean -q -f nutbot
 fi
 
 mv *.jar nutbot.jar $verbose
