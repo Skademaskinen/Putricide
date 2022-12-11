@@ -3,6 +3,7 @@ package skademaskinen.Commands;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 
@@ -35,8 +36,9 @@ public class Music implements Command {
         SubcommandData skip = new SubcommandData("skip", "Skip a song")
             .addOption(OptionType.STRING, "index", "The index in the queue to skip");
         SubcommandData disconnect = new SubcommandData("disconnect", "Disconnect the music bot");
+        SubcommandData loop = new SubcommandData("loop", "Loop the currently playing track");
 
-        data.addSubcommands(play, queue, pause, playing, skip, disconnect);
+        data.addSubcommands(play, queue, pause, playing, skip, disconnect, loop);
         return data;
     }
 
@@ -88,6 +90,8 @@ public class Music implements Command {
                 return skip(event);
             case "disconnect":
                 return disconnect(event);
+            case "loop":
+                return loop(event);
             default:
                 return "Error, invalid command";
         }
@@ -151,9 +155,14 @@ public class Music implements Command {
         builder.setTitle("Track queue!");
         builder.setThumbnail("http://img.youtube.com/vi/"+queue.get(0).getIdentifier()+"/0.jpg");
         for(int i = 0; i < (queue.size() <= 25 ? queue.size() : 25); i++){
-            builder.appendDescription("["+i+"]: ["+queue.get(i).getInfo().title+"]("+queue.get(i).getInfo().uri+")\n");
-            builder.appendDescription("Duration: " + Utils.getTime(queue.get(i).getDuration())+"\n");
+            builder.appendDescription("**["+(i+1)+"]:** ["+queue.get(i).getInfo().title+"]("+queue.get(i).getInfo().uri+")\n");
+            builder.appendDescription("**Duration:** " + Utils.getTime(queue.get(i).getDuration())+"\n");
         }
+        Long duration = 0L;
+        for(AudioTrack track : queue) duration+= track.getDuration();
+        builder.setFooter("**Total queue size: **"+queue.size()+" tracks | Total queue duration: "+Utils.getTime(duration));
+        AudioPlayer player = Player.getPlayer(event.getGuild()).getPlayer();
+        builder.addField("Currently playing track:", "["+player.getPlayingTrack().getInfo().title+"]("+player.getPlayingTrack().getInfo().uri+")\nDuration: "+Utils.getTime(player.getPlayingTrack().getDuration()), false);
         success = true;
         return builder.build();
     }
@@ -211,6 +220,12 @@ public class Music implements Command {
         Player.getPlayer(event.getGuild()).disconnect(event.getGuild());
         success = true;
         return "Successfully disconnected bot!";
+    }
+
+    private Object loop(SlashCommandInteractionEvent event){
+        if(!Player.isInitialized(event.getGuild())) return "The player is not active";
+        return Player.getPlayer(event.getGuild()).getScheduler().toggleLoop();
+        
     }
     
 }
