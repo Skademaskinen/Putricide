@@ -1,4 +1,4 @@
-package skademaskinen.Commands;
+package skademaskinen.Features;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -25,7 +25,7 @@ import skademaskinen.Utils.Config.Entry;
 /**
  * This command can edit the configuration of the bot from within discord
  */
-public class Configure implements Command {
+public class Configure implements Feature {
     private boolean success = false;
     private boolean defer = true;
 

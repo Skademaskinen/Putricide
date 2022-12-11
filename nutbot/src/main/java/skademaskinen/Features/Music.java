@@ -1,4 +1,4 @@
-package skademaskinen.Commands;
+package skademaskinen.Features;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +19,7 @@ import net.dv8tion.jda.api.interactions.commands.build.SubcommandData;
 import skademaskinen.Music.Player;
 import skademaskinen.Utils.Utils;
 
-public class Music implements Command {
+public class Music implements Feature {
     private boolean isEphemeral = true;
     private boolean success = false;
 

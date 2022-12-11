@@ -7,7 +7,7 @@ import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 import skademaskinen.Bot;
-import skademaskinen.Commands.Command;
+import skademaskinen.Features.Feature;
 import skademaskinen.Utils.Shell;
 import skademaskinen.Utils.Utils;
 
@@ -30,26 +30,26 @@ public class ModalListener extends ListenerAdapter{
 
         try{
 
-            Class<?> CommandClass = Class.forName("skademaskinen.Commands."+Utils.capitalize(event.getModalId().split("::")[0]));
-            Constructor<?> constructor = CommandClass.getConstructor(ModalInteractionEvent.class);
-            Command command = (Command) constructor.newInstance(new Object[]{event});
+            Class<?> featureClass = Class.forName("skademaskinen.Features."+Utils.capitalize(event.getModalId().split("::")[0]));
+            Constructor<?> constructor = featureClass.getConstructor(ModalInteractionEvent.class);
+            Feature feature = (Feature) constructor.newInstance(new Object[]{event});
             
-            if(command.requiresAdmin() && !event.getMember().hasPermission(Permission.ADMINISTRATOR)){
+            if(feature.requiresAdmin() && !event.getMember().hasPermission(Permission.ADMINISTRATOR)){
                 event.reply("Error, you are not an administrator!").setEphemeral(true).queue();
                 return;
             }
             
-            if(command.shouldDefer()){
-                event.deferReply(command.isEphemeral()).queue();
+            if(feature.shouldDefer()){
+                event.deferReply(feature.isEphemeral()).queue();
                 
             }
             Object replyContent;
             try{
-                replyContent = command.ModalExecute(event);
+                replyContent = feature.ModalExecute(event);
             }
             catch(Exception e){
                 Shell.exceptionHandler(e);
-                if(command.shouldDefer()){
+                if(feature.shouldDefer()){
                     event.getHook().editOriginal(e.getMessage()).queue();
                 }
                 else{
@@ -57,7 +57,7 @@ public class ModalListener extends ListenerAdapter{
                 }
                 return;
             }
-            Bot.replyToEvent(event.getHook(), replyContent, command.getActionRows());
+            Bot.replyToEvent(event.getHook(), replyContent, feature.getActionRows());
         }
         catch(Exception e){
             Shell.exceptionHandler(e);

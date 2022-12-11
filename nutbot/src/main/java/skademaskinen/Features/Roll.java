@@ -1,4 +1,4 @@
-package skademaskinen.Commands;
+package skademaskinen.Features;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ import net.dv8tion.jda.api.interactions.commands.build.SlashCommandData;
 /**
  * This command creates a roll embed for a given amount of entries, it can be used to roll out loot on a raid team
  */
-public class Roll implements Command{
+public class Roll implements Feature{
     private boolean success;
 
     /**

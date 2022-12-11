@@ -5,7 +5,7 @@ import java.util.List;
 
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import skademaskinen.Commands.Command;
+import skademaskinen.Features.Feature;
 import skademaskinen.Utils.Shell;
 import skademaskinen.Utils.Utils;
 import net.dv8tion.jda.api.interactions.commands.Command.Choice;
@@ -23,11 +23,11 @@ public class AutoCompleteListener extends ListenerAdapter {
     public void onCommandAutoCompleteInteraction(CommandAutoCompleteInteractionEvent event) {
         try{
 
-            Class<?> CommandClass = Class.forName("skademaskinen.Commands."+Utils.capitalize(event.getName()));
-            Constructor<?> constructor = CommandClass.getConstructor(CommandAutoCompleteInteractionEvent.class);
-            Command command = (Command) constructor.newInstance(new Object[]{event});
+            Class<?> featureClass = Class.forName("skademaskinen.Features."+Utils.capitalize(event.getName()));
+            Constructor<?> constructor = featureClass.getConstructor(CommandAutoCompleteInteractionEvent.class);
+            Feature feature = (Feature) constructor.newInstance(new Object[]{event});
             
-            List<Choice> choices = command.AutoComplete(event);
+            List<Choice> choices = feature.AutoComplete(event);
             if(choices == null) return;
             event.replyChoices(choices).queue();
         }

@@ -1,4 +1,4 @@
-package skademaskinen.Commands;
+package skademaskinen.Features;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -38,7 +38,7 @@ import skademaskinen.WorldOfWarcraft.RaidTeam;
 /**
  * This class handles the raid commands to manage the raid team
  */
-public class Raid implements Command {
+public class Raid implements Feature {
     protected boolean success = false;
     private boolean shouldEphemeral = true;
     protected List<ActionRow> actionRows = new ArrayList<>();

@@ -50,16 +50,16 @@ public class Bot implements Loggable{
         new Bot(accessToken);
     }
 
-    private static List<CommandData> generateCommands() {
-        File[] files = new File("nutbot/src/main/java/skademaskinen/Commands").listFiles();
+    private static List<CommandData> generateFeatures() {
+        File[] files = new File("nutbot/src/main/java/skademaskinen/Features").listFiles();
         List<CommandData> result = new ArrayList<>();
         for(File file : files){
-            if(file.getName().equals("Command.java")) continue;
+            if(file.getName().equals("Feature.java")) continue;
             try {
-                Class<?> commandClass = Class.forName("skademaskinen.Commands."+file.getName().replace(".java", ""));
+                Class<?> featureClass = Class.forName("skademaskinen.Features."+file.getName().replace(".java", ""));
                 //Shell.println("Initializing command: "+ commandClass.getSimpleName());
-                Method method = commandClass.getMethod("configure");
-                result.add((CommandData) method.invoke(commandClass));
+                Method method = featureClass.getMethod("configure");
+                result.add((CommandData) method.invoke(featureClass));
             } 
             catch (Exception e) {
                 Shell.exceptionHandler(e);
@@ -91,7 +91,7 @@ public class Bot implements Loggable{
             BattleNetAPI.init(token);
             jda.awaitReady();
             jda.getPresence().setActivity(Activity.competing(Bot.getConfig().get("status")));;
-            commands = generateCommands();
+            commands = generateFeatures();
             jda.updateCommands().addCommands(commands).queue();
             RaidTeam.update();
             PvpTeam.update();
