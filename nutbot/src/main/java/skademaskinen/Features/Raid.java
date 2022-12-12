@@ -90,11 +90,15 @@ public class Raid implements Feature {
      * @param event The button interaction event
      */
     public Raid(ButtonInteractionEvent event) {
-        defer = !event.getComponentId().split("::")[1].equals("apply");
-        shouldEphemeral = !event.getComponentId().split("::")[1].equals("apply");
-        switch(event.getComponentId()){
-            case "apply":
-                requiresAdmin = false;
+        if(getSubId(event).equals("apply")){
+            defer = false;
+            shouldEphemeral = false;
+            requiresAdmin = false;
+        }
+        else{
+            defer = true;
+            shouldEphemeral = true;
+            requiresAdmin = true;
         }
     }
 
