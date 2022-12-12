@@ -229,16 +229,16 @@ public class Raid implements Feature {
                 break;
             case "approve":
                 String[] data = event.getComponentId().split("::")[2].split(",");
-                RaidTeam.add(event.getUser(), data[0], data[2], data[1]);
+                RaidTeam.add(event.getGuild().getMemberById(data[0]).getUser(), data[1], data[2], data[3]);
                 event.getMessageChannel().deleteMessageById(event.getMessageId()).queue();
                 success = true;
-                result = "Successfully added raider: `"+data[0]+"` to raid team";
+                result = "Successfully added raider: `"+data[1]+"` to raid team";
                 break;
             case "decline":
                 String[] data1 = event.getComponentId().split("::")[2].split(",");
                 event.getMessageChannel().deleteMessageById(event.getMessageId()).queue();
                 success = true;
-                result = "Successfully declined application for: `"+data1[0]+"`!";
+                result = "Successfully declined application for: `"+data1[1]+"`!";
                 break;
             default:
                 success = false;
@@ -304,12 +304,12 @@ public class Raid implements Feature {
         builder.setColor(score == 3 ? Color.GREEN : (score > 0 ? Color.YELLOW : Color.RED));
 
         actionRows.add(ActionRow.of(
-            Button.success(buildSubId("approve", name+","+server+","+role), "Approve"),
-            Button.danger(buildSubId("decline", name+","+server+","+role), "Decline")
+            Button.success(buildSubId("approve", event.getMember().getId()+","+name+","+role+","+server), "Approve"),
+            Button.danger(buildSubId("decline", event.getMember().getId()+","+name+","+role+","+server), "Decline")
         ));
 
         success = true;
-        log(success, new String[]{name+", "+server+", "+role});
+        log(success, new String[]{event.getMember().getId()+","+name+","+role+","+server});
         return builder.build();
     }
     /**
