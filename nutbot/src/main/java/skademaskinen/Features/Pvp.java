@@ -143,8 +143,9 @@ public class Pvp extends Raid {
 
         int score = 0;
         List<String> filled = Arrays.asList(Bot.getConfig().get(this.getClass().getSimpleName().toLowerCase() + ":filled").split(","));
+        filled = filled.stream().map(String::toLowerCase).map(String::strip).collect(Collectors.toList());
         List<String> preferred = Arrays.asList(Bot.getConfig().get(this.getClass().getSimpleName().toLowerCase() + ":preferred").split(","));
-        preferred = preferred.stream().map(String::toLowerCase).collect(Collectors.toList());
+        preferred = preferred.stream().map(String::toLowerCase).map(String::strip).collect(Collectors.toList());
 
         int ilvl = Integer.parseInt(Bot.getConfig().get(this.getClass().getSimpleName().toLowerCase() + ":ilvl"));
         List<Field> fields = new ArrayList<>();

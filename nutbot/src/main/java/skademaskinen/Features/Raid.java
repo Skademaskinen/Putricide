@@ -284,8 +284,10 @@ public class Raid implements Feature {
         builder.setThumbnail(character.getAvatarURL());
 
         int score = 0;
-        List<String> filled = Arrays.asList(Bot.getConfig().get(this.getClass().getSimpleName().toLowerCase() + ":filled").split(","));
-        List<String> preferred = Arrays.asList(Bot.getConfig().get(this.getClass().getSimpleName().toLowerCase() + ":preferred").split(","));
+        List<String> filled = Arrays.asList(Bot.getConfig().get(this.getClass().getSimpleName().toLowerCase() + ":filled").split(", "));
+        filled = filled.stream().map(String::toLowerCase).collect(Collectors.toList());
+        for(String str : filled) Shell.println(str);
+        List<String> preferred = Arrays.asList(Bot.getConfig().get(this.getClass().getSimpleName().toLowerCase() + ":preferred").split(", "));
         preferred = preferred.stream().map(String::toLowerCase).collect(Collectors.toList());
         for(String str : preferred) Shell.println(str); 
 
