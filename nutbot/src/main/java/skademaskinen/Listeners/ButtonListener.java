@@ -42,10 +42,15 @@ public class ButtonListener extends ListenerAdapter {
             if(feature.shouldDefer()){
                 event.deferReply(feature.isEphemeral()).queue();
             }
-            Object replyContent;
+            if(feature.shouldDeferEdit()){
+                event.deferEdit().queue();
+                feature.execute(event);
+                return;
+            }
+            Object response;
             try{
-                replyContent = feature.execute(event);
-                if(replyContent == null) if(feature.shouldDefer()) event.getHook().editOriginal("An unhandled error occured, contact Mast3r_waf1z#0420 for more info").queue();
+                response = feature.execute(event);
+                if(response == null) if(feature.shouldDefer()) event.getHook().editOriginal("An unhandled error occured, contact Mast3r_waf1z#0420 for more info").queue();
                 else event.reply("An unhandled error occured, contact Mast3r_waf1z#0420 for more info").queue();
             }
             catch(Exception e){
@@ -58,11 +63,11 @@ public class ButtonListener extends ListenerAdapter {
                 }
                 return;
             }
-            if(replyContent.getClass().equals(ModalImpl.class)){
-                event.replyModal((ModalImpl) replyContent).queue();
+            if(response.getClass().equals(ModalImpl.class)){
+                event.replyModal((ModalImpl) response).queue();
             }
             else{
-                Bot.replyToEvent(event.getHook(), replyContent, feature.getActionRows());
+                Bot.replyToEvent(event.getHook(), response, feature.getActionRows());
             }
         }
         catch(Exception e){

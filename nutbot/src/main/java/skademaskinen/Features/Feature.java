@@ -155,4 +155,8 @@ public interface Feature extends Loggable {
         return null;
     }
 
+    public default boolean shouldDeferEdit(){
+        return false;
+    }
+
 }

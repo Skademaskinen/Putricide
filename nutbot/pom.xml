@@ -30,6 +30,14 @@
   <dependencies>
 
     <dependency>
+      <groupId>org.mariuszgromada.math</groupId>
+      <artifactId>MathParser.org-mXparser</artifactId>
+      <version>5.1.0</version>
+    </dependency>
+
+
+
+    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
       <version>2.0.5</version>

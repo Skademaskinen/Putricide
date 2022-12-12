@@ -32,10 +32,10 @@ public class SelectMenuListener extends ListenerAdapter {
             if(feature.shouldDefer()){
                 event.deferReply(feature.isEphemeral()).queue();
             }
-            Object replyContent;
+            Object response;
             try{
-                replyContent = feature.execute(event);
-                if(replyContent == null) if(feature.shouldDefer()) event.getHook().editOriginal("An unhandled error occured, contact Mast3r_waf1z#0420 for more info").queue();
+                response = feature.execute(event);
+                if(response == null) if(feature.shouldDefer()) event.getHook().editOriginal("An unhandled error occured, contact Mast3r_waf1z#0420 for more info").queue();
                 else event.reply("An unhandled error occured, contact Mast3r_waf1z#0420 for more info").queue();
             }
             catch(Exception e){
@@ -48,7 +48,7 @@ public class SelectMenuListener extends ListenerAdapter {
                 }
                 return;
             }
-            Bot.replyToEvent(event.getHook(), replyContent, feature.getActionRows());
+            Bot.replyToEvent(event.getHook(), response, feature.getActionRows());
 
             
         } catch (Exception e) {
