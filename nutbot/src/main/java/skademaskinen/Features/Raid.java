@@ -229,7 +229,7 @@ public class Raid implements Feature {
                 break;
             case "approve":
                 String[] data = event.getComponentId().split("::")[2].split(",");
-                RaidTeam.add(event.getGuild().getMemberById(data[0]).getUser(), data[1], data[2], data[3]);
+                RaidTeam.add(event.getGuild().retrieveMemberById(data[0]).complete().getUser(), data[1], data[2], data[3]);
                 event.getMessageChannel().deleteMessageById(event.getMessageId()).queue();
                 success = true;
                 result = "Successfully added raider: `"+data[1]+"` to raid team";
