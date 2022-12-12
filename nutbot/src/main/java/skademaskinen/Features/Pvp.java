@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed.Field;
@@ -143,7 +144,7 @@ public class Pvp extends Raid {
         int score = 0;
         List<String> filled = Arrays.asList(Bot.getConfig().get(this.getClass().getSimpleName().toLowerCase() + ":filled").split(","));
         List<String> preferred = Arrays.asList(Bot.getConfig().get(this.getClass().getSimpleName().toLowerCase() + ":preferred").split(","));
-        List<String> needed = Arrays.asList(Bot.getConfig().get(this.getClass().getSimpleName().toLowerCase() + ":needed").split(","));
+        preferred = preferred.stream().map(String::toLowerCase).collect(Collectors.toList());
 
         int ilvl = Integer.parseInt(Bot.getConfig().get(this.getClass().getSimpleName().toLowerCase() + ":ilvl"));
         List<Field> fields = new ArrayList<>();
@@ -152,8 +153,6 @@ public class Pvp extends Raid {
             else fields.add(new Field("Too low item level", "", true));
             if(preferred.contains(character._getClass().toLowerCase())) score++;
             else fields.add(new Field("We are not actively looking for:\n"+character._getClass(), "", true));
-            if(needed.contains(role.toLowerCase())) score++;
-            else fields.add(new Field("We do not need any more:\n"+role, "", true));
         }
         else fields.add(new Field("We do not need any more:\n"+role, "", false));
         
