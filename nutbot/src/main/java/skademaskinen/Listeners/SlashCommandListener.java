@@ -47,6 +47,8 @@ public class SlashCommandListener extends ListenerAdapter{
             Object replyContent;
             try{
                 replyContent = feature.run(event);
+                if(replyContent == null) if(feature.shouldDefer()) event.getHook().editOriginal("An unhandled error occured, contact Mast3r_waf1z#0420 for more info").queue();
+                else event.reply("An unhandled error occured, contact Mast3r_waf1z#0420 for more info").queue();
             }
             catch(Exception e){
                 Shell.exceptionHandler(e);
@@ -58,6 +60,7 @@ public class SlashCommandListener extends ListenerAdapter{
                 }
                 return;
             }
+
             if(replyContent.getClass().equals(ModalImpl.class)){
                 event.replyModal((ModalImpl) replyContent).queue();
             }
