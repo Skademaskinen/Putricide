@@ -286,7 +286,8 @@ public class Raid implements Feature {
         int score = 0;
         List<String> filled = Arrays.asList(Bot.getConfig().get(this.getClass().getSimpleName().toLowerCase() + ":filled").split(","));
         List<String> preferred = Arrays.asList(Bot.getConfig().get(this.getClass().getSimpleName().toLowerCase() + ":preferred").split(","));
-        List<String> needed = Arrays.asList(Bot.getConfig().get(this.getClass().getSimpleName().toLowerCase() + ":needed").split(","));
+        preferred = preferred.stream().map(String::toLowerCase).collect(Collectors.toList());
+        for(String str : preferred) Shell.println(str); 
 
         int ilvl = Integer.parseInt(Bot.getConfig().get(this.getClass().getSimpleName().toLowerCase() + ":ilvl"));
         List<Field> fields = new ArrayList<>();
@@ -295,14 +296,12 @@ public class Raid implements Feature {
             else fields.add(new Field("Too low item level", "", true));
             if(preferred.contains(character._getClass().toLowerCase())) score++;
             else fields.add(new Field("We are not actively looking for:\n"+character._getClass(), "", true));
-            if(needed.contains(role.toLowerCase())) score++;
-            else fields.add(new Field("We do not need any more:\n"+role, "", true));
             if(raidtimes) score++;
         }
         else fields.add(new Field("We do not need any more:\n"+role, "", false));
         
         for(Field field : fields) builder.addField(field);
-        builder.setColor(score >= 3 ? Color.GREEN : (score > 0 ? Color.YELLOW : Color.RED));
+        builder.setColor(score == 3 ? Color.GREEN : (score > 0 ? Color.YELLOW : Color.RED));
 
         actionRows.add(ActionRow.of(
             Button.success(buildSubId("approve", name+","+server+","+role), "Approve"),
@@ -332,9 +331,6 @@ public class Raid implements Feature {
                 case "Preferred Classes":
                     configKey = className+":preferred";
                     break;
-                case "Needed Roles":
-                    configKey = className+":needed";
-                    break;
                 case "Minimum Item Level":
                     configKey = className+":ilvl";
                     break;
@@ -362,13 +358,11 @@ public class Raid implements Feature {
         String className = this.getClass().getSimpleName().toLowerCase();
         String filled = Bot.getConfig().get(className+":"+"filled");
         String preferred = Bot.getConfig().get(className+":"+"preferred");
-        String needed = Bot.getConfig().get(className+":"+"needed");
         String ilvl = Bot.getConfig().get(className+":"+"ilvl");
         String channel = Bot.getConfig().get(className+":"+"channel");
         String message = Bot.getConfig().get(className+":"+"message");
         String value = "Filled Roles: "+filled+"\n";
         value+="Preferred Classes: "+preferred+"\n";
-        value+="Needed Roles: "+needed+"\n";
         value+="Minimum Item Level: "+ilvl+"\n";
         value+="Channel ID: "+channel+"\n";
         value+="Message ID: "+message;
