@@ -5,7 +5,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -42,6 +41,8 @@ public class Rolepicker implements Feature {
     private List<ActionRow> actionRows = new ArrayList<>();
     private boolean isEphemeral;
     private Guild guild;
+    private boolean deferEdit = false;
+    private boolean defer = true;
     
     public static CommandData configure(){
         return Commands.slash(Rolepicker.class.getSimpleName().toLowerCase(), "Rolepicker command group").addSubcommands(
@@ -54,13 +55,13 @@ public class Rolepicker implements Feature {
                 .addOption(OptionType.STRING, "category", "Name of the category", true, true)
                 .addOption(OptionType.ROLE, "role", "The role to be added", true)
                 .addOption(OptionType.STRING, "name", "The name of the role", false, true)
-                .addOption(OptionType.STRING, "description", "The description of the role", false, false)
+                .addOption(OptionType.STRING, "description", "The description of the role", false, true)
                 .addOption(OptionType.STRING, "emoji", "The emoji to be displayed in the rolepicker", false, true),
             new SubcommandData("editrole", "Edit the specified role for a category")
                 .addOption(OptionType.STRING, "category", "The name of the category", true, true)
                 .addOption(OptionType.ROLE, "role", "The role to be edited", true)
                 .addOption(OptionType.STRING, "name", "The name of the role", false, true)
-                .addOption(OptionType.STRING, "description", "The description of the role", false, false)
+                .addOption(OptionType.STRING, "description", "The description of the role", false, true)
                 .addOption(OptionType.STRING, "emoji", "The emoji to be displayed in the rolepicker", false, true),
             new SubcommandData("removerole", "removes a role from a category")
                 .addOption(OptionType.STRING, "category", "Name of the category", true, true)
@@ -109,7 +110,9 @@ public class Rolepicker implements Feature {
     }
 
     public Rolepicker(StringSelectInteractionEvent event) {
-        isEphemeral = true;
+        deferEdit = true;
+        isEphemeral = false;
+        defer = false;
     }
 
     @Override
@@ -125,6 +128,15 @@ public class Rolepicker implements Feature {
             Shell.exceptionHandler(e);
             return null;
         }
+    }
+
+    @Override
+    public boolean shouldDeferEdit() {
+        return deferEdit;
+    }
+    @Override
+    public boolean shouldDefer() {
+        return defer;
     }
     
     @Override
@@ -175,6 +187,14 @@ public class Rolepicker implements Feature {
                             }
                         }
                         break;
+                    case "description":
+                        if(event.getOption("role") == null) return null;
+                        String roleName = guild.getRoleById(event.getOption("role").getAsString()).getName();
+                        String[] suggestions = {"The "+roleName+" role", "The "+roleName+" role does this", "The super awesome role called \""+roleName+"\""};
+                        for(String suggestion : suggestions){
+                            reply.add(new Choice(suggestion, suggestion));
+                        }
+                        break;
                 }
                 break;
             case "editrole":
@@ -197,6 +217,14 @@ public class Rolepicker implements Feature {
                             if(emoji.getAliases().stream().filter(alias -> alias.toLowerCase().startsWith(event.getFocusedOption().getValue().toLowerCase())).toList().size() > 0){
                                 reply.add(new Choice(emoji.getUnicode(), emoji.getUnicode()));
                             }
+                        }
+                        break;
+                    case "description":
+                        if(event.getOption("role") == null) return null;
+                        String roleName = guild.getRoleById(event.getOption("role").getAsString()).getName();
+                        String[] suggestions = {"The "+roleName+" role", "The "+roleName+" does this", "The super awesome role called \""+roleName+"\""};
+                        for(String suggestion : suggestions){
+                            reply.add(new Choice(suggestion, suggestion));
                         }
                         break;
                 }
@@ -422,5 +450,19 @@ public class Rolepicker implements Feature {
             }
         }
         return "Error, failed to remove role!";
+    }
+
+    public Object update(SlashCommandInteractionEvent event){
+        String id = event.getOption("id").getAsString();
+        net.dv8tion.jda.api.entities.Message message = event.getChannel().asTextChannel().getHistoryAround(id, 1).complete().getMessageById(id);
+        
+        List<ActionRow> actionRows = new ArrayList<>();
+        for(Category category : categories){
+            if(category.roles.size() == 0) continue;
+            actionRows.add(category.build());
+        }
+        message.editMessageComponents(actionRows).queue();
+        return "Successfully updated rolepicker";
+        
     }
 }
