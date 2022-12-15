@@ -25,6 +25,13 @@
       <name>m2-dv8tion</name>
       <url>https://m2.dv8tion.net/releases</url>
     </repository>
+
+    <repository>
+      <id>jitpack</id>
+      <name>jitpack</name>
+      <url>https://jitpack.io/</url>
+    </repository>
+
   </repositories>
   
   <dependencies>
@@ -35,6 +42,11 @@
       <version>5.1.0</version>
     </dependency>
 
+    <dependency>
+      <groupId>com.github.minndevelopment</groupId>
+      <artifactId>emoji-java</artifactId>
+      <version>master-SNAPSHOT</version>
+    </dependency>
 
 
     <dependency>
