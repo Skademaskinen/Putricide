@@ -32,6 +32,11 @@ public class SelectMenuListener extends ListenerAdapter {
             if(feature.shouldDefer()){
                 event.deferReply(feature.isEphemeral()).queue();
             }
+            if(feature.shouldDeferEdit()){
+                event.deferEdit().queue();
+                feature.execute(event);
+                return;
+            }
             Object response;
             try{
                 response = feature.execute(event);
