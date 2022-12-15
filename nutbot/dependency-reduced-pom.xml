@@ -117,6 +117,11 @@
       <name>m2-dv8tion</name>
       <url>https://m2.dv8tion.net/releases</url>
     </repository>
+    <repository>
+      <id>jitpack</id>
+      <name>jitpack</name>
+      <url>https://jitpack.io/</url>
+    </repository>
   </repositories>
   <properties>
     <maven.compiler.target>19</maven.compiler.target>
