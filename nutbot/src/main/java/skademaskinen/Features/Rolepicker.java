@@ -18,6 +18,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.entities.emoji.RichCustomEmoji;
+import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
@@ -31,6 +32,10 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu.Builder;
+import net.dv8tion.jda.api.interactions.components.text.TextInput;
+import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
+import net.dv8tion.jda.api.interactions.modals.Modal;
+import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 import skademaskinen.Bot;
 import skademaskinen.Utils.Shell;
 
@@ -67,7 +72,8 @@ public class Rolepicker implements Feature {
                 .addOption(OptionType.STRING, "category", "Name of the category", true, true)
                 .addOption(OptionType.ROLE, "role", "The role to be removed", true),
             new SubcommandData("update", "Updates a rolepicker with the current roles")
-                .addOption(OptionType.STRING, "id", "ID of the message", true)
+                .addOption(OptionType.STRING, "id", "ID of the message", true),
+            new SubcommandData("customize", "Customize the rolepicker message")
             );
     }
 
@@ -75,37 +81,26 @@ public class Rolepicker implements Feature {
         guild = event.getGuild();
         JSONObject object = read();
         if(!object.has(guild.getId())){
-            object.put(guild.getId(), new JSONObject());
-        }
-        for(String key : object.getJSONObject(guild.getId()).keySet()){
-            JSONObject roles = object.getJSONObject(guild.getId()).getJSONObject(key);
-            List<GuildRole> guildRoles = new ArrayList<>();
-            for(String innerKey : roles.keySet()){
-                JSONObject role = roles.getJSONObject(innerKey);
-                guildRoles.add(new GuildRole(innerKey, role.getString("name"), role.getString("description"), role.getString("emoji")));
+            object.put(guild.getId(), new JSONObject()
+                .put("categories", new JSONObject())
+                .put("configuration", new JSONObject()
+                    .put("title", "Generic rolepicker")
+                    .put("description", "Generic rolepicker description")
+                    .put("image", "https://www.interprint-services.co.uk/wp-content/uploads/2019/04/placeholder-banner.png")));
+            try(FileWriter writer = new FileWriter(new File("files/rolepicker.json"))){
+                writer.write(object.toString(4));
             }
-            categories.add(new Category(key, guildRoles));
+            catch(Exception e){
+                Shell.exceptionHandler(e);
+            }
         }
+        loadCategories(event.getGuild());
+        defer = !event.getSubcommandName().equals("customize");
         isEphemeral = !event.getSubcommandName().equals("create");
     }    
 
     public Rolepicker(CommandAutoCompleteInteractionEvent event) {
-        try{
-            guild = event.getGuild();
-            JSONObject object = read();
-            for(String key : object.getJSONObject(guild.getId()).keySet()){
-                JSONObject roles = object.getJSONObject(guild.getId()).getJSONObject(key);
-                List<GuildRole> guildRoles = new ArrayList<>();
-                for(String innerKey : roles.keySet()){
-                    JSONObject role = roles.getJSONObject(innerKey);
-                    guildRoles.add(new GuildRole(innerKey, role.getString("name"), role.getString("description"), role.getString("emoji")));
-                }
-                categories.add(new Category(key, guildRoles));
-            }
-        }
-        catch(Exception e){
-            Shell.exceptionHandler(e);
-        }
+        loadCategories(event.getGuild());
 
     }
 
@@ -115,9 +110,30 @@ public class Rolepicker implements Feature {
         defer = false;
     }
 
+    private void loadCategories(Guild guild){
+        this.guild = guild;
+        JSONObject object = read();
+        for(String key : object.getJSONObject(guild.getId()).getJSONObject("categories").keySet()){
+            JSONObject roles = object.getJSONObject(guild.getId()).getJSONObject("categories").getJSONObject(key);
+            List<GuildRole> guildRoles = new ArrayList<>();
+            for(String innerKey : roles.keySet()){
+                JSONObject role = roles.getJSONObject(innerKey);
+                guildRoles.add(new GuildRole(innerKey, role.getString("name"), role.getString("description"), role.getString("emoji")));
+            }
+            categories.add(new Category(key, guildRoles));
+        }
+
+    }
+
     @Override
     public boolean isSuccess() {
         return success;
+    }
+
+    public Rolepicker(ModalInteractionEvent event) {
+        defer = true;
+        isEphemeral = true;
+        loadCategories(event.getGuild());
     }
 
     @Override
@@ -239,6 +255,31 @@ public class Rolepicker implements Feature {
 
     }
 
+
+    //test data
+    //https://cdn.discordapp.com/attachments/642853163774509116/922532262459867196/The_nut_hut.gif
+    //Hi, below is some menus you can scroll through and pick the roles you like :)
+    //Some of these roles will get occational pings!
+    //Welcome to The Nut Hut!
+
+
+    @Override
+    public Object run(ModalInteractionEvent event) {
+        //customize
+        JSONObject file = read();
+        JSONObject config = file.getJSONObject(guild.getId()).getJSONObject("configuration");
+        for(ModalMapping option : event.getValues()){
+            config.put(option.getId(), option.getAsString());
+        }
+        try(FileWriter writer = new FileWriter(new File("files/rolepicker.json"))){
+            writer.write(file.toString(4));
+        }
+        catch(Exception e){
+            Shell.exceptionHandler(e);
+        }
+        return "Successfully edited message";
+    }
+
     @Override
     public boolean requiresAdmin() {
         return requiresAdmin;
@@ -311,21 +352,15 @@ public class Rolepicker implements Feature {
 
     public Object create(SlashCommandInteractionEvent event){
         EmbedBuilder builder = new EmbedBuilder();
-        builder.setTitle("Welcome to "+Bot.getConfig().get("guild:name")+"!");
-        try{
-
-            builder.setImage(Bot.getConfig().get("guild:image"));
-            builder.setDescription("Hi, below is some menus you can scroll through and pick the roles you like :)\nSome of these roles will get occational pings!");
-            builder.setFooter(event.getGuild().getName());
-            
-            for(Category category : categories){
-                if(category.roles.size() == 0) continue;
-                actionRows.add(category.build());
-            }
-        }
-        catch(Exception e){
-            Shell.exceptionHandler(e);
-
+        JSONObject config = read().getJSONObject(guild.getId()).getJSONObject("configuration");
+        builder.setTitle(config.getString("title"));
+        builder.setImage(config.getString("image"));
+        builder.setDescription(config.getString("description"));
+        builder.setFooter(guild.getName());
+        
+        for(Category category : categories){
+            if(category.roles.size() == 0) continue;
+            actionRows.add(category.build());
         }
         return builder.build();
     
@@ -356,7 +391,7 @@ public class Rolepicker implements Feature {
                 }
                 value.put(category.name, inner);
             }
-            current.put(guild.getId(), value);
+            current.getJSONObject(guild.getId()).put("categories", value);
             writer.write(current.toString(4));
             
 
@@ -464,5 +499,13 @@ public class Rolepicker implements Feature {
         message.editMessageComponents(actionRows).queue();
         return "Successfully updated rolepicker";
         
+    }
+
+    public Object customize(SlashCommandInteractionEvent event){
+        JSONObject config = read().getJSONObject(guild.getId()).getJSONObject("configuration");
+        TextInput title = TextInput.create("title", "Title", TextInputStyle.SHORT).setValue(config.getString("title")).build();
+        TextInput description = TextInput.create("description", "Description", TextInputStyle.PARAGRAPH).setValue(config.getString("description")).build();
+        TextInput image = TextInput.create("image", "Image", TextInputStyle.SHORT).setValue(config.getString("image")).build();
+        return Modal.create(buildSubId("customize", null), "Customize").addActionRows(ActionRow.of(title), ActionRow.of(description), ActionRow.of(image)).build();
     }
 }
