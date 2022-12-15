@@ -253,10 +253,10 @@ public class Raid implements Feature {
     @Override
     public Object run(ModalInteractionEvent event) {
         if(event.getModalId().split("::")[1].equals("configure")) return configureModal(event);
-        String name = event.getValue("name").getAsString().toLowerCase();
-        String server = event.getValue("server").getAsString().toLowerCase().replace(" ", "-");
-        String role = event.getValue("role").getAsString();
-        boolean raidtimes = event.getValue("raidtimes").getAsString().equalsIgnoreCase("yes") ? true : false;
+        String name = event.getValue("name").getAsString().toLowerCase().strip();
+        String server = event.getValue("server").getAsString().toLowerCase().replace(" ", "-").strip();
+        String role = event.getValue("role").getAsString().strip();
+        boolean raidtimes = event.getValue("raidtimes").getAsString().strip().equalsIgnoreCase("yes") ? true : false;
 
         if(!BattleNetAPI.verifyCharacter(name, server)){
             success = false;
