@@ -75,6 +75,7 @@ public class Bot implements Loggable{
      * The constructor, it is used to ensure that the main method never just throws exceptions but logs them instead
      * @param token The access token for the blizzard servers
      */
+
     public Bot(String token){
         try{
             config = new Config();

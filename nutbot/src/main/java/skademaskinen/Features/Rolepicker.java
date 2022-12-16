@@ -418,6 +418,10 @@ public class Rolepicker implements Feature {
     }
 
     public Object addrole(SlashCommandInteractionEvent event){
+        if(event.getOption("role").getAsRole().getPosition() > event.getGuild().getBotRole().getPosition()){
+            return "Error, this role is a higher rank than the bots own role.\nFix this issue by going to: `Server Settings -> Roles` and dragging the `"+guild.getBotRole().getName()+"` role over the `"+event.getOption("role").getAsRole().getName()+"` role.";
+        }
+
         for(Category category : categories){
             if(category.name.equals(event.getOption("category").getAsString())){
                 Role role = event.getOption("role").getAsRole();
