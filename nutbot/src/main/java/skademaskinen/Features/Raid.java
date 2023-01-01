@@ -16,6 +16,7 @@ import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.Command.Choice;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
@@ -56,13 +57,16 @@ public class Raid implements Feature {
         OptionData name = new OptionData(OptionType.STRING, "name", "Character name", true, true);
         OptionData server = new OptionData(OptionType.STRING, "server", "Character server", false, true);
         OptionData role = new OptionData(OptionType.STRING, "role", "Character role", true, true);
-        add.addOptions(raider,name,role,server);
+        OptionData notes = new OptionData(OptionType.STRING, "notes", "Optional: notes for this raider");
+        add.addOptions(raider, name, role, server, notes);
         SubcommandData remove = new SubcommandData("remove", "Remove a raider from the raid team manually");
         remove.addOptions(raider);
+        SubcommandData edit = new SubcommandData("edit", "Edit a single raider's data");
+        edit.addOptions(raider, name.setRequired(false), role.setRequired(false), server.setRequired(false), notes.setRequired(false));
         SubcommandData update = new SubcommandData("update", "Update the raid team message");
         SubcommandData form = new SubcommandData("form", "Create a raid team application form");
         SubcommandData configure = new SubcommandData("configure", "Configure the requirements for the raid team");
-        command.addSubcommands(add,remove,update,form, configure);
+        command.addSubcommands(add, remove, edit, update, form, configure);
         return command;
     }
 
@@ -165,7 +169,8 @@ public class Raid implements Feature {
         success = RaidTeam.add(event.getOption("user").getAsUser(), 
             event.getOption("name").getAsString(),
             event.getOption("role").getAsString(),
-            event.getOption("server") == null ? Bot.getConfig().get("guild:realm").toLowerCase().replace(" ", "-") : event.getOption("server").getAsString());
+            event.getOption("server") == null ? Bot.getConfig().get("guild:realm").toLowerCase().replace(" ", "-") : event.getOption("server").getAsString(),
+            event.getOption("notes") == null ? null : event.getOption("notes").getAsString());
         if(success){
             return "Successfully added member to raid team!";
         }
@@ -200,6 +205,29 @@ public class Raid implements Feature {
         return builder.build();
     }
 
+    public Object edit(SlashCommandInteractionEvent event){
+        for(OptionMapping option : event.getOptions()){
+            switch(option.getName()){
+                case "name":
+                    RaidTeam.editName(event.getOption("user").getAsUser(), option.getAsString());
+                    break;
+                case "server":
+                    RaidTeam.editServer(event.getOption("user").getAsUser(), option.getAsString());
+                    break;
+                case "notes":
+                    RaidTeam.editNote(event.getOption("user").getAsUser(), option.getAsString());
+                    break;
+                case "role":
+                    RaidTeam.editRole(event.getOption("user").getAsUser(), option.getAsString());
+                    break;
+                default:
+                    continue;
+            }
+        }
+        RaidTeam.update();
+        return "Successfully edited user's entry in the "+this.getClass().getSimpleName()+" team";
+    }
+
 
     @Override
     public Object run(ButtonInteractionEvent event) {
@@ -229,7 +257,7 @@ public class Raid implements Feature {
                 break;
             case "approve":
                 String[] data = event.getComponentId().split("::")[2].split(",");
-                RaidTeam.add(event.getGuild().retrieveMemberById(data[0]).complete().getUser(), data[1], data[2], data[3]);
+                RaidTeam.add(event.getGuild().retrieveMemberById(data[0]).complete().getUser(), data[1], data[2], data[3], null);
                 event.getMessageChannel().deleteMessageById(event.getMessageId()).queue();
                 success = true;
                 result = "Successfully added raider: `"+data[1]+"` to raid team";
@@ -325,22 +353,22 @@ public class Raid implements Feature {
         for(String entry : entries){
             String key = entry.split(": ")[0];
             String value = entry.split(": ").length == 2 ?entry.split(": ")[1] : "";
-            String configKey;
+            String configKey = className;
             switch(key){
                 case "Filled Roles":
-                    configKey = className+":filled";
+                    configKey += ":filled";
                     break;
                 case "Preferred Classes":
-                    configKey = className+":preferred";
+                    configKey += ":preferred";
                     break;
                 case "Minimum Item Level":
-                    configKey = className+":ilvl";
+                    configKey += ":ilvl";
                     break;
                 case "Channel ID":
-                    configKey = className+":channel";
+                    configKey += ":channel";
                     break;
                 case "Message ID":
-                    configKey = className+":message";
+                    configKey += ":message";
                     break;
                 default:
                     return "Error, the configuration option: "+key+" is invalid!";

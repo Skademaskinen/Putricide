@@ -27,8 +27,7 @@ public interface Loggable {
             writer.flush();
         }
         catch(Exception e){
-
+            Shell.exceptionHandler(e);
         }
     }
-
 }

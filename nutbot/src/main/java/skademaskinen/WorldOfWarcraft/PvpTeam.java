@@ -29,7 +29,7 @@ public class PvpTeam implements Loggable {
      * @param server The server this character is from
      * @return
      */
-    public static boolean add(User user, String name, String role, String server){
+    public static boolean add(User user, String name, String role, String server, String notes){
         if(!BattleNetAPI.verifyCharacter(name.toLowerCase(), server)){
             return false;
         }
@@ -39,6 +39,7 @@ public class PvpTeam implements Loggable {
         JSONObject raider = new JSONObject();
         raider.put("name", name);
         raider.put("server", server);
+        if(notes != null) raider.put("notes", notes);
         JSONObject roleobj = team.getJSONObject(Utils.capitalize(role));
         roleobj.put(user.getId(), raider);
         Utils.writeJSON(filepath, team);
@@ -98,6 +99,7 @@ public class PvpTeam implements Loggable {
                 temp+= "\n"+character._getClass();
                 temp+= "\n"+character.getSpecialization();
                 temp+= "\n"+character.getIlvl()+"/"+character.getAverageIlvl()+" ilvl";
+                if(raider.has("notes")) temp+="\n**Notes: **"+raider.getString("notes");
             }
             builder.addField(role, temp, true);
             if(role.equals("Healer")) builder.addBlankField(false);
@@ -106,6 +108,18 @@ public class PvpTeam implements Loggable {
         message.editMessageEmbeds(builder.build()).queue();
 
         return "Successfully updated pvp team!";
+    }
+
+    public static void editRole(User user, String asString) {
+    }
+
+    public static void editNote(User user, String asString) {
+    }
+
+    public static void editServer(User user, String asString) {
+    }
+
+    public static void editName(User user, String asString) {
     }
 
 }
