@@ -57,12 +57,13 @@ public class Raid implements Feature {
         OptionData name = new OptionData(OptionType.STRING, "name", "Character name", true, true);
         OptionData server = new OptionData(OptionType.STRING, "server", "Character server", false, true);
         OptionData role = new OptionData(OptionType.STRING, "role", "Character role", true, true);
-        OptionData notes = new OptionData(OptionType.STRING, "notes", "Optional: notes for this raider");
-        add.addOptions(raider, name, role, server, notes);
+        OptionData notes = new OptionData(OptionType.STRING, "notes", "Notes for this raider");
+        OptionData bench = new OptionData(OptionType.BOOLEAN, "bench", "Whether this user should be benched", false);
+        add.addOptions(raider, name, role, server, notes, bench);
         SubcommandData remove = new SubcommandData("remove", "Remove a raider from the raid team manually");
         remove.addOptions(raider);
         SubcommandData edit = new SubcommandData("edit", "Edit a single raider's data");
-        edit.addOptions(raider, name.setRequired(false), role.setRequired(false), server.setRequired(false), notes.setRequired(false));
+        edit.addOptions(raider, name.setRequired(false), role.setRequired(false), server.setRequired(false), notes.setRequired(false).setDescription("Notes for this user, (% to clear)"), bench);
         SubcommandData update = new SubcommandData("update", "Update the raid team message");
         SubcommandData form = new SubcommandData("form", "Create a raid team application form");
         SubcommandData configure = new SubcommandData("configure", "Configure the requirements for the raid team");
@@ -170,7 +171,8 @@ public class Raid implements Feature {
             event.getOption("name").getAsString(),
             event.getOption("role").getAsString(),
             event.getOption("server") == null ? Bot.getConfig().get("guild:realm").toLowerCase().replace(" ", "-") : event.getOption("server").getAsString(),
-            event.getOption("notes") == null ? null : event.getOption("notes").getAsString());
+            event.getOption("notes") == null ? null : event.getOption("notes").getAsString(),
+            event.getOption("bench") == null ? false : event.getOption("bench").getAsBoolean());
         if(success){
             return "Successfully added member to raid team!";
         }
@@ -206,26 +208,35 @@ public class Raid implements Feature {
     }
 
     public Object edit(SlashCommandInteractionEvent event){
-        for(OptionMapping option : event.getOptions()){
-            switch(option.getName()){
-                case "name":
+        try{
+
+            for(OptionMapping option : event.getOptions()){
+                switch(option.getName()){
+                    case "name":
                     RaidTeam.editName(event.getOption("user").getAsUser(), option.getAsString());
                     break;
-                case "server":
+                    case "server":
                     RaidTeam.editServer(event.getOption("user").getAsUser(), option.getAsString());
                     break;
-                case "notes":
+                    case "notes":
                     RaidTeam.editNote(event.getOption("user").getAsUser(), option.getAsString());
                     break;
-                case "role":
+                    case "role":
                     RaidTeam.editRole(event.getOption("user").getAsUser(), option.getAsString());
                     break;
-                default:
+                    case "bench":
+                    RaidTeam.editBench(event.getOption("user").getAsUser(), option.getAsBoolean());
+                    default:
                     continue;
+                }
             }
+            RaidTeam.update();
+            return "Successfully edited user's entry in the "+this.getClass().getSimpleName()+" team";
         }
-        RaidTeam.update();
-        return "Successfully edited user's entry in the "+this.getClass().getSimpleName()+" team";
+        catch(Exception e){
+            Shell.exceptionHandler(e);
+            return "Error, contact Skademanden!";
+        }
     }
 
 
@@ -257,7 +268,7 @@ public class Raid implements Feature {
                 break;
             case "approve":
                 String[] data = event.getComponentId().split("::")[2].split(",");
-                RaidTeam.add(event.getGuild().retrieveMemberById(data[0]).complete().getUser(), data[1], data[2], data[3], null);
+                RaidTeam.add(event.getGuild().retrieveMemberById(data[0]).complete().getUser(), data[1], data[2], data[3], null, false);
                 event.getMessageChannel().deleteMessageById(event.getMessageId()).queue();
                 success = true;
                 result = "Successfully added raider: `"+data[1]+"` to raid team";
