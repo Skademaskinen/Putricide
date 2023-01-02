@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
@@ -43,13 +44,17 @@ public class Pvp extends Raid {
         OptionData name = new OptionData(OptionType.STRING, "name", "Character name", true, true);
         OptionData server = new OptionData(OptionType.STRING, "server", "Character server", false, true);
         OptionData role = new OptionData(OptionType.STRING, "role", "Character role", true, true);
-        add.addOptions(raider,name,role,server);
+        OptionData notes = new OptionData(OptionType.STRING, "notes", "Notes for this raider");
+        OptionData bench = new OptionData(OptionType.BOOLEAN, "bench", "Whether this user should be benched", false);
+        add.addOptions(raider, name, role, server, notes, bench);
         SubcommandData remove = new SubcommandData("remove", "Remove a user from the pvp team manually");
+        SubcommandData edit = new SubcommandData("edit", "Edit a single raider's data");
+        edit.addOptions(raider, name.setRequired(false), role.setRequired(false), server.setRequired(false), notes.setRequired(false).setDescription("Notes for this user, (% to clear)"), bench);
         remove.addOptions(raider);
         SubcommandData update = new SubcommandData("update", "Update the pvp team message");
         SubcommandData form = new SubcommandData("form", "Create a pvp team application form");
         SubcommandData configure = new SubcommandData("configure", "Configure the requirements for the raid team");
-        command.addSubcommands(add,remove,update,form, configure);
+        command.addSubcommands(add, remove, edit, update, form, configure);
         return command;
     }
 
@@ -91,7 +96,7 @@ public class Pvp extends Raid {
                 break;
             case "approve":
                 String[] data = event.getComponentId().split("::")[2].split(",");
-                PvpTeam.add(event.getGuild().retrieveMemberById(data[0]).complete().getUser(), data[1], data[2], data[3]);
+                PvpTeam.add(event.getGuild().retrieveMemberById(data[0]).complete().getUser(), data[1], data[2], data[3], null, false);
                 event.getMessageChannel().deleteMessageById(event.getMessageId()).queue();
                 success = true;
                 result = "Successfully added user: `"+data[1]+"` to pvp team";
@@ -191,7 +196,9 @@ public class Pvp extends Raid {
         success = PvpTeam.add(event.getOption("user").getAsUser(), 
             event.getOption("name").getAsString(),
             event.getOption("role").getAsString(),
-            event.getOption("server") == null ? Bot.getConfig().get("guild:realm").toLowerCase().replace(" ", "-") : event.getOption("server").getAsString());
+            event.getOption("server") == null ? Bot.getConfig().get("guild:realm").toLowerCase().replace(" ", "-") : event.getOption("server").getAsString(),
+            event.getOption("notes") == null ? null : event.getOption("notes").getAsString(),
+            event.getOption("bench") == null ? false : event.getOption("bench").getAsBoolean());
         
             if(success){
             return "Successfully added member to raid team!";
@@ -213,5 +220,28 @@ public class Pvp extends Raid {
 
     public Object update(SlashCommandInteractionEvent event){
         return PvpTeam.update();
+    }
+    public Object edit(SlashCommandInteractionEvent event){
+        for(OptionMapping option : event.getOptions()){
+            switch(option.getName()){
+                case "name":
+                    PvpTeam.editName(event.getOption("user").getAsUser(), option.getAsString());
+                    break;
+                case "server":
+                    PvpTeam.editServer(event.getOption("user").getAsUser(), option.getAsString());
+                    break;
+                case "notes":
+                    PvpTeam.editNote(event.getOption("user").getAsUser(), option.getAsString());
+                    break;
+                case "role":
+                    PvpTeam.editRole(event.getOption("user").getAsUser(), option.getAsString());
+                    break;
+                case "bench":
+                    PvpTeam.editBench(event.getOption("user").getAsUser(), option.getAsBoolean());
+                    break;
+            }
+        }
+        PvpTeam.update();
+        return "Successfully edited user's entry in the "+this.getClass().getSimpleName()+" team";
     }
 }

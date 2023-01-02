@@ -29,7 +29,7 @@ public class PvpTeam implements Loggable {
      * @param server The server this character is from
      * @return
      */
-    public static boolean add(User user, String name, String role, String server){
+    public static boolean add(User user, String name, String role, String server, String notes, boolean shouldBench){
         if(!BattleNetAPI.verifyCharacter(name.toLowerCase(), server)){
             return false;
         }
@@ -39,8 +39,14 @@ public class PvpTeam implements Loggable {
         JSONObject raider = new JSONObject();
         raider.put("name", name);
         raider.put("server", server);
-        JSONObject roleobj = team.getJSONObject(Utils.capitalize(role));
-        roleobj.put(user.getId(), raider);
+        if(notes != null) raider.put("notes", notes);
+        if(shouldBench){
+            team.getJSONObject("bench").put(user.getId(), raider.put("role", Utils.capitalize(role)));
+        }
+        else{
+            JSONObject roleobj = team.getJSONObject(Utils.capitalize(role));
+            roleobj.put(user.getId(), raider);
+        }
         Utils.writeJSON(filepath, team);
         characters.put(user.getId(), new Character(name, server));
         update();
@@ -98,14 +104,102 @@ public class PvpTeam implements Loggable {
                 temp+= "\n"+character._getClass();
                 temp+= "\n"+character.getSpecialization();
                 temp+= "\n"+character.getIlvl()+"/"+character.getAverageIlvl()+" ilvl";
+                if(raider.has("notes")) temp+="\n**Notes: **"+raider.getString("notes");
             }
             builder.addField(role, temp, true);
             if(role.equals("Healer")) builder.addBlankField(false);
         }
+        
+        //add benched raiders to the message
+        String temp = "";
+        for(String raiderId : team.getJSONObject("bench").keySet()){
+            JSONObject raider = team.getJSONObject("bench").getJSONObject(raiderId);
+            Character character = new Character(raider.getString("name"), raider.getString("server"));
+
+            temp+= "\n\n"+ guild.retrieveMemberById(raiderId).complete().getAsMention();
+            if(raider.has("notes")) temp+=" ("+raider.getString("notes")+")";
+            temp+= "\n"+ Utils.capitalize(character.getName());
+            if(!character.getRealm().toLowerCase().replace(" ", "-").equals(Bot.getConfig().get("guild:realm").toLowerCase().replace(" ", "-"))){
+                temp+= " (" + Utils.capitalize(raider.getString("server").replace("-", " ")) + ")";
+            }
+            temp+= "\n"+character.getSpecialization() + " " + character._getClass();
+            temp+= "\n*"+raider.getString("role")+"*";
+        }
+        if(temp.length() > 0) builder.addField("Bench", temp, false);
+
 
         message.editMessageEmbeds(builder.build()).queue();
 
         return "Successfully updated pvp team!";
+    }
+    public static void editName(User user, String name) {
+        JSONObject team = Utils.readJSON(filepath);
+        for(String key : team.keySet()){
+            if(team.getJSONObject(key).has(user.getId())){
+                team.getJSONObject(key).getJSONObject(user.getId()).put("name", name);
+                break;
+            }
+        }
+        Utils.writeJSON(filepath, team);
+    }
+
+    public static void editServer(User user, String server) {
+        JSONObject team = Utils.readJSON(filepath);
+        for(String key : team.keySet()){
+            if(team.getJSONObject(key).has(user.getId())){
+                team.getJSONObject(key).getJSONObject(user.getId()).put("server", server);
+                break;
+            }
+        }
+        Utils.writeJSON(filepath, team);
+    }
+
+    public static void editNote(User user, String note) {
+        JSONObject team = Utils.readJSON(filepath);
+        for(String key : team.keySet()){
+            if(team.getJSONObject(key).has(user.getId())){
+                if(note.equals("%")){
+                    team.getJSONObject(key).getJSONObject(user.getId()).remove("notes");
+                    break;
+                }
+                team.getJSONObject(key).getJSONObject(user.getId()).put("notes", note);
+                break;
+            }
+        }
+        Utils.writeJSON(filepath, team);
+    }
+
+    public static void editRole(User user, String role) {
+        JSONObject team = Utils.readJSON(filepath);
+        for(String key : team.keySet()){
+            if(team.getJSONObject(key).has(user.getId())){
+                JSONObject userData = team.getJSONObject(key).getJSONObject(user.getId());
+                team.getJSONObject(role).put(user.getId(), userData);
+                team.getJSONObject(key).remove(user.getId());
+                break;
+            }
+        }
+        Utils.writeJSON(filepath, team);
+    }
+
+    public static void editBench(User user, boolean shouldBench) {
+        JSONObject team = Utils.readJSON(filepath);
+        if(shouldBench){
+            for(String key : team.keySet()){
+                if(team.getJSONObject(key).has(user.getId())){
+                    JSONObject userData = team.getJSONObject(key).getJSONObject(user.getId());
+                    team.getJSONObject("bench").put(user.getId(), userData);
+                    team.getJSONObject("bench").getJSONObject(user.getId()).put("role", key);
+                    team.getJSONObject(key).remove(user.getId());
+                }
+            }
+        }
+        else{
+            JSONObject userData = team.getJSONObject("bench").getJSONObject(user.getId());
+            team.getJSONObject(userData.getString("role")).put(user.getId(), userData);
+            team.getJSONObject("bench").remove(user.getId());
+        }
+        Utils.writeJSON(filepath, team);
     }
 
 }
