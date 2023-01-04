@@ -3,7 +3,6 @@ package skademaskinen.WorldOfWarcraft;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import skademaskinen.Bot;
 import skademaskinen.Utils.Shell;
 
 /**
@@ -85,7 +84,7 @@ public class Character {
         }
         catch(JSONException e){
             Shell.exceptionHandler(e);
-            return Bot.getJda().getGuildById(Bot.getConfig().get("guildId")).getIconUrl();
+            return null;
         }
     }
 }

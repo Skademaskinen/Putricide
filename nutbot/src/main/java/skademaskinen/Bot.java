@@ -11,6 +11,7 @@ import org.json.JSONObject;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.interactions.InteractionHook;
@@ -19,7 +20,7 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.requests.restaction.WebhookMessageEditAction;
 import net.dv8tion.jda.api.utils.FileUpload;
-import skademaskinen.Utils.Config;
+import skademaskinen.Utils.GlobalConfig;
 import skademaskinen.Utils.Loggable;
 import skademaskinen.Utils.Shell;
 import skademaskinen.WorldOfWarcraft.BattleNetAPI;
@@ -37,7 +38,6 @@ import skademaskinen.Listeners.SlashCommandListener;
  * It handles class abstractions and handles the main api, it also handles initialization.
  */
 public class Bot implements Loggable{
-    private static Config config;
     private static JDA jda;
     private static Shell shell;
     private static List<CommandData> commands;
@@ -62,9 +62,9 @@ public class Bot implements Loggable{
                 result.add((CommandData) method.invoke(featureClass));
             } 
             catch (Exception e) {
-                Shell.exceptionHandler(e);
+                Shell.exceptionHandler(e, jda.getGuildById("692410386657574952"));
                 if(e.getClass().equals(InvocationTargetException.class)){
-                    Shell.exceptionHandler(((InvocationTargetException)e).getTargetException());
+                    Shell.exceptionHandler(((InvocationTargetException)e).getTargetException(), jda.getGuildById("692410386657574952"));
                 }
             }
         }
@@ -78,8 +78,7 @@ public class Bot implements Loggable{
 
     public Bot(String token){
         try{
-            config = new Config();
-            jda = JDABuilder.createDefault(config.get("token"))
+            jda = JDABuilder.createDefault(GlobalConfig.get().getString("token"))
                 .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT)
                 .build();
             jda.addEventListener(new SlashCommandListener());
@@ -91,11 +90,13 @@ public class Bot implements Loggable{
             shell = new Shell();
             BattleNetAPI.init(token);
             jda.awaitReady();
-            jda.getPresence().setActivity(Activity.competing(Bot.getConfig().get("status")));;
+            jda.getPresence().setActivity(Activity.competing(GlobalConfig.get().getString("status")));
             commands = generateFeatures();
             jda.updateCommands().addCommands(commands).queue();
-            RaidTeam.update();
-            PvpTeam.update();
+            for(Guild guild : jda.getGuilds()){
+                RaidTeam.update(guild);
+                PvpTeam.update(guild);
+            }
             //exceptionTester();
             //jda.getGuildById("692410386657574952").getTextChannelById("1046840206562709514").sendMessageEmbeds(new EmbedBuilder().setTitle("init").build()).queue();
             new Thread(shell).start();
@@ -103,7 +104,7 @@ public class Bot implements Loggable{
         }
         catch(Exception e){
             log(false, new String[]{e.getMessage()});
-            Shell.exceptionHandler(e);
+            Shell.exceptionHandler(e, jda.getGuildById("692410386657574952"));
 
         }
     }
@@ -114,14 +115,6 @@ public class Bot implements Loggable{
      */
     public static JDA getJda() {
         return jda;
-    }
-
-    /**
-     * Getter for the configuration object, this is used to ensure initialization
-     * @return The config object of type Config
-     */
-    public static Config getConfig(){
-        return config;
     }
 
     /**
@@ -162,7 +155,7 @@ public class Bot implements Loggable{
         try {
             throw new Exception();
         } catch (Exception e) {
-            Shell.exceptionHandler(e);
+            Shell.exceptionHandler(e, jda.getGuildById("692410386657574952"));
         }
     }
 }

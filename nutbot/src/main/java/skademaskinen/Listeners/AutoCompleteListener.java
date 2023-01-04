@@ -32,7 +32,7 @@ public class AutoCompleteListener extends ListenerAdapter {
             event.replyChoices(choices).queue();
         }
         catch(Exception e){
-            Shell.exceptionHandler(e);
+            Shell.exceptionHandler(e, event.getGuild());
         }
     }
 }

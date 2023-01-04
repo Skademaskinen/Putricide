@@ -2,9 +2,9 @@ package skademaskinen.Features;
 
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import org.json.JSONObject;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed.Field;
@@ -24,7 +24,7 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
-import skademaskinen.Bot;
+import skademaskinen.Utils.ServerConfig;
 import skademaskinen.Utils.Shell;
 import skademaskinen.Utils.Utils;
 import skademaskinen.WorldOfWarcraft.BattleNetAPI;
@@ -74,6 +74,7 @@ public class Pvp extends Raid {
 
     @Override
     public Object run(ButtonInteractionEvent event) {
+        JSONObject config = ServerConfig.get(event.getGuild());
         Object result;
         switch(event.getComponentId().split("::")[1]){
             case "apply":
@@ -81,8 +82,8 @@ public class Pvp extends Raid {
                     .setPlaceholder("Your character name")
                     .build();
                 TextInput server = TextInput.create("server", "Character server", TextInputStyle.SHORT)
-                    .setPlaceholder("Your character server, example: "+Bot.getConfig().get("guild:realm"))
-                    .setValue(Bot.getConfig().get("guild:realm"))
+                    .setPlaceholder("Your character server, example: "+config.getString("realm"))
+                    .setValue(config.getString("realm"))
                     .build();
                 TextInput role = TextInput.create("role", "Your role", TextInputStyle.SHORT)
                     .setPlaceholder("Healer, Tank, Ranged Damage or Melee Damage")
@@ -96,7 +97,7 @@ public class Pvp extends Raid {
                 break;
             case "approve":
                 String[] data = event.getComponentId().split("::")[2].split(",");
-                PvpTeam.add(event.getGuild().retrieveMemberById(data[0]).complete().getUser(), data[1], data[2], data[3], null, false);
+                PvpTeam.add(event.getGuild().retrieveMemberById(data[0]).complete(), data[1], data[2], data[3], null, false);
                 event.getMessageChannel().deleteMessageById(event.getMessageId()).queue();
                 success = true;
                 result = "Successfully added user: `"+data[1]+"` to pvp team";
@@ -117,6 +118,7 @@ public class Pvp extends Raid {
     }
     @Override
     public Object run(ModalInteractionEvent event) {
+        JSONObject config = ServerConfig.get(event.getGuild());
         if(event.getModalId().split("::")[1].equals("configure")) return configureModal(event);
         String name = event.getValue("name").getAsString().toLowerCase().strip();
         String server = event.getValue("server").getAsString().toLowerCase().replace(" ", "-").strip();
@@ -147,12 +149,10 @@ public class Pvp extends Raid {
         builder.setThumbnail(character.getAvatarURL());
 
         int score = 0;
-        List<String> filled = Arrays.asList(Bot.getConfig().get(this.getClass().getSimpleName().toLowerCase() + ":filled").split(","));
-        filled = filled.stream().map(String::toLowerCase).map(String::strip).collect(Collectors.toList());
-        List<String> preferred = Arrays.asList(Bot.getConfig().get(this.getClass().getSimpleName().toLowerCase() + ":preferred").split(","));
-        preferred = preferred.stream().map(String::toLowerCase).map(String::strip).collect(Collectors.toList());
+        List<Object> filled = config.getJSONObject("pvp").getJSONArray("filled").toList();
+        List<Object> preferred = config.getJSONObject("pvp").getJSONArray("preferred").toList();
+        int ilvl = config.getJSONObject("pvp").getInt("ilvl");
 
-        int ilvl = Integer.parseInt(Bot.getConfig().get(this.getClass().getSimpleName().toLowerCase() + ":ilvl"));
         List<Field> fields = new ArrayList<>();
         if(!filled.contains(role.toLowerCase())){
             if(character.getAverageIlvl() >= ilvl) score++;
@@ -179,7 +179,7 @@ public class Pvp extends Raid {
         try {
             return subCommandLoader(event).invoke(this, event);
         } catch (Exception e) {
-            Shell.exceptionHandler(e);
+            Shell.exceptionHandler(e, event.getGuild());
             return null;
         }
     }
@@ -193,10 +193,11 @@ public class Pvp extends Raid {
      * @return A message showing the result of this command
      */
     public String add(SlashCommandInteractionEvent event){
-        success = PvpTeam.add(event.getOption("user").getAsUser(), 
+        JSONObject config = ServerConfig.get(event.getGuild());
+        success = PvpTeam.add(event.getOption("user").getAsMember(), 
             event.getOption("name").getAsString(),
             event.getOption("role").getAsString(),
-            event.getOption("server") == null ? Bot.getConfig().get("guild:realm").toLowerCase().replace(" ", "-") : event.getOption("server").getAsString(),
+            event.getOption("server") == null ? config.getString("realm").toLowerCase().replace(" ", "-") : event.getOption("server").getAsString(),
             event.getOption("notes") == null ? null : event.getOption("notes").getAsString(),
             event.getOption("bench") == null ? false : event.getOption("bench").getAsBoolean());
         
@@ -214,34 +215,34 @@ public class Pvp extends Raid {
      * @return A message showing the result of the command
      */
     public String remove(SlashCommandInteractionEvent event){
-        PvpTeam.remove(event.getOption("user").getAsUser());
+        PvpTeam.remove(event.getOption("user").getAsMember());
         return "Successfully removed user from raid team!";
     }
 
     public Object update(SlashCommandInteractionEvent event){
-        return PvpTeam.update();
+        return PvpTeam.update(event.getGuild());
     }
     public Object edit(SlashCommandInteractionEvent event){
         for(OptionMapping option : event.getOptions()){
             switch(option.getName()){
                 case "name":
-                    PvpTeam.editName(event.getOption("user").getAsUser(), option.getAsString());
+                    PvpTeam.editName(event.getOption("user").getAsMember(), option.getAsString());
                     break;
                 case "server":
-                    PvpTeam.editServer(event.getOption("user").getAsUser(), option.getAsString());
+                    PvpTeam.editServer(event.getOption("user").getAsMember(), option.getAsString());
                     break;
                 case "notes":
-                    PvpTeam.editNote(event.getOption("user").getAsUser(), option.getAsString());
+                    PvpTeam.editNote(event.getOption("user").getAsMember(), option.getAsString());
                     break;
                 case "role":
-                    PvpTeam.editRole(event.getOption("user").getAsUser(), option.getAsString());
+                    PvpTeam.editRole(event.getOption("user").getAsMember(), option.getAsString());
                     break;
                 case "bench":
-                    PvpTeam.editBench(event.getOption("user").getAsUser(), option.getAsBoolean());
+                    PvpTeam.editBench(event.getOption("user").getAsMember(), option.getAsBoolean());
                     break;
             }
         }
-        PvpTeam.update();
+        PvpTeam.update(event.getGuild());
         return "Successfully edited user's entry in the "+this.getClass().getSimpleName()+" team";
     }
 }

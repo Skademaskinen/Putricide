@@ -2,7 +2,6 @@ package skademaskinen.Features;
 
 import java.awt.Color;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -29,7 +28,7 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
-import skademaskinen.Bot;
+import skademaskinen.Utils.ServerConfig;
 import skademaskinen.Utils.Shell;
 import skademaskinen.Utils.Utils;
 import skademaskinen.WorldOfWarcraft.BattleNetAPI;
@@ -149,13 +148,13 @@ public class Raid implements Feature {
         try {
             return subCommandLoader(event).invoke(this, event);
         } catch (Exception e) {
-            Shell.exceptionHandler(e);
+            Shell.exceptionHandler(e, event.getGuild());
             return null;
         }
     }
 
     public Object update(SlashCommandInteractionEvent event) {
-        return RaidTeam.update();
+        return RaidTeam.update(event.getGuild());
     }
 
     /**
@@ -167,10 +166,10 @@ public class Raid implements Feature {
      * @return A message showing the result of this command
      */
     public String add(SlashCommandInteractionEvent event){
-        success = RaidTeam.add(event.getOption("user").getAsUser(), 
+        success = RaidTeam.add(event.getOption("user").getAsMember(), 
             event.getOption("name").getAsString(),
             event.getOption("role").getAsString(),
-            event.getOption("server") == null ? Bot.getConfig().get("guild:realm").toLowerCase().replace(" ", "-") : event.getOption("server").getAsString(),
+            event.getOption("server") == null ? ServerConfig.get(event.getGuild()).getString("realm").toLowerCase().replace(" ", "-") : event.getOption("server").getAsString(),
             event.getOption("notes") == null ? null : event.getOption("notes").getAsString(),
             event.getOption("bench") == null ? false : event.getOption("bench").getAsBoolean());
         if(success){
@@ -187,7 +186,7 @@ public class Raid implements Feature {
      * @return A message showing the result of the command
      */
     public String remove(SlashCommandInteractionEvent event){
-        RaidTeam.remove(event.getOption("user").getAsUser());
+        RaidTeam.remove(event.getOption("user").getAsMember());
         return "Successfully removed user from raid team!";
     }
 
@@ -197,11 +196,12 @@ public class Raid implements Feature {
      */
     public MessageEmbed form(SlashCommandInteractionEvent event){
         EmbedBuilder builder = new EmbedBuilder();
-        String guildName = Bot.getConfig().get("guild:name");
+        JSONObject config = ServerConfig.get(event.getGuild());
+        String guildName = config.getString("name");
         builder.setTitle("Apply to the "+this.getClass().getSimpleName().toLowerCase()+" team of "+guildName+"!");
         builder.setDescription("Hi, here you can apply to the "+this.getClass().getSimpleName().toLowerCase()+" team!\nYou will receive a pop-up form to add your character's details.");
-        if(Bot.getConfig().get("guild:image") != null){
-            builder.setImage(Bot.getConfig().get("guild:image"));
+        if(config.getString("image") != null){
+            builder.setImage(config.getString("image"));
         }
         actionRows.add(ActionRow.of(Button.primary(buildSubId("apply", null), "Apply here!")));
         return builder.build();
@@ -213,28 +213,28 @@ public class Raid implements Feature {
             for(OptionMapping option : event.getOptions()){
                 switch(option.getName()){
                     case "name":
-                    RaidTeam.editName(event.getOption("user").getAsUser(), option.getAsString());
+                    RaidTeam.editName(event.getOption("user").getAsMember(), option.getAsString());
                     break;
                     case "server":
-                    RaidTeam.editServer(event.getOption("user").getAsUser(), option.getAsString());
+                    RaidTeam.editServer(event.getOption("user").getAsMember(), option.getAsString());
                     break;
                     case "notes":
-                    RaidTeam.editNote(event.getOption("user").getAsUser(), option.getAsString());
+                    RaidTeam.editNote(event.getOption("user").getAsMember(), option.getAsString());
                     break;
                     case "role":
-                    RaidTeam.editRole(event.getOption("user").getAsUser(), option.getAsString());
+                    RaidTeam.editRole(event.getOption("user").getAsMember(), option.getAsString());
                     break;
                     case "bench":
-                    RaidTeam.editBench(event.getOption("user").getAsUser(), option.getAsBoolean());
+                    RaidTeam.editBench(event.getOption("user").getAsMember(), option.getAsBoolean());
                     default:
                     continue;
                 }
             }
-            RaidTeam.update();
+            RaidTeam.update(event.getGuild());
             return "Successfully edited user's entry in the "+this.getClass().getSimpleName()+" team";
         }
         catch(Exception e){
-            Shell.exceptionHandler(e);
+            Shell.exceptionHandler(e, event.getGuild());
             return "Error, contact Skademanden!";
         }
     }
@@ -243,14 +243,15 @@ public class Raid implements Feature {
     @Override
     public Object run(ButtonInteractionEvent event) {
         Object result;
+        JSONObject config = ServerConfig.get(event.getGuild());
         switch(event.getComponentId().split("::")[1]){
             case "apply":
                 TextInput name = TextInput.create("name", "Character name", TextInputStyle.SHORT)
                     .setPlaceholder("Your character name")
                     .build();
                 TextInput server = TextInput.create("server", "Character server", TextInputStyle.SHORT)
-                    .setPlaceholder("Your character server, example: "+Bot.getConfig().get("guild:realm"))
-                    .setValue(Bot.getConfig().get("guild:realm"))
+                    .setPlaceholder("Your character server, example: "+config.getString("realm"))
+                    .setValue(config.getString("realm"))
                     .build();
                 TextInput role = TextInput.create("role", "Your role", TextInputStyle.SHORT)
                     .setPlaceholder("Healer, Tank, Ranged Damage or Melee Damage")
@@ -268,7 +269,7 @@ public class Raid implements Feature {
                 break;
             case "approve":
                 String[] data = event.getComponentId().split("::")[2].split(",");
-                RaidTeam.add(event.getGuild().retrieveMemberById(data[0]).complete().getUser(), data[1], data[2], data[3], null, false);
+                RaidTeam.add(event.getGuild().retrieveMemberById(data[0]).complete(), data[1], data[2], data[3], null, false);
                 event.getMessageChannel().deleteMessageById(event.getMessageId()).queue();
                 success = true;
                 result = "Successfully added raider: `"+data[1]+"` to raid team";
@@ -291,6 +292,7 @@ public class Raid implements Feature {
 
     @Override
     public Object run(ModalInteractionEvent event) {
+        JSONObject config = ServerConfig.get(event.getGuild());
         if(event.getModalId().split("::")[1].equals("configure")) return configureModal(event);
         String name = event.getValue("name").getAsString().toLowerCase().strip();
         String server = event.getValue("server").getAsString().toLowerCase().replace(" ", "-").strip();
@@ -323,14 +325,9 @@ public class Raid implements Feature {
         builder.setThumbnail(character.getAvatarURL());
 
         int score = 0;
-        List<String> filled = Arrays.asList(Bot.getConfig().get(this.getClass().getSimpleName().toLowerCase() + ":filled").split(", "));
-        filled = filled.stream().map(String::toLowerCase).collect(Collectors.toList());
-        for(String str : filled) Shell.println(str);
-        List<String> preferred = Arrays.asList(Bot.getConfig().get(this.getClass().getSimpleName().toLowerCase() + ":preferred").split(", "));
-        preferred = preferred.stream().map(String::toLowerCase).collect(Collectors.toList());
-        for(String str : preferred) Shell.println(str); 
-
-        int ilvl = Integer.parseInt(Bot.getConfig().get(this.getClass().getSimpleName().toLowerCase() + ":ilvl"));
+        List<Object> filled = config.getJSONObject("raid").getJSONArray("filled").toList();
+        List<Object> preferred = config.getJSONObject("raid").getJSONArray("preferred").toList();
+        int ilvl = config.getJSONObject("raid").getInt("ilvl");
         List<Field> fields = new ArrayList<>();
         if(!filled.contains(role.toLowerCase())){
             if(character.getAverageIlvl() >= ilvl) score++;
@@ -364,29 +361,32 @@ public class Raid implements Feature {
         for(String entry : entries){
             String key = entry.split(": ")[0];
             String value = entry.split(": ").length == 2 ?entry.split(": ")[1] : "";
-            String configKey = className;
+            JSONObject config = ServerConfig.get(event.getGuild());
             switch(key){
                 case "Filled Roles":
-                    configKey += ":filled";
+                    config.getJSONObject("raid").put("filled", value.replace(", ", ",").replace("\"", "").split(","));
+                    ServerConfig.write(event.getGuild(), config);
                     break;
                 case "Preferred Classes":
-                    configKey += ":preferred";
+                    config.getJSONObject("raid").put("preferred", value.replace(", ", ",").replace("\"", "").split(","));
+                    ServerConfig.write(event.getGuild(), config);
                     break;
                 case "Minimum Item Level":
-                    configKey += ":ilvl";
+                    config.getJSONObject("raid").put("ilvl", value);
+                    ServerConfig.write(event.getGuild(), config);
                     break;
                 case "Channel ID":
-                    configKey += ":channel";
+                    config.getJSONObject("raid").put("channel", value);
+                    ServerConfig.write(event.getGuild(), config);
                     break;
                 case "Message ID":
-                    configKey += ":message";
+                    config.getJSONObject("raid").put("message", value);
+                    ServerConfig.write(event.getGuild(), config);
                     break;
                 default:
                     return "Error, the configuration option: "+key+" is invalid!";
             }
-            Bot.getConfig().set(configKey, value);
         }
-        Bot.getConfig().write();
         return "Succesfully configured the "+className+" team";
     }
 
@@ -397,11 +397,12 @@ public class Raid implements Feature {
      */
     public Object configure(SlashCommandInteractionEvent event){
         String className = this.getClass().getSimpleName().toLowerCase();
-        String filled = Bot.getConfig().get(className+":"+"filled");
-        String preferred = Bot.getConfig().get(className+":"+"preferred");
-        String ilvl = Bot.getConfig().get(className+":"+"ilvl");
-        String channel = Bot.getConfig().get(className+":"+"channel");
-        String message = Bot.getConfig().get(className+":"+"message");
+        JSONObject config = ServerConfig.get(event.getGuild());
+        String filled = config.getJSONObject("raid").getJSONArray("filled").join(", ");
+        String preferred = config.getJSONObject("raid").getJSONArray("preferred").join(", ");
+        int ilvl = config.getJSONObject("raid").getInt("ilvl");
+        String channel = config.getJSONObject("raid").getString("channel");
+        String message = config.getJSONObject("raid").getString("message");
         String value = "Filled Roles: "+filled+"\n";
         value+="Preferred Classes: "+preferred+"\n";
         value+="Minimum Item Level: "+ilvl+"\n";
@@ -435,7 +436,7 @@ public class Raid implements Feature {
                     .limit(25)
                     .collect(Collectors.toList());
             case "name":
-                JSONObject guildJSON = BattleNetAPI.getGuildMemberList();
+                JSONObject guildJSON = BattleNetAPI.getGuildMemberList(event.getGuild());
                 List<String> members = new ArrayList<>();
                 for(Object object : guildJSON.getJSONArray("members")) members.add(((JSONObject) object).getJSONObject("character").getString("name"));
                 return Stream.of(members.toArray(new String[0]))

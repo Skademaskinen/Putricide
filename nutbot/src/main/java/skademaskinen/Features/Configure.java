@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.json.JSONObject;
+
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -21,9 +23,8 @@ import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.utils.FileUpload;
-import skademaskinen.Bot;
+import skademaskinen.Utils.ServerConfig;
 import skademaskinen.Utils.Shell;
-import skademaskinen.Utils.Config.Entry;
 
 /**
  * This command can edit the configuration of the bot from within discord
@@ -82,7 +83,7 @@ public class Configure implements Feature {
         try {
             return subCommandLoader(event).invoke(this, event);
         } catch (Exception e) {
-            Shell.exceptionHandler(e);
+            Shell.exceptionHandler(e, event.getGuild());
             return null;
         }
     }
@@ -99,14 +100,9 @@ public class Configure implements Feature {
 
     @Override
     public Object run(ModalInteractionEvent event) {
-        String config = event.getValue("config").getAsString();
-        for(String option : config.split("\n")){
-            String key = option.split("=")[0];
-            String value = option.split("=").length == 2 ? option.split("=")[1] : "";
-            Bot.getConfig().set(key, value);
-        }
-        Bot.getConfig().write();
-        success = true;
+        JSONObject config = new JSONObject(event.getValue("config").getAsString());
+        ServerConfig.write(event.getGuild(), config);   
+
         return "Successfully updated configuration";
     }
 
@@ -118,10 +114,19 @@ public class Configure implements Feature {
     @Override
     public List<Choice> run(CommandAutoCompleteInteractionEvent event) {
         List<String> choices = new ArrayList<>();
-        List<Entry> config = Bot.getConfig().getConfig();
+        JSONObject config = ServerConfig.get(event.getGuild());
+        for(String key : config.keySet()){
+            if(config.get(key).getClass().equals(JSONObject.class)){
+                for(String innerKey : config.getJSONObject(key).keySet()){
+                    choices.add(key+":"+innerKey);
+                }
+            }
+            else choices.add(key);
+        }
+        /*List<Entry> config = Bot.getConfig().getConfig();
         for(Entry entry : config){
             choices.add(entry.getKey());
-        }
+        }*/
         List<Choice> result = Stream.of(choices.toArray(new String[0]))
             .filter(choice -> choice.toLowerCase().startsWith(event.getFocusedOption().getValue().toLowerCase()))
             .map(choice -> new Choice(choice, choice))
@@ -131,13 +136,9 @@ public class Configure implements Feature {
     }
 
     public Object edit(SlashCommandInteractionEvent event){
-        List<Entry> config = Bot.getConfig().getConfig();
         TextInput.Builder builder = TextInput.create("config", "Edit configuration", TextInputStyle.PARAGRAPH);
-        String content = "";
-        for(Entry entry : config){
-            content+= entry.getKey()+"="+entry.getValue()+"\n";
-        }
-        builder.setValue(content);
+        
+        builder.setValue(ServerConfig.get(event.getGuild()).toString(4));
         String id = buildSubId("modal", null);
         Modal modal = Modal.create(id, "Configure the configuration file").addActionRow(builder.build()).build();
     
@@ -146,15 +147,22 @@ public class Configure implements Feature {
     }
 
     public Object set(SlashCommandInteractionEvent event){
-        Bot.getConfig().set(event.getOption("key").getAsString(), event.getOption("value").getAsString());
-        Bot.getConfig().write();
+        JSONObject config = ServerConfig.get(event.getGuild());
+        String key = event.getOption("key").getAsString();
+        String value = event.getOption("value").getAsString();
+
+        if(key.contains(":")){
+            ServerConfig.write(event.getGuild(), config.getJSONObject(key.split(":")[0]).put(key.split(":")[1], value));
+        }
+        else ServerConfig.write(event.getGuild(), config.put(key, value));
+
         success = true;
         return "Successfully set option '"+event.getOption("key").getAsString()+"' to '"+event.getOption("value").getAsString()+"'";
     }
 
     public Object get(SlashCommandInteractionEvent event){
         success = true;
-        return FileUpload.fromData(new File("files/config.conf"));
+        return FileUpload.fromData(new File("files/config/"+event.getGuild().getId()+"/config.json"));
     }
     
 }

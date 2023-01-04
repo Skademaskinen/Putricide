@@ -55,7 +55,7 @@ public class ModalListener extends ListenerAdapter{
                 else event.reply("An unhandled error occured, contact Mast3r_waf1z#0420 for more info").queue();
             }
             catch(Exception e){
-                Shell.exceptionHandler(e);
+                Shell.exceptionHandler(e, event.getGuild());
                 if(feature.shouldDefer()){
                     event.getHook().editOriginal(e.getMessage()).queue();
                 }
@@ -67,7 +67,7 @@ public class ModalListener extends ListenerAdapter{
             Bot.replyToEvent(event.getHook(), response, feature.getActionRows());
         }
         catch(Exception e){
-            Shell.exceptionHandler(e);
+            Shell.exceptionHandler(e, event.getGuild());
         }
     }
 }

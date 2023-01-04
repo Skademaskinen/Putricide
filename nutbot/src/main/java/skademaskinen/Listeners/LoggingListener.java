@@ -3,8 +3,8 @@ package skademaskinen.Listeners;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import skademaskinen.Bot;
 import skademaskinen.Utils.Loggable;
+import skademaskinen.Utils.ServerConfig;
 
 /**
  * This is the log listener, it logs specific guild events such that you know when a member joins and leaves a discord server.
@@ -18,7 +18,7 @@ public class LoggingListener extends ListenerAdapter implements Loggable{
     @Override
     public void onGuildMemberJoin(GuildMemberJoinEvent event) {
         log(true, new String[]{"User: "+event.getUser().getAsTag()," Guild: "+event.getGuild().getName()});
-        Bot.getJda().getGuildById(Bot.getConfig().get("guild:id")).getTextChannelById(Bot.getConfig().get("log:channel")).sendMessage(
+        event.getGuild().getTextChannelById(ServerConfig.get(event.getGuild()).getJSONObject("channels").getString("log")).sendMessage(
             "User joined the server: "+event.getUser().getAsTag()+"\nMember mention: "+event.getMember().getAsMention()+"\nMember count: "+event.getGuild().getMemberCount()
         ).queue();
     }
@@ -30,7 +30,7 @@ public class LoggingListener extends ListenerAdapter implements Loggable{
     @Override
     public void onGuildMemberRemove(GuildMemberRemoveEvent event) {
         log(true, new String[]{"User: "+event.getUser().getAsTag()," Guild: "+event.getGuild().getName()});
-        Bot.getJda().getGuildById(Bot.getConfig().get("guild:id")).getTextChannelById(Bot.getConfig().get("log:channel")).sendMessage(
+        event.getGuild().getTextChannelById(ServerConfig.get(event.getGuild()).getJSONObject("channels").getString("log")).sendMessage(
             "User left the server: "+event.getUser().getAsTag()+"\nMember mention: "+event.getUser().getAsMention()+"\nMember count: "+event.getGuild().getMemberCount()
         ).queue();
     }
