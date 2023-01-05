@@ -1,13 +1,9 @@
 package skademaskinen.Features;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.json.JSONObject;
-import org.json.JSONTokener;
 
 import com.vdurmont.emoji.EmojiManager;
 import com.vdurmont.emoji.EmojiParser;

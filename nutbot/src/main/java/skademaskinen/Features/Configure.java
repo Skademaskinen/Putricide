@@ -152,7 +152,8 @@ public class Configure implements Feature {
         String value = event.getOption("value").getAsString();
 
         if(key.contains(":")){
-            ServerConfig.write(event.getGuild(), config.getJSONObject(key.split(":")[0]).put(key.split(":")[1], value));
+            config.getJSONObject(key.split(":")[0]).put(key.split(":")[1], value);
+            ServerConfig.write(event.getGuild(), config);
         }
         else ServerConfig.write(event.getGuild(), config.put(key, value));
 
