@@ -118,6 +118,7 @@ public class Init implements Feature {
                     .build()));
                 List<SelectOption> channelOptions = new ArrayList<>();
                 for(TextChannel channel : event.getGuild().getTextChannels()){
+                    if(channelOptions.size() == 25) break;
                     channelOptions.add(SelectOption.of(channel.getName(), channel.getId()));
                 }
                 actionRows.add(ActionRow.of(StringSelectMenu.create(buildSubId("configLog", event.getMessageId()))
