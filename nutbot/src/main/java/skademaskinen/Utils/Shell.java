@@ -220,7 +220,7 @@ public class Shell implements Runnable {
      * This is the global exceptionhandler for the entire Bot software, it prints the stack trace above the prompt and sends it as a message to the configured log channel
      * @param e The exception to be logged
      */
-    public static void exceptionHandler(Throwable e) {
+    public static void exceptionHandler(Throwable e, Guild guild) {
         String message = e.toString();
         println(yellow(e.toString()));
         for(StackTraceElement element : e.getStackTrace()){
@@ -228,10 +228,14 @@ public class Shell implements Runnable {
             println("\t"+red(element.toString()));
         }
         if(message.length() > 2000){
-            TextChannel channel = Bot.getJda().getGuildById(Bot.getConfig().get("guild:id")).getTextChannelById(Bot.getConfig().get("log:channel"));
+            TextChannel channel = guild.getTextChannelById(ServerConfig.get(guild).getJSONObject("channels").getString("log"));
             channel.sendFiles(FileUpload.fromData(message.getBytes(), e.getClass().getSimpleName()+".txt")).queue();
         }
-        else Bot.getJda().getGuildById(Bot.getConfig().get("guild:id")).getTextChannelById(Bot.getConfig().get("log:channel")).sendMessage("```\n"+message+"```").queue();
+        else guild.getTextChannelById(ServerConfig.get(guild).getJSONObject("channels").getString("log")).sendMessage("```\n"+message+"```").queue();
+    }
+
+    public static void exceptionHandler(Throwable e){
+        exceptionHandler(e, Bot.getJda().getGuildById("692410386657574952"));
     }
 
     /**

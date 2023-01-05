@@ -19,7 +19,7 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
-import skademaskinen.Bot;
+import skademaskinen.Utils.ServerConfig;
 import skademaskinen.Utils.Shell;
 
 public class Message implements Feature{
@@ -99,7 +99,7 @@ public class Message implements Feature{
         try {
             return subCommandLoader(event).invoke(this, event);
         } catch (Exception e) {
-            Shell.exceptionHandler(e);
+            Shell.exceptionHandler(e, event.getGuild());
             return null;
         }
     }
@@ -182,7 +182,7 @@ public class Message implements Feature{
                 id = event.getModalId().split("::")[2];
                 message = event.getChannel().getHistoryAround(id, 1).complete().getMessageById(id);
                 if(event.getValues().get(0).getAsString().equalsIgnoreCase("yes")){
-                    event.getGuild().getTextChannelById(Bot.getConfig().get("guild:announcements")).sendMessageEmbeds(message.getEmbeds().get(0)).queue();
+                    event.getGuild().getTextChannelById(ServerConfig.get(event.getGuild()).getJSONObject("channels").getString("announcements")).sendMessageEmbeds(message.getEmbeds().get(0)).queue();
                     return "Sent announcement!";
                 }
                 return "Did not send announcement!";

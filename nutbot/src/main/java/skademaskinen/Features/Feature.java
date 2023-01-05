@@ -118,7 +118,7 @@ public interface Feature extends Loggable {
         try {
             return this.getClass().getMethod(event.getSubcommandName(), SlashCommandInteractionEvent.class);
         } catch (Exception e) {
-            Shell.exceptionHandler(e);
+            Shell.exceptionHandler(e, event.getGuild());
             return null;
         }
     }

@@ -1,26 +1,31 @@
 package skademaskinen;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import net.dv8tion.jda.api.requests.restaction.WebhookMessageEditAction;
 import net.dv8tion.jda.api.utils.FileUpload;
-import skademaskinen.Utils.Config;
+import skademaskinen.Utils.GlobalConfig;
 import skademaskinen.Utils.Loggable;
+import skademaskinen.Utils.ServerConfig;
 import skademaskinen.Utils.Shell;
 import skademaskinen.WorldOfWarcraft.BattleNetAPI;
 import skademaskinen.WorldOfWarcraft.PvpTeam;
@@ -37,7 +42,6 @@ import skademaskinen.Listeners.SlashCommandListener;
  * It handles class abstractions and handles the main api, it also handles initialization.
  */
 public class Bot implements Loggable{
-    private static Config config;
     private static JDA jda;
     private static Shell shell;
     private static List<CommandData> commands;
@@ -62,9 +66,9 @@ public class Bot implements Loggable{
                 result.add((CommandData) method.invoke(featureClass));
             } 
             catch (Exception e) {
-                Shell.exceptionHandler(e);
+                Shell.exceptionHandler(e, jda.getGuildById("692410386657574952"));
                 if(e.getClass().equals(InvocationTargetException.class)){
-                    Shell.exceptionHandler(((InvocationTargetException)e).getTargetException());
+                    Shell.exceptionHandler(((InvocationTargetException)e).getTargetException(), jda.getGuildById("692410386657574952"));
                 }
             }
         }
@@ -78,8 +82,7 @@ public class Bot implements Loggable{
 
     public Bot(String token){
         try{
-            config = new Config();
-            jda = JDABuilder.createDefault(config.get("token"))
+            jda = JDABuilder.createDefault(GlobalConfig.get().getString("token"))
                 .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT)
                 .build();
             jda.addEventListener(new SlashCommandListener());
@@ -91,11 +94,12 @@ public class Bot implements Loggable{
             shell = new Shell();
             BattleNetAPI.init(token);
             jda.awaitReady();
-            jda.getPresence().setActivity(Activity.competing(Bot.getConfig().get("status")));;
+            jda.getPresence().setActivity(Activity.competing(GlobalConfig.get().getString("status")));
             commands = generateFeatures();
             jda.updateCommands().addCommands(commands).queue();
-            RaidTeam.update();
-            PvpTeam.update();
+            //verify that all servers are configured
+            for(Guild guild : jda.getGuilds()) updateServerConfig(guild);
+
             //exceptionTester();
             //jda.getGuildById("692410386657574952").getTextChannelById("1046840206562709514").sendMessageEmbeds(new EmbedBuilder().setTitle("init").build()).queue();
             new Thread(shell).start();
@@ -103,7 +107,7 @@ public class Bot implements Loggable{
         }
         catch(Exception e){
             log(false, new String[]{e.getMessage()});
-            Shell.exceptionHandler(e);
+            Shell.exceptionHandler(e, jda.getGuildById("692410386657574952"));
 
         }
     }
@@ -114,14 +118,6 @@ public class Bot implements Loggable{
      */
     public static JDA getJda() {
         return jda;
-    }
-
-    /**
-     * Getter for the configuration object, this is used to ensure initialization
-     * @return The config object of type Config
-     */
-    public static Config getConfig(){
-        return config;
     }
 
     /**
@@ -158,11 +154,84 @@ public class Bot implements Loggable{
         }
         action.queue();
     }
+
+    public static void updateServerConfig(Guild guild) throws Exception{
+        File configPath = new File("files/config/"+guild.getId());
+        File config = new File(configPath.getPath()+"/config.json");
+        File rolepicker = new File(configPath.getPath()+"/rolepicker.json");
+        File pvp = new File(configPath.getPath()+"/pvp.json");
+        File raid = new File(configPath.getPath()+"/raid.json");
+        if(!configPath.exists()) configPath.mkdir();
+        if(!config.exists()) if(config.createNewFile()){
+            try(FileWriter writer = new FileWriter(config)){
+                TextChannel firstChannel = guild.getTextChannels().get(0);
+                writer.write(new JSONObject()
+                    .put("image", "https://www.interprint-services.co.uk/wp-content/uploads/2019/04/placeholder-banner.png")
+                    .put("name", "Placeholder")
+                    .put("realm", "Placeholder")
+                    .put("region", "Placeholder")
+                    .put("channels", new JSONObject()
+                        .put("log", firstChannel.getId())
+                        .put("announcements", firstChannel.getId())
+                        .put("issues", firstChannel.getId()))
+                    .put("raid", new JSONObject()
+                        .put("filled", new JSONArray())
+                        .put("preferred", new JSONArray())
+                        .put("ilvl", 370)
+                        .put("message", "placeholder")
+                        .put("channel", firstChannel.getId()))
+                    .put("pvp", new JSONObject()
+                        .put("filled", new JSONArray())
+                        .put("preferred", new JSONArray())
+                        .put("ilvl", 370)
+                        .put("message", "placeholder")
+                        .put("channel", firstChannel.getId()))
+                    .toString(4));
+            }
+        }
+        if(!rolepicker.exists()) if(rolepicker.createNewFile()){
+            try(FileWriter writer = new FileWriter(rolepicker)){
+                writer.write(new JSONObject()
+                    .put("configuration", new JSONObject()
+                        .put("image", "https://www.interprint-services.co.uk/wp-content/uploads/2019/04/placeholder-banner.png")
+                        .put("description", "Placeholder")
+                        .put("title", "Rolepicker"))
+                    .put("categories", new JSONObject())    
+                    .toString(4));
+            }
+        }
+        if(!pvp.exists()) if(pvp.createNewFile()){
+            try(FileWriter writer = new FileWriter(pvp)){
+                writer.write(new JSONObject()
+                    .put("Ranged Damage", new JSONObject())
+                    .put("Melee Damage", new JSONObject())
+                    .put("Tank", new JSONObject())
+                    .put("Healer", new JSONObject())
+                    .put("bench", new JSONObject())
+                    .toString(4));
+            }
+        }
+        if(!raid.exists()) if(raid.createNewFile()){
+            try(FileWriter writer = new FileWriter(raid)){
+                writer.write(new JSONObject()
+                    .put("Ranged Damage", new JSONObject())
+                    .put("Melee Damage", new JSONObject())
+                    .put("Tank", new JSONObject())
+                    .put("Healer", new JSONObject())
+                    .put("bench", new JSONObject())
+                    .toString(4));
+            }
+        }
+        if(!ServerConfig.get(guild).getJSONObject("pvp").getString("message").equals("placeholder")) PvpTeam.update(guild);
+        if(!ServerConfig.get(guild).getJSONObject("raid").getString("message").equals("placeholder")) RaidTeam.update(guild);
+
+    }
+
     public static void exceptionTester(){
         try {
             throw new Exception();
         } catch (Exception e) {
-            Shell.exceptionHandler(e);
+            Shell.exceptionHandler(e, jda.getGuildById("692410386657574952"));
         }
     }
 }

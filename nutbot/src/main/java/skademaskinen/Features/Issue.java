@@ -1,11 +1,13 @@
 package skademaskinen.Features;
 
+import org.json.JSONObject;
+
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import skademaskinen.Bot;
+import skademaskinen.Utils.ServerConfig;
 
 public class Issue implements Feature{
 
@@ -27,6 +29,7 @@ public class Issue implements Feature{
 
     @Override
     public Object run(SlashCommandInteractionEvent event) {
+        JSONObject config = ServerConfig.get(event.getGuild());
         String title = event.getOption("issue").getAsString();
         String description = event.getOption("description") == null ? "" : event.getOption("description").getAsString();
         EmbedBuilder builder = new EmbedBuilder();
@@ -35,8 +38,8 @@ public class Issue implements Feature{
         builder.setAuthor(event.getMember().getEffectiveName(), null, event.getMember().getEffectiveAvatarUrl());
         builder.setColor(event.getMember().getColor());
         builder.setFooter(event.getGuild().getName());
-        if(Bot.getConfig().get("issues:channel") != null){
-            event.getGuild().getTextChannelById(Bot.getConfig().get("issues:channel")).sendMessageEmbeds(builder.build()).queue();
+        if(config.getJSONObject("channels").has("issues")){
+            event.getGuild().getTextChannelById(config.getJSONObject("channels").getString("issues")).sendMessageEmbeds(builder.build()).queue();
             success = true;
             return "Sent issue report!";
         }

@@ -7,49 +7,48 @@ import org.json.JSONObject;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import skademaskinen.Bot;
 import skademaskinen.Utils.Loggable;
+import skademaskinen.Utils.ServerConfig;
 import skademaskinen.Utils.Utils;
 
 /**
  * The RaidTeam manager object, despite the Raid command having a similar purpose, this class provides abstractions such that the Raid class can focus on handling the response to the user
  */
 public class RaidTeam implements Loggable {
-    private static String filepath = "files/raid.json";
     private static Map<String, Character> characters = new HashMap<>();
 
     /**
      * This method adds a user and their character to the raid team
-     * @param user The user object representing a discord user
+     * @param member The user object representing a discord user
      * @param name The name of the World of Warcraft character they are joining with
      * @param role The role they are planning to be on the raid team
      * @param server The server this character is from
      * @return
      */
-    public static boolean add(User user, String name, String role, String server, String notes, boolean shouldBench){
+    public static boolean add(Member member, String name, String role, String server, String notes, boolean shouldBench){
         if(!BattleNetAPI.verifyCharacter(name.toLowerCase(), server)){
             return false;
         }
-        remove(user);
+        remove(member);
 
-        JSONObject team = Utils.readJSON(filepath);
+        JSONObject team = ServerConfig.raidGet(member.getGuild());
         JSONObject raider = new JSONObject();
         raider.put("name", name);
         raider.put("server", server);
         if(notes != null) raider.put("notes", notes);
         if(shouldBench){
-            team.getJSONObject("bench").put(user.getId(), raider.put("role", Utils.capitalize(role)));
+            team.getJSONObject("bench").put(member.getId(), raider.put("role", Utils.capitalize(role)));
         }
         else{
             JSONObject roleobj = team.getJSONObject(Utils.capitalize(role));
-            roleobj.put(user.getId(), raider);
+            roleobj.put(member.getId(), raider);
         }
-        Utils.writeJSON(filepath, team);
-        characters.put(user.getId(), new Character(name, server));
-        update();
+        ServerConfig.raidWrite(member.getGuild(), team);
+        characters.put(member.getId(), new Character(name, server));
+        update(member.getGuild());
         return true;
     }
 
@@ -57,15 +56,15 @@ public class RaidTeam implements Loggable {
      * This method removes a discord user from the raid team
      * @param user The user object representing a Discord user
      */
-    public static void remove(User user){
-        JSONObject team = Utils.readJSON(filepath);
+    public static void remove(Member member){
+        JSONObject team = ServerConfig.raidGet(member.getGuild());
         for(String key : team.keySet()){
-            if(team.getJSONObject(key).has(user.getId())){
-                team.getJSONObject(key).remove(user.getId());
+            if(team.getJSONObject(key).has(member.getId())){
+                team.getJSONObject(key).remove(member.getId());
             }
         }
-        Utils.writeJSON(filepath, team);
-        update();
+        ServerConfig.raidWrite(member.getGuild(), team);
+        update(member.getGuild());
     }
 
     /**
@@ -73,18 +72,18 @@ public class RaidTeam implements Loggable {
      * These are the raid:channel and raid:message, they are channel and message ids.
      * @return The response for the user, it can be that it is updated successfully or an error message
      */
-    public static String update() {
-        if(Bot.getConfig().get("raid:message") == null || Bot.getConfig().get("raid:channel") == null){
+    public static String update(Guild guild) {
+        JSONObject serverConfig = ServerConfig.get(guild);
+        if(!serverConfig.getJSONObject("raid").has("message") || !serverConfig.getJSONObject("raid").has("channel")){
             return "Failed to update raid team, the configuration id might be wrong";
         }
-        Guild guild = Bot.getJda().getGuildById(Bot.getConfig().get("guild:id"));
-        TextChannel channel = guild.getTextChannelById(Bot.getConfig().get("raid:channel"));
-        Message message = channel.getHistoryAround(Bot.getConfig().get("raid:message"), 2).complete().getMessageById(Bot.getConfig().get("raid:message"));
-        JSONObject team = Utils.readJSON(filepath);
+        TextChannel channel = guild.getTextChannelById(serverConfig.getJSONObject("raid").getString("channel"));
+        Message message = channel.getHistoryAround(serverConfig.getJSONObject("raid").getString("message"), 2).complete().getMessageById(serverConfig.getJSONObject("raid").getString("message"));
+        JSONObject team = ServerConfig.raidGet(guild);
         EmbedBuilder builder = new EmbedBuilder()
             .setTitle("Raid Team!")
             .setDescription("This is the raid team, this message will get updated with raid team members!")
-            .setImage(Bot.getConfig().get("guild:image"));
+            .setImage(serverConfig.getString("image"));
 
 		builder.appendDescription("\n**Raid team composition:** "+team.getJSONObject("Tank").length()+"/"+team.getJSONObject("Healer").length()+"/"+(team.getJSONObject("Ranged Damage").length()+team.getJSONObject("Melee Damage").length()));
 
@@ -98,7 +97,7 @@ public class RaidTeam implements Loggable {
 
                 temp+= "\n\n"+ guild.retrieveMemberById(raiderId).complete().getAsMention();
                 temp+= "\n"+ Utils.capitalize(character.getName());
-                if(!character.getRealm().toLowerCase().replace(" ", "-").equals(Bot.getConfig().get("guild:realm").toLowerCase().replace(" ", "-"))){
+                if(!character.getRealm().toLowerCase().replace(" ", "-").equals(serverConfig.getString("realm").toLowerCase().replace(" ", "-"))){
                     temp+= " (" + Utils.capitalize(raider.getString("server").replace("-", " ")) + ")";
                 }
                 temp+= "\n"+character.getSpecialization() + " " + character._getClass();
@@ -119,7 +118,7 @@ public class RaidTeam implements Loggable {
             temp+= "\n\n"+ guild.retrieveMemberById(raiderId).complete().getAsMention();
             if(raider.has("notes")) temp+=" ("+raider.getString("notes")+")";
             temp+= "\n"+ Utils.capitalize(character.getName());
-            if(!character.getRealm().toLowerCase().replace(" ", "-").equals(Bot.getConfig().get("guild:realm").toLowerCase().replace(" ", "-"))){
+            if(!character.getRealm().toLowerCase().replace(" ", "-").equals(serverConfig.getString("realm").toLowerCase().replace(" ", "-"))){
                 temp+= " (" + Utils.capitalize(raider.getString("server").replace("-", " ")) + ")";
             }
             temp+= "\n"+character.getSpecialization() + " " + character._getClass();
@@ -133,74 +132,74 @@ public class RaidTeam implements Loggable {
         return "Successfully updated raid team!";
     }
 
-    public static void editName(User user, String name) {
-        JSONObject team = Utils.readJSON(filepath);
+    public static void editName(Member member, String name) {
+        JSONObject team = ServerConfig.raidGet(member.getGuild());
         for(String key : team.keySet()){
-            if(team.getJSONObject(key).has(user.getId())){
-                team.getJSONObject(key).getJSONObject(user.getId()).put("name", name);
+            if(team.getJSONObject(key).has(member.getId())){
+                team.getJSONObject(key).getJSONObject(member.getId()).put("name", name);
                 break;
             }
         }
-        Utils.writeJSON(filepath, team);
+        ServerConfig.raidWrite(member.getGuild(), team);
     }
 
-    public static void editServer(User user, String server) {
-        JSONObject team = Utils.readJSON(filepath);
+    public static void editServer(Member member, String server) {
+        JSONObject team = ServerConfig.raidGet(member.getGuild());
         for(String key : team.keySet()){
-            if(team.getJSONObject(key).has(user.getId())){
-                team.getJSONObject(key).getJSONObject(user.getId()).put("server", server);
+            if(team.getJSONObject(key).has(member.getId())){
+                team.getJSONObject(key).getJSONObject(member.getId()).put("server", server);
                 break;
             }
         }
-        Utils.writeJSON(filepath, team);
+        ServerConfig.raidWrite(member.getGuild(), team);
     }
 
-    public static void editNote(User user, String note) {
-        JSONObject team = Utils.readJSON(filepath);
+    public static void editNote(Member member, String note) {
+        JSONObject team = ServerConfig.raidGet(member.getGuild());
         for(String key : team.keySet()){
-            if(team.getJSONObject(key).has(user.getId())){
+            if(team.getJSONObject(key).has(member.getId())){
                 if(note.equals("%")){
-                    team.getJSONObject(key).getJSONObject(user.getId()).remove("notes");
+                    team.getJSONObject(key).getJSONObject(member.getId()).remove("notes");
                     break;
                 }
-                team.getJSONObject(key).getJSONObject(user.getId()).put("notes", note);
+                team.getJSONObject(key).getJSONObject(member.getId()).put("notes", note);
                 break;
             }
         }
-        Utils.writeJSON(filepath, team);
+        ServerConfig.raidWrite(member.getGuild(), team);
     }
 
-    public static void editRole(User user, String role) {
-        JSONObject team = Utils.readJSON(filepath);
+    public static void editRole(Member member, String role) {
+        JSONObject team = ServerConfig.raidGet(member.getGuild());
         for(String key : team.keySet()){
-            if(team.getJSONObject(key).has(user.getId())){
-                JSONObject userData = team.getJSONObject(key).getJSONObject(user.getId());
-                team.getJSONObject(role).put(user.getId(), userData);
-                team.getJSONObject(key).remove(user.getId());
+            if(team.getJSONObject(key).has(member.getId())){
+                JSONObject userData = team.getJSONObject(key).getJSONObject(member.getId());
+                team.getJSONObject(role).put(member.getId(), userData);
+                team.getJSONObject(key).remove(member.getId());
                 break;
             }
         }
-        Utils.writeJSON(filepath, team);
+        ServerConfig.raidWrite(member.getGuild(), team);
     }
 
-    public static void editBench(User user, boolean shouldBench) {
-        JSONObject team = Utils.readJSON(filepath);
+    public static void editBench(Member member, boolean shouldBench) {
+        JSONObject team = ServerConfig.raidGet(member.getGuild());
         if(shouldBench){
             for(String key : team.keySet()){
-                if(team.getJSONObject(key).has(user.getId())){
-                    JSONObject userData = team.getJSONObject(key).getJSONObject(user.getId());
-                    team.getJSONObject("bench").put(user.getId(), userData);
-                    team.getJSONObject("bench").getJSONObject(user.getId()).put("role", key);
-                    team.getJSONObject(key).remove(user.getId());
+                if(team.getJSONObject(key).has(member.getId())){
+                    JSONObject userData = team.getJSONObject(key).getJSONObject(member.getId());
+                    team.getJSONObject("bench").put(member.getId(), userData);
+                    team.getJSONObject("bench").getJSONObject(member.getId()).put("role", key);
+                    team.getJSONObject(key).remove(member.getId());
                 }
             }
         }
         else{
-            JSONObject userData = team.getJSONObject("bench").getJSONObject(user.getId());
-            team.getJSONObject(userData.getString("role")).put(user.getId(), userData);
-            team.getJSONObject("bench").remove(user.getId());
+            JSONObject userData = team.getJSONObject("bench").getJSONObject(member.getId());
+            team.getJSONObject(userData.getString("role")).put(member.getId(), userData);
+            team.getJSONObject("bench").remove(member.getId());
         }
-        Utils.writeJSON(filepath, team);
+        ServerConfig.raidWrite(member.getGuild(), team);
     }
 
 }

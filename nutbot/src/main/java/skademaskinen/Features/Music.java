@@ -81,7 +81,7 @@ public class Music implements Feature {
         try {
             return subCommandLoader(event).invoke(this, event);
         } catch (Exception e) {
-            Shell.exceptionHandler(e);
+            Shell.exceptionHandler(e, event.getGuild());
             return null;
         }
     }

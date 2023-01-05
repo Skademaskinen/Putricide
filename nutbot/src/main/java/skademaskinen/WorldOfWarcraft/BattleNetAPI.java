@@ -7,7 +7,8 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
-import skademaskinen.Bot;
+import net.dv8tion.jda.api.entities.Guild;
+import skademaskinen.Utils.ServerConfig;
 import skademaskinen.Utils.Shell;
 
 /**
@@ -46,8 +47,7 @@ public class BattleNetAPI {
     public static boolean verifyCharacter(String name, String server) {
         //if the json key 'code' = 404, then this method returns false
         //if its null then return true and handle the loss of a valid member
-        String region = Bot.getConfig().get("region");
-        String url = "https://"+region+".api.blizzard.com/profile/wow/character/"+server.toLowerCase().replace(" ", "-")+"/"+name+"?namespace=profile-"+region+"&locale=en_GB&access_token="+token;
+        String url = "https://eu.api.blizzard.com/profile/wow/character/"+server.toLowerCase().replace(" ", "-")+"/"+name+"?namespace=profile-eu&locale=en_GB&access_token="+token;
         //Shell.println(url);
         HttpGet request = new HttpGet(url);
         try {
@@ -103,8 +103,7 @@ public class BattleNetAPI {
      * @return A json object response from the battle.net API
      */
     public static JSONObject getCharacterData(String name, String server){
-        String region = Bot.getConfig().get("region");
-        String url = "https://"+region+".api.blizzard.com/profile/wow/character/"+server.toLowerCase().replace(" ", "-")+"/"+name+"?namespace=profile-"+region+"&locale=en_GB&access_token="+token;
+        String url = "https://eu.api.blizzard.com/profile/wow/character/"+server.toLowerCase().replace(" ", "-")+"/"+name+"?namespace=profile-eu&locale=en_GB&access_token="+token;
 
         HttpGet request = new HttpGet(url);
 
@@ -125,9 +124,11 @@ public class BattleNetAPI {
      * Returns a list of all guild members, it checks whether its already been cached or generates a new list
      * @return a list of all members in the guild specified in the configuration file
      */
-    public static JSONObject getGuildMemberList() {
+    public static JSONObject getGuildMemberList(Guild guild) {
+        String realmSlug = ServerConfig.get(guild).getString("realm").toLowerCase().replace(" ", "-");
+        String guildSlug = ServerConfig.get(guild).getString("name").toLowerCase().replace(" ", "-");
         if(guildData != null) return guildData;
-        guildData = executeSubRequest("https://eu.api.blizzard.com/data/wow/guild/"+Bot.getConfig().get("guild:realm").toLowerCase().replace(" ", "-")+"/"+Bot.getConfig().get("guild:name").toLowerCase().replace(" ", "-")+"/roster?namespace=profile-eu&locale=en_GB");
+        guildData = executeSubRequest("https://eu.api.blizzard.com/data/wow/guild/"+realmSlug+"/"+guildSlug+"/roster?namespace=profile-eu&locale=en_GB");
         return guildData;
     }
 }

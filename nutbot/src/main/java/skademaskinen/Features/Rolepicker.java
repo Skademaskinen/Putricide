@@ -1,13 +1,9 @@
 package skademaskinen.Features;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.json.JSONObject;
-import org.json.JSONTokener;
 
 import com.vdurmont.emoji.EmojiManager;
 import com.vdurmont.emoji.EmojiParser;
@@ -37,6 +33,7 @@ import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
 import net.dv8tion.jda.api.interactions.modals.ModalMapping;
 import skademaskinen.Bot;
+import skademaskinen.Utils.ServerConfig;
 import skademaskinen.Utils.Shell;
 
 public class Rolepicker implements Feature {
@@ -79,20 +76,15 @@ public class Rolepicker implements Feature {
 
     public Rolepicker(SlashCommandInteractionEvent event) {
         guild = event.getGuild();
-        JSONObject object = read();
-        if(!object.has(guild.getId())){
-            object.put(guild.getId(), new JSONObject()
+        JSONObject object = ServerConfig.rolepickerGet(guild);
+        if(object.keySet().size() == 0){
+            object = new JSONObject()
                 .put("categories", new JSONObject())
                 .put("configuration", new JSONObject()
                     .put("title", "Generic rolepicker")
                     .put("description", "Generic rolepicker description")
-                    .put("image", "https://www.interprint-services.co.uk/wp-content/uploads/2019/04/placeholder-banner.png")));
-            try(FileWriter writer = new FileWriter(new File("files/rolepicker.json"))){
-                writer.write(object.toString(4));
-            }
-            catch(Exception e){
-                Shell.exceptionHandler(e);
-            }
+                    .put("image", "https://www.interprint-services.co.uk/wp-content/uploads/2019/04/placeholder-banner.png"));
+            ServerConfig.rolepickerWrite(guild, object);
         }
         loadCategories(event.getGuild());
         defer = !event.getSubcommandName().equals("customize");
@@ -112,9 +104,9 @@ public class Rolepicker implements Feature {
 
     private void loadCategories(Guild guild){
         this.guild = guild;
-        JSONObject object = read();
-        for(String key : object.getJSONObject(guild.getId()).getJSONObject("categories").keySet()){
-            JSONObject roles = object.getJSONObject(guild.getId()).getJSONObject("categories").getJSONObject(key);
+        JSONObject object = ServerConfig.rolepickerGet(guild);
+        for(String key : object.getJSONObject("categories").keySet()){
+            JSONObject roles = object.getJSONObject("categories").getJSONObject(key);
             List<GuildRole> guildRoles = new ArrayList<>();
             for(String innerKey : roles.keySet()){
                 JSONObject role = roles.getJSONObject(innerKey);
@@ -141,7 +133,7 @@ public class Rolepicker implements Feature {
         try {
             return subCommandLoader(event).invoke(this, event);
         } catch (Exception e) {
-            Shell.exceptionHandler(e);
+            Shell.exceptionHandler(e, event.getGuild());
             return null;
         }
     }
@@ -266,17 +258,13 @@ public class Rolepicker implements Feature {
     @Override
     public Object run(ModalInteractionEvent event) {
         //customize
-        JSONObject file = read();
-        JSONObject config = file.getJSONObject(guild.getId()).getJSONObject("configuration");
+        JSONObject file = ServerConfig.rolepickerGet(guild);
+        JSONObject config = file.getJSONObject("configuration");
         for(ModalMapping option : event.getValues()){
             config.put(option.getId(), option.getAsString());
         }
-        try(FileWriter writer = new FileWriter(new File("files/rolepicker.json"))){
-            writer.write(file.toString(4));
-        }
-        catch(Exception e){
-            Shell.exceptionHandler(e);
-        }
+        ServerConfig.rolepickerWrite(guild, file);
+
         return "Successfully edited message";
     }
 
@@ -352,7 +340,7 @@ public class Rolepicker implements Feature {
 
     public Object create(SlashCommandInteractionEvent event){
         EmbedBuilder builder = new EmbedBuilder();
-        JSONObject config = read().getJSONObject(guild.getId()).getJSONObject("configuration");
+        JSONObject config = ServerConfig.rolepickerGet(guild).getJSONObject("configuration");
         builder.setTitle(config.getString("title"));
         builder.setImage(config.getString("image"));
         builder.setDescription(config.getString("description"));
@@ -366,39 +354,24 @@ public class Rolepicker implements Feature {
     
     }
 
-    private JSONObject read(){
-        try(FileReader reader = new FileReader(new File("files/rolepicker.json"))){
-            return new JSONObject(new JSONTokener(reader));
-        }
-        catch(Exception e){
-            Shell.exceptionHandler(e);
-            return null;
-        }
-    }
-
     private void write(){
-        JSONObject current = read();
-        try(FileWriter writer = new FileWriter(new File("files/rolepicker.json"))){
-            JSONObject value = new JSONObject();
-            for(Category category : categories){
-                JSONObject inner = new JSONObject();
-                for(GuildRole role : category.roles){
-                    JSONObject object = new JSONObject();
-                    object.put("name", role.getName());
-                    object.put("description", role.getDescription());
-                    object.put("emoji", role.getEmoji());
-                    inner.put(role.getId(), object);
-                }
-                value.put(category.name, inner);
+        JSONObject current = ServerConfig.rolepickerGet(guild);
+        JSONObject value = new JSONObject();
+        for(Category category : categories){
+            JSONObject inner = new JSONObject();
+            for(GuildRole role : category.roles){
+                JSONObject object = new JSONObject();
+                object.put("name", role.getName());
+                object.put("description", role.getDescription());
+                object.put("emoji", role.getEmoji());
+                inner.put(role.getId(), object);
             }
-            current.getJSONObject(guild.getId()).put("categories", value);
-            writer.write(current.toString(4));
+            value.put(category.name, inner);
+        }
+        current.put("categories", value);
+        ServerConfig.rolepickerWrite(guild, current);
             
 
-        }
-        catch(Exception e){
-            Shell.exceptionHandler(e);
-        }
     }
     public Object addcategory(SlashCommandInteractionEvent event){
         categories.add(new Category(event.getOption("name").getAsString(), new ArrayList<>()));
@@ -506,7 +479,7 @@ public class Rolepicker implements Feature {
     }
 
     public Object customize(SlashCommandInteractionEvent event){
-        JSONObject config = read().getJSONObject(guild.getId()).getJSONObject("configuration");
+        JSONObject config = ServerConfig.rolepickerGet(guild).getJSONObject("configuration");
         TextInput title = TextInput.create("title", "Title", TextInputStyle.SHORT).setValue(config.getString("title")).build();
         TextInput description = TextInput.create("description", "Description", TextInputStyle.PARAGRAPH).setValue(config.getString("description")).build();
         TextInput image = TextInput.create("image", "Image", TextInputStyle.SHORT).setValue(config.getString("image")).build();
