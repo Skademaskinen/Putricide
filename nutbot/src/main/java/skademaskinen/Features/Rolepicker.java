@@ -342,7 +342,7 @@ public class Rolepicker implements Feature {
         EmbedBuilder builder = new EmbedBuilder();
         JSONObject config = ServerConfig.rolepickerGet(guild).getJSONObject("configuration");
         builder.setTitle(config.getString("title"));
-        builder.setImage(config.getString("image"));
+        if(!config.getString("image").equals("")) builder.setImage(config.getString("image"));
         builder.setDescription(config.getString("description"));
         builder.setFooter(guild.getName());
         
