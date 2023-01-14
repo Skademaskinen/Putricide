@@ -30,10 +30,9 @@ fi
 
 mv *.jar nutbot.jar $verbose
 
-token=$(curl -s -u $(bash scripts/config.sh clientId):$(bash scripts/config.sh clientSecret) -d grant_type=client_credentials https://oauth.battle.net/token)
 if [ "$1" = "--remote" ]; then
-	screen -dmS nutbot java -jar nutbot.jar $token
+	screen -dmS nutbot java -jar nutbot.jar
 else
-	java -jar nutbot.jar $token
+	java -jar nutbot.jar
 fi
 

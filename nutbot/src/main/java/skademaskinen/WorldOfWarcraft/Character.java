@@ -80,7 +80,7 @@ public class Character {
      */
     public String getAvatarURL(){
         try{
-            return BattleNetAPI.executeSubRequest(avatarUrl).getJSONArray("assets").getJSONObject(0).getString("value");
+            return BattleNetAPI.query(avatarUrl).getJSONArray("assets").getJSONObject(0).getString("value");
         }
         catch(JSONException e){
             Shell.exceptionHandler(e);

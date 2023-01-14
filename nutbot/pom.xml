@@ -6,7 +6,7 @@
 
   <groupId>skademaskinen</groupId>
   <artifactId>nutbot</artifactId>
-  <version>3.36a</version>
+  <version>3.37a</version>
 
   <name>nutbot</name>
   <!-- FIXME change it to the project's website -->
@@ -67,12 +67,6 @@
       <groupId>com.sedmelluq</groupId>
       <artifactId>lavaplayer</artifactId>
       <version>1.3.77</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>httpclient</artifactId>
-      <version>4.5.13</version>
     </dependency>
 
     <dependency>
