@@ -50,8 +50,7 @@ public class Bot implements Loggable{
      * @param args command line arguments that are passed after compilation, args[0] is always the access token for blizzard servers
      */
     public static void main(String[] args) {
-        String accessToken = new JSONObject(args[0]).getString("access_token");
-        new Bot(accessToken);
+        new Bot();
     }
 
     private static List<CommandData> generateFeatures() {
@@ -80,7 +79,7 @@ public class Bot implements Loggable{
      * @param token The access token for the blizzard servers
      */
 
-    public Bot(String token){
+    public Bot(){
         try{
             jda = JDABuilder.createDefault(GlobalConfig.get().getString("token"))
                 .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT)
@@ -92,7 +91,7 @@ public class Bot implements Loggable{
             jda.addEventListener(new LoggingListener());
             jda.addEventListener(new SelectMenuListener());
             shell = new Shell();
-            BattleNetAPI.init(token);
+            BattleNetAPI.init();
             jda.awaitReady();
             jda.getPresence().setActivity(Activity.competing(GlobalConfig.get().getString("status")));
             commands = generateFeatures();
