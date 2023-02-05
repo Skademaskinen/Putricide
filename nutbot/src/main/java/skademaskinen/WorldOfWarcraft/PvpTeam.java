@@ -9,7 +9,10 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import skademaskinen.Bot;
 import skademaskinen.Utils.Loggable;
 import skademaskinen.Utils.ServerConfig;
 import skademaskinen.Utils.Utils;
@@ -94,6 +97,7 @@ public class PvpTeam implements Loggable {
             for(String raiderId : team.getJSONObject(role).keySet()){
                 JSONObject raider = team.getJSONObject(role).getJSONObject(raiderId);
                 Character character = new Character(raider.getString("name"), raider.getString("server"));
+                if(character.failure) return teamError(Bot.getJda().getUserById(raiderId), guild, raider.getString("name"));
 
                 temp+= "\n\n"+ guild.retrieveMemberById(raiderId).complete().getAsMention();
                 temp+= "\n"+ Utils.capitalize(character.getName());
@@ -131,6 +135,18 @@ public class PvpTeam implements Loggable {
 
         return "Successfully updated pvp team!";
     }
+    
+    private static String teamError(User user, Guild guild, String character) {
+        user.openPrivateChannel().complete().sendMessageEmbeds(new EmbedBuilder()
+        .setTitle("raid team issue with your character!")
+        .setDescription("Your character is causing issues for the pvp team of "+guild.getName()+"\nCharacter name: "+character+"\nGuild server membership: "+(guild.getMemberByTag(user.getAsTag()) != null))
+        .build()
+        )
+        .addActionRow(Button.secondary("Pvp::teamErrorName::"+guild.getId(), "Edit name"), Button.danger("Pvp::teamErrorRemove::"+guild.getId(), "Remove me"))
+        .queue();
+        return "The following member is invalid: \n"+user.getAsMention();
+    }
+
     public static void editName(Member member, String name) {
         JSONObject team = ServerConfig.pvpGet(member.getGuild());
         for(String key : team.keySet()){

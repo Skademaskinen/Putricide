@@ -23,7 +23,7 @@ public class ModalListener extends ListenerAdapter{
     public void onModalInteraction(ModalInteractionEvent event) {
         Shell.println(Shell.green("Modal event: "));
         Shell.println(Shell.yellow("Timestamp:    ")+Utils.timestamp());
-        Shell.println(Shell.yellow("Guild:        ")+event.getGuild().getName());
+        if(event.isFromGuild()) Shell.println(Shell.yellow("Guild:        ")+event.getGuild().getName());
         Shell.println(Shell.yellow("Member:       ")+event.getUser().getAsTag());
         Shell.println(Shell.yellow("Modal ID:     ")+event.getModalId());
         for(ModalMapping mapping : event.getValues()) Shell.println(Shell.yellow("value("+mapping.getId()+"): ")+mapping.getAsString());
@@ -34,7 +34,8 @@ public class ModalListener extends ListenerAdapter{
             Constructor<?> constructor = featureClass.getConstructor(ModalInteractionEvent.class);
             Feature feature = (Feature) constructor.newInstance(new Object[]{event});
             
-            if(feature.requiresAdmin() && !event.getMember().hasPermission(Permission.ADMINISTRATOR)){
+            if(!event.isFromGuild());
+            else if(feature.requiresAdmin() && !event.getMember().hasPermission(Permission.ADMINISTRATOR)){
                 event.reply("Error, you are not an administrator!").setEphemeral(true).queue();
                 return;
             }

@@ -77,6 +77,7 @@ public class SlashCommandListener extends ListenerAdapter{
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
+        if(!event.isFromGuild()) return;
         if(Bot.getShell().isInChannel(event.getGuild(), event.getChannel())){
             Shell.println(Shell.cyan(event.getMember().getUser().getAsTag())+": \n"+event.getMessage().getContentDisplay());
         }

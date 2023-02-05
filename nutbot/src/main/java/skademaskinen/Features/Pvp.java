@@ -7,6 +7,8 @@ import java.util.List;
 import org.json.JSONObject;
 
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed.Field;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
@@ -24,6 +26,7 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
+import skademaskinen.Bot;
 import skademaskinen.Utils.ServerConfig;
 import skademaskinen.Utils.Shell;
 import skademaskinen.Utils.Utils;
@@ -74,7 +77,9 @@ public class Pvp extends Raid {
 
     @Override
     public Object run(ButtonInteractionEvent event) {
-        JSONObject config = ServerConfig.get(event.getGuild());
+        JSONObject config;
+        if(event.isFromGuild()) config = ServerConfig.get(event.getGuild());
+        else config = new JSONObject();
         Object result;
         switch(event.getComponentId().split("::")[1]){
             case "apply":
@@ -108,6 +113,20 @@ public class Pvp extends Raid {
                 success = true;
                 result = "Successfully declined application for: `"+data1[1]+"`!";
                 break;
+            case "teamErrorName":
+                String id = event.getComponentId().split("::")[2].split(",")[0];
+                modal = Modal.create(buildSubId("teamErrorName", id), "Edit character name")
+                    .addActionRow(TextInput.create("Name", "name", TextInputStyle.SHORT).build())
+                    .build();
+                result = modal;
+                success = true;
+                break;
+            case "teamErrorRemove":
+                String guildId = event.getComponentId().split("::")[2].split(",")[0];
+                PvpTeam.remove(Bot.getJda().getGuildById(guildId).getMemberById(event.getUser().getId()));
+                result = "Successfully removed you from the team!";
+                success = true;
+                break;
             default:
                 success = false;
                 result = "Error, invalid button identified by id: "+event.getComponentId();
@@ -118,8 +137,9 @@ public class Pvp extends Raid {
     }
     @Override
     public Object run(ModalInteractionEvent event) {
+        if(getSubId(event).equals("configure")) return configureModal(event);
+        if(getSubId(event).equals("teamErrorName")) return teamErrorName(event);
         JSONObject config = ServerConfig.get(event.getGuild());
-        if(event.getModalId().split("::")[1].equals("configure")) return configureModal(event);
         String name = event.getValue("name").getAsString().toLowerCase().strip();
         String server = event.getValue("server").getAsString().toLowerCase().replace(" ", "-").strip();
         String role = event.getValue("role").getAsString().strip();
@@ -172,6 +192,15 @@ public class Pvp extends Raid {
         success = true;
         log(success, new String[]{name+", "+server+", "+role});
         return builder.build();
+    }
+    private Object teamErrorName(ModalInteractionEvent event) {
+        String name = event.getValues().get(0).getAsString();
+        Guild guild = Bot.getJda().getGuildById(event.getModalId().split("::")[2]);
+        Member member = guild.getMemberById(event.getUser().getId());
+        PvpTeam.editName(member, name);
+        success = true;
+        PvpTeam.update(guild);
+        return "Successfully updated name of your character!";
     }
     
     @Override
