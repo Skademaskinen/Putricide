@@ -16,6 +16,7 @@ public class Character {
     private int ilvl;
     private int averageIlvl;
     private String avatarUrl;
+    public boolean failure = false;
 
     /**
      * The constructor of this class, it is the most important method as this object is essentially just a struct for saving data.
@@ -24,13 +25,18 @@ public class Character {
      */
     public Character(String name, String realm) {
         JSONObject data = BattleNetAPI.getCharacterData(name.toLowerCase(), realm);
-        this.name = name;
-        this.realm = realm;
-        this.Class = data.getJSONObject("character_class").getString("name");
-        this.specialization = data.getJSONObject("active_spec").getString("name");
-        this.ilvl = data.getInt("equipped_item_level");
-        this.averageIlvl = data.getInt("average_item_level");
-        avatarUrl = data.getJSONObject("media").getString("href");
+        if(data.has("code") && data.getInt("code") == 404){
+            failure = true;
+        }
+        else{
+            this.name = name;
+            this.realm = realm;
+            this.Class = data.getJSONObject("character_class").getString("name");
+            this.specialization = data.getJSONObject("active_spec").getString("name");
+            this.ilvl = data.getInt("equipped_item_level");
+            this.averageIlvl = data.getInt("average_item_level");
+            avatarUrl = data.getJSONObject("media").getString("href");
+        }
     }
     /**
      * Getter for the name String

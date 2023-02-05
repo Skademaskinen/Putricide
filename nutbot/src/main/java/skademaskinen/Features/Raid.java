@@ -9,6 +9,8 @@ import java.util.stream.Stream;
 import org.json.JSONObject;
 
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.MessageEmbed.Field;
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent;
@@ -28,6 +30,7 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.interactions.components.text.TextInput;
 import net.dv8tion.jda.api.interactions.components.text.TextInputStyle;
 import net.dv8tion.jda.api.interactions.modals.Modal;
+import skademaskinen.Bot;
 import skademaskinen.Utils.ServerConfig;
 import skademaskinen.Utils.Shell;
 import skademaskinen.Utils.Utils;
@@ -94,7 +97,7 @@ public class Raid implements Feature {
      * @param event The button interaction event
      */
     public Raid(ButtonInteractionEvent event) {
-        if(getSubId(event).equals("apply")){
+        if(getSubId(event).equals("apply") || getSubId(event).equals("teamErrorName")){
             defer = false;
             shouldEphemeral = false;
             requiresAdmin = false;
@@ -243,7 +246,9 @@ public class Raid implements Feature {
     @Override
     public Object run(ButtonInteractionEvent event) {
         Object result;
-        JSONObject config = ServerConfig.get(event.getGuild());
+        JSONObject config;
+        if(event.isFromGuild()) config = ServerConfig.get(event.getGuild());
+        else config = new JSONObject();
         switch(event.getComponentId().split("::")[1]){
             case "apply":
                 TextInput name = TextInput.create("name", "Character name", TextInputStyle.SHORT)
@@ -280,6 +285,20 @@ public class Raid implements Feature {
                 success = true;
                 result = "Successfully declined application for: `"+data1[1]+"`!";
                 break;
+            case "teamErrorName":
+                String id = event.getComponentId().split("::")[2].split(",")[0];
+                modal = Modal.create(buildSubId("teamErrorName", id), "Edit character name")
+                    .addActionRow(TextInput.create("Name", "name", TextInputStyle.SHORT).build())
+                    .build();
+                result = modal;
+                success = true;
+                break;
+            case "teamErrorRemove":
+                String guildId = event.getComponentId().split("::")[2].split(",")[0];
+                RaidTeam.remove(Bot.getJda().getGuildById(guildId).getMemberById(event.getUser().getId()));
+                result = "Successfully removed you from the team!";
+                success = true;
+                break;
             default:
                 success = false;
                 result = "Error, invalid button identified by id: "+event.getComponentId();
@@ -292,8 +311,9 @@ public class Raid implements Feature {
 
     @Override
     public Object run(ModalInteractionEvent event) {
+        if(getSubId(event).equals("configure")) return configureModal(event);
+        if(getSubId(event).equals("teamErrorName")) return teamErrorName(event);
         JSONObject config = ServerConfig.get(event.getGuild());
-        if(event.getModalId().split("::")[1].equals("configure")) return configureModal(event);
         String name = event.getValue("name").getAsString().toLowerCase().strip();
         String server = event.getValue("server").getAsString().toLowerCase().replace(" ", "-").strip();
         String role = event.getValue("role").getAsString().strip();
@@ -350,6 +370,16 @@ public class Raid implements Feature {
         log(success, new String[]{event.getMember().getId()+","+name+","+role+","+server});
         return builder.build();
     }
+    private Object teamErrorName(ModalInteractionEvent event) {
+        String name = event.getValues().get(0).getAsString();
+        Guild guild = Bot.getJda().getGuildById(event.getModalId().split("::")[2]);
+        Member member = guild.getMemberById(event.getUser().getId());
+        RaidTeam.editName(member, name);
+        success = true;
+        RaidTeam.update(guild);
+        return "Successfully updated member id!";
+    }
+
     /**
      * This method runs the configure modal
      * @param event The object containing information about the event

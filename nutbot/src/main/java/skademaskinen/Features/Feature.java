@@ -76,7 +76,7 @@ public interface Feature extends Loggable {
         Object response = run(event);
         log(isSuccess(),  new String[]{
             "User: "+event.getUser().getAsTag(),
-            "Guild: "+event.getGuild().getName(),
+            "Guild: "+ (event.isFromGuild() ? event.getGuild().getName() : "None"),
         });
         return response;
     }
@@ -87,7 +87,7 @@ public interface Feature extends Loggable {
         Object response = run(event);
         log(isSuccess(),  new String[]{
             "User: "+event.getUser().getAsTag(),
-            "Guild: "+event.getGuild().getName(),
+            "Guild: "+(event.isFromGuild() ? event.getGuild().getName() : "none"),
         });
         return response;
     }

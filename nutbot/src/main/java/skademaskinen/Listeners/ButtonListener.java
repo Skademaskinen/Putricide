@@ -24,7 +24,7 @@ public class ButtonListener extends ListenerAdapter {
     public void onButtonInteraction(ButtonInteractionEvent event) {
         Shell.println(Shell.green("Button event: "));
         Shell.println(Shell.yellow("Timestamp:    ")+Utils.timestamp());
-        Shell.println(Shell.yellow("Guild:        ")+event.getGuild().getName());
+        if(event.isFromGuild()) Shell.println(Shell.yellow("Guild:        ")+event.getGuild().getName());
         Shell.println(Shell.yellow("Member:       ")+event.getUser().getAsTag());
         Shell.println(Shell.yellow("Button ID:    ")+event.getComponentId());
 
@@ -34,7 +34,8 @@ public class ButtonListener extends ListenerAdapter {
             Constructor<?> constructor = featureClass.getConstructor(ButtonInteractionEvent.class);
             Feature feature = (Feature) constructor.newInstance(new Object[]{event});
             
-            if(feature.requiresAdmin() && !event.getMember().hasPermission(Permission.ADMINISTRATOR)){
+            if(!event.isFromGuild());
+            else if(feature.requiresAdmin() && !event.getMember().hasPermission(Permission.ADMINISTRATOR)){
                 event.reply("Error, you are not an administrator!").setEphemeral(true).queue();
                 return;
             }
