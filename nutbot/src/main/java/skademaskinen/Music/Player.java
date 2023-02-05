@@ -19,6 +19,9 @@ import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.managers.AudioManager;
 import skademaskinen.Utils.Shell;
 
+/**
+ * This class describes handles the player for the specific
+ */
 public class Player {
     private static Map<Guild, Player> players = new HashMap<>();
     private static AudioPlayerManager playerManager = new DefaultAudioPlayerManager();

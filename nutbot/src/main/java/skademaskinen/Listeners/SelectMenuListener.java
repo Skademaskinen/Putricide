@@ -10,7 +10,15 @@ import skademaskinen.Features.Feature;
 import skademaskinen.Utils.Shell;
 import skademaskinen.Utils.Utils;
 
+/**
+ * This class handles all types of selectmenus, this will be when the user has selected one option or multiple and has closed the dialog box.
+ */
 public class SelectMenuListener extends ListenerAdapter {
+
+    /**
+     * This is the method that will be handling the event
+     * @param event The event to be handled by this listener
+     */
     @Override
     public void onStringSelectInteraction(StringSelectInteractionEvent event) {
         Shell.println(Shell.green("Selectmenu event: "));
