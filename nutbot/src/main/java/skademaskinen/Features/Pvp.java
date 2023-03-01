@@ -121,6 +121,14 @@ public class Pvp extends Raid {
                 result = modal;
                 success = true;
                 break;
+            case "teamErrorServer":
+                String id2 = event.getComponentId().split("::")[2].split(",")[0];
+                modal = Modal.create(buildSubId("teamErrorServer", id2), "Edit character server")
+                    .addActionRow(TextInput.create("Server", "server", TextInputStyle.SHORT).build())
+                    .build();
+                result = modal;
+                success = true;
+                break;
             case "teamErrorRemove":
                 String guildId = event.getComponentId().split("::")[2].split(",")[0];
                 PvpTeam.remove(Bot.getJda().getGuildById(guildId).getMemberById(event.getUser().getId()));
@@ -139,6 +147,7 @@ public class Pvp extends Raid {
     public Object run(ModalInteractionEvent event) {
         if(getSubId(event).equals("configure")) return configureModal(event);
         if(getSubId(event).equals("teamErrorName")) return teamErrorName(event);
+        if(getSubId(event).equals("teamErrorServer")) return teamErrorServer(event);
         JSONObject config = ServerConfig.get(event.getGuild());
         String name = event.getValue("name").getAsString().toLowerCase().strip();
         String server = event.getValue("server").getAsString().toLowerCase().replace(" ", "-").strip();
@@ -201,6 +210,16 @@ public class Pvp extends Raid {
         success = true;
         PvpTeam.update(guild);
         return "Successfully updated name of your character!";
+    }
+
+    private Object teamErrorServer(ModalInteractionEvent event) {
+        String server = event.getValues().get(0).getAsString();
+        Guild guild = Bot.getJda().getGuildById(event.getModalId().split("::")[2]);
+        Member member = guild.getMemberById(event.getUser().getId());
+        PvpTeam.editServer(member, server);
+        success = true;
+        PvpTeam.update(guild);
+        return "Successfully updated server of your character!";
     }
     
     @Override
