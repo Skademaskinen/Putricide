@@ -15,6 +15,7 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import skademaskinen.Bot;
 import skademaskinen.Utils.Loggable;
 import skademaskinen.Utils.ServerConfig;
+import skademaskinen.Utils.Shell;
 import skademaskinen.Utils.Utils;
 
 /**
@@ -97,7 +98,7 @@ public class RaidTeam implements Loggable {
             for(String raiderId : team.getJSONObject(role).keySet()){
                 JSONObject raider = team.getJSONObject(role).getJSONObject(raiderId);
                 Character character = new Character(raider.getString("name"), raider.getString("server"));
-                if(character.failure) return teamError(Bot.getJda().getUserById(raiderId), guild, raider.getString("name"));
+                if(character.failure) return teamError(Bot.getJda().retrieveUserById(raiderId).complete(), guild, raider.getString("name"));
 
                 temp+= "\n\n"+ guild.retrieveMemberById(raiderId).complete().getAsMention();
                 temp+= "\n"+ Utils.capitalize(character.getName());
@@ -139,11 +140,12 @@ public class RaidTeam implements Loggable {
     private static String teamError(User user, Guild guild, String character) {
         user.openPrivateChannel().complete().sendMessageEmbeds(new EmbedBuilder()
         .setTitle("raid team issue with your character!")
-        .setDescription("Your character is causing issues for the raid team of "+guild.getName()+"\nCharacter name: "+character+"\nGuild server membership: "+(guild.getMemberByTag(user.getAsTag()) != null))
+        .setDescription("Your character is causing issues for the raid team of "+guild.getName()+"\nCharacter name: "+character+"\nGuild server membership: "+(guild.retrieveMemberById(user.getId()).complete() != null))
         .build()
         )
-        .addActionRow(Button.secondary("Raid::teamErrorName::"+guild.getId(), "Edit name"), Button.danger("Raid::teamErrorRemove::"+guild.getId(), "Remove me"))
+        .addActionRow(Button.secondary("Raid::teamErrorName::"+guild.getId(), "Edit name"), Button.secondary("Raid::teamErrorServer::"+guild.getId(), "Edit server"), Button.danger("Raid::teamErrorRemove::"+guild.getId(), "Remove me"))
         .queue();
+        Shell.println(Shell.red("Sent error message to user: "+user.getAsTag()+", regarding the character "+character));
         return "The following member is invalid: \n"+user.getAsMention();
     }
 
