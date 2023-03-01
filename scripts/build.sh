@@ -31,7 +31,7 @@ fi
 mv *.jar nutbot.jar $verbose
 
 if [ "$1" = "--remote" ]; then
-	screen -dmS nutbot java -jar nutbot.jar
+	screen -L -dmS nutbot java -jar nutbot.jar
 else
 	java -jar nutbot.jar
 fi
