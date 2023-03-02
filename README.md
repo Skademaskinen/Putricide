@@ -1,4 +1,6 @@
 # Putricide
+Good news everyone! I think I have perfected a plague that will destroy all life on Azeroth!
+
 <p style="color:orange">World of Warcraft Team Managing tool and role manager for Discord.</p>
 <img src="https://repository-images.githubusercontent.com/571304196/266beb85-36c3-418e-979d-332b066e55ba">
 All rights to any images used for this bot is entirely credited to Activision Blizzard, Inc.
@@ -34,3 +36,7 @@ Professor
 
 ## Initialization
 running the script `init.py` with `python scripts/init.py` from the parent directory of the project will initialize the project with the neccessary files in the configuration directory. you will have to provide the client id and client secret of your application for the battle.net API, while also providing a bot token to log into discord with.
+
+
+
+Bad news, everyone! I don't think I'm going to make it.
