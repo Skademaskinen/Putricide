@@ -1,6 +1,7 @@
 # Professor
 <p style="color:orange">World of Warcraft Team Managing tool and role manager for Discord.</p>
 <img src="https://repository-images.githubusercontent.com/571304196/266beb85-36c3-418e-979d-332b066e55ba">
+All rights to any images used for this bot is entirely credited to Activision Blizzard, Inc.
 
 ## TLDR
 This project is a Discord bot that manages RBG and raid teams for World of Warcraft using the battle.net API. It has a configuration script as described below that can be run by `python scripts/init.py`
