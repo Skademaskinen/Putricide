@@ -21,18 +21,18 @@ fi
 
 rm *.jar -f $verbose
 if [ "$verbose" == "-v" ]; then
-    mvn compile package -f nutbot
-    mvn clean -f nutbot
+    mvn compile package -f ppbot
+    mvn clean -f ppbot
 else
-    mvn compile package -q -f nutbot
-    mvn clean -q -f nutbot
+    mvn compile package -q -f ppbot
+    mvn clean -q -f ppbot
 fi
 
-mv *.jar nutbot.jar $verbose
+mv *.jar ppbot.jar $verbose
 
 if [ "$1" = "--remote" ]; then
-	screen -L -dmS nutbot java -jar nutbot.jar
+	screen -L -dmS ppbot java -jar ppbot.jar
 else
-	java -jar nutbot.jar
+	java -jar ppbot.jar
 fi
 

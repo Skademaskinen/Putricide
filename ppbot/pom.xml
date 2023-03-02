@@ -5,10 +5,10 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>skademaskinen</groupId>
-  <artifactId>nutbot</artifactId>
+  <artifactId>ppbot</artifactId>
   <version>3.37a</version>
 
-  <name>nutbot</name>
+  <name>ppbot</name>
   <!-- FIXME change it to the project's website -->
   <url>skademaskinen.win</url>
 
