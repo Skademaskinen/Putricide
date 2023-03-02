@@ -1,4 +1,4 @@
-# Professor Putricide
+# Professor
 <p style="color:orange">World of Warcraft Team Managing tool and role manager for Discord.</p>
 <img src="https://repository-images.githubusercontent.com/571304196/266beb85-36c3-418e-979d-332b066e55ba">
 
