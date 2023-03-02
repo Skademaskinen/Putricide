@@ -4,7 +4,7 @@
   <groupId>skademaskinen</groupId>
   <artifactId>ppbot</artifactId>
   <name>ppbot</name>
-  <version>3.37a</version>
+  <version>3.38a</version>
   <url>skademaskinen.win</url>
   <build>
     <plugins>

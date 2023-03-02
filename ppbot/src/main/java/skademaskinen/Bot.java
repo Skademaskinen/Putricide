@@ -221,8 +221,8 @@ public class Bot implements Loggable{
                     .toString(4));
             }
         }
-        if(!ServerConfig.get(guild).getJSONObject("pvp").getString("message").equals("placeholder")) PvpTeam.update(guild);
-        if(!ServerConfig.get(guild).getJSONObject("raid").getString("message").equals("placeholder")) RaidTeam.update(guild);
+        if(!ServerConfig.get(guild).getJSONObject("pvp").getString("message").equals("placeholder")) PvpTeam.update(guild, false);
+        if(!ServerConfig.get(guild).getJSONObject("raid").getString("message").equals("placeholder")) RaidTeam.update(guild, false);
 
     }
 

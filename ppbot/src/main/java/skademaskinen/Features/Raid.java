@@ -66,7 +66,8 @@ public class Raid implements Feature {
         remove.addOptions(raider);
         SubcommandData edit = new SubcommandData("edit", "Edit a single raider's data");
         edit.addOptions(raider, name.setRequired(false), role.setRequired(false), server.setRequired(false), notes.setRequired(false).setDescription("Notes for this user, (% to clear)"), bench);
-        SubcommandData update = new SubcommandData("update", "Update the raid team message");
+        SubcommandData update = new SubcommandData("update", "Update the raid team message")
+            .addOption(OptionType.BOOLEAN, "ask", "Ask users with errors in a DM", false);
         SubcommandData form = new SubcommandData("form", "Create a raid team application form");
         SubcommandData configure = new SubcommandData("configure", "Configure the requirements for the raid team");
         command.addSubcommands(add, remove, edit, update, form, configure);
@@ -157,7 +158,7 @@ public class Raid implements Feature {
     }
 
     public Object update(SlashCommandInteractionEvent event) {
-        return RaidTeam.update(event.getGuild());
+        return RaidTeam.update(event.getGuild(), event.getOption("ask") != null ? event.getOption("ask").getAsBoolean() : false);
     }
 
     /**
@@ -233,7 +234,7 @@ public class Raid implements Feature {
                     continue;
                 }
             }
-            RaidTeam.update(event.getGuild());
+            RaidTeam.update(event.getGuild(), false);
             return "Successfully edited user's entry in the "+this.getClass().getSimpleName()+" team";
         }
         catch(Exception e){
@@ -385,7 +386,7 @@ public class Raid implements Feature {
         Member member = guild.getMemberById(event.getUser().getId());
         RaidTeam.editName(member, name);
         success = true;
-        RaidTeam.update(guild);
+        RaidTeam.update(guild, false);
         return "Successfully updated name of your character!";
 
 
@@ -397,7 +398,7 @@ public class Raid implements Feature {
         Member member = guild.getMemberById(event.getUser().getId());
         RaidTeam.editName(member, name);
         success = true;
-        RaidTeam.update(guild);
+        RaidTeam.update(guild, false);
         return "Successfully updated server of your character!";
     }
 
