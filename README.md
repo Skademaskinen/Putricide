@@ -1,11 +1,2 @@
-# nutbot
-## untracked files structure:
-```
-files/
-├─ log.log
-├─ config.conf
-├─ raid.json
-├─ pvp.json
-```
+# Professor Putricide | World of Warcraft Team Managing tool and role manager for Discord
 
-additionally, config.conf needs an entry: `token=<insert your token here>`
