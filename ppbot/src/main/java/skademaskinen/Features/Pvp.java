@@ -54,7 +54,8 @@ public class Pvp extends Raid {
         SubcommandData edit = new SubcommandData("edit", "Edit a single raider's data");
         edit.addOptions(raider, name.setRequired(false), role.setRequired(false), server.setRequired(false), notes.setRequired(false).setDescription("Notes for this user, (% to clear)"), bench);
         remove.addOptions(raider);
-        SubcommandData update = new SubcommandData("update", "Update the pvp team message");
+        SubcommandData update = new SubcommandData("update", "Update the pvp team message")
+            .addOption(OptionType.BOOLEAN, "ask", "Ask users with errors in a DM", false);
         SubcommandData form = new SubcommandData("form", "Create a pvp team application form");
         SubcommandData configure = new SubcommandData("configure", "Configure the requirements for the raid team");
         command.addSubcommands(add, remove, edit, update, form, configure);
@@ -208,7 +209,7 @@ public class Pvp extends Raid {
         Member member = guild.getMemberById(event.getUser().getId());
         PvpTeam.editName(member, name);
         success = true;
-        PvpTeam.update(guild);
+        PvpTeam.update(guild, false);
         return "Successfully updated name of your character!";
     }
 
@@ -218,7 +219,7 @@ public class Pvp extends Raid {
         Member member = guild.getMemberById(event.getUser().getId());
         PvpTeam.editServer(member, server);
         success = true;
-        PvpTeam.update(guild);
+        PvpTeam.update(guild, false);
         return "Successfully updated server of your character!";
     }
     
@@ -268,7 +269,7 @@ public class Pvp extends Raid {
     }
 
     public Object update(SlashCommandInteractionEvent event){
-        return PvpTeam.update(event.getGuild());
+        return PvpTeam.update(event.getGuild(), event.getOption("ask") != null ? event.getOption("ask").getAsBoolean() : false);
     }
     public Object edit(SlashCommandInteractionEvent event){
         for(OptionMapping option : event.getOptions()){
@@ -290,7 +291,7 @@ public class Pvp extends Raid {
                     break;
             }
         }
-        PvpTeam.update(event.getGuild());
+        PvpTeam.update(event.getGuild(), false);
         return "Successfully edited user's entry in the "+this.getClass().getSimpleName()+" team";
     }
 }

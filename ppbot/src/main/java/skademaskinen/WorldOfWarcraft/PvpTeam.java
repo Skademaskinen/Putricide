@@ -1,6 +1,8 @@
 package skademaskinen.WorldOfWarcraft;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.json.JSONObject;
@@ -52,7 +54,7 @@ public class PvpTeam implements Loggable {
         }
         ServerConfig.pvpWrite(member.getGuild(), team);
         characters.put(member.getId(), new Character(name, server));
-        update(member.getGuild());
+        update(member.getGuild(), false);
         return true;
     }
 
@@ -68,7 +70,7 @@ public class PvpTeam implements Loggable {
             }
         }
         ServerConfig.pvpWrite(member.getGuild(), team);
-        update(member.getGuild());
+        update(member.getGuild(), false);
     }
 
     /**
@@ -76,7 +78,7 @@ public class PvpTeam implements Loggable {
      * These are the pvp:channel and pvp:message, they are channel and message ids.
      * @return The response for the user, it can be that it is updated successfully or an error message
      */
-    public static String update(Guild guild) {
+    public static String update(Guild guild, boolean ask) {
         JSONObject config = ServerConfig.get(guild);
         if(!config.getJSONObject("pvp").has("message") || !config.getJSONObject("pvp").has("channel")){
             return "Failed to update pvp team, the configuration id might be wrong";
@@ -92,13 +94,18 @@ public class PvpTeam implements Loggable {
 		builder.appendDescription("\n**Pvp team composition:** "+team.getJSONObject("Tank").length()+"/"+team.getJSONObject("Healer").length()+"/"+(team.getJSONObject("Ranged Damage").length()+team.getJSONObject("Melee Damage").length()));
 
         String[] roles = {"Tank", "Healer", "Ranged Damage", "Melee Damage"};
+        List<String> offlineRaiders = new ArrayList<>();
 
         for(String role : roles){
             String temp = "";
             for(String raiderId : team.getJSONObject(role).keySet()){
                 JSONObject raider = team.getJSONObject(role).getJSONObject(raiderId);
                 Character character = new Character(raider.getString("name"), raider.getString("server"));
-                if(character.failure) return teamError(Bot.getJda().retrieveUserById(raiderId).complete(), guild, raider.getString("name"));
+                if(character.failure){
+                    if(ask) return teamError(Bot.getJda().retrieveUserById(raiderId).complete(), guild, raider.getString("name"));
+                    offlineRaiders.add(raiderId);
+                    character = Character.offline(raider.getString("name"), raider.getString("server"), raiderId);
+                }
 
                 temp+= "\n\n"+ guild.retrieveMemberById(raiderId).complete().getAsMention();
                 temp+= "\n"+ Utils.capitalize(character.getName());
@@ -118,7 +125,9 @@ public class PvpTeam implements Loggable {
         String temp = "";
         for(String raiderId : team.getJSONObject("bench").keySet()){
             JSONObject raider = team.getJSONObject("bench").getJSONObject(raiderId);
-            Character character = new Character(raider.getString("name"), raider.getString("server"));
+            Character character;
+            if(!offlineRaiders.contains(raiderId)) character = new Character(raider.getString("name"), raider.getString("server"));
+            else character = Character.offline(raider.getString("name"), raider.getString("server"), raiderId);
 
             temp+= "\n\n"+ guild.retrieveMemberById(raiderId).complete().getAsMention();
             if(raider.has("notes")) temp+=" ("+raider.getString("notes")+")";

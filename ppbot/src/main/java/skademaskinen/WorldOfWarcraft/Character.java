@@ -93,4 +93,18 @@ public class Character {
             return null;
         }
     }
+
+    private Character(String name, String realm, String id){
+        this.name = name;
+        this.realm = realm;
+        this.Class = "error";
+        this.specialization = "error";
+        this.ilvl = -1;
+        this.averageIlvl = -1;
+        this.failure = false;
+    }
+
+    public static Character offline(String name, String realm, String id) {
+        return new Character(name, realm, id);
+    }
 }
