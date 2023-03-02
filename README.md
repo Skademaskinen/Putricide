@@ -12,7 +12,7 @@ This project is a Discord bot that manages RBG and raid teams for World of Warcr
 This bot requires a file structure that is defined as follows:
 
 ```
-Putricide
+Putricide/
 ├─ files/
 │  ├─ config/
 |  |  ├─ <server_id1>/
