@@ -1,5 +1,8 @@
 package skademaskinen.Features;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -79,12 +82,23 @@ public class Python implements Feature {
                 Message message = event.getMessage();
                 MessageEmbed oldEmbed = message.getEmbeds().get(0);
                 String code = getCode(oldEmbed.getDescription());
-                String result;
-                try(PythonInterpreter interpreter = new PythonInterpreter()){
-                    StringWriter out = new StringWriter();
-                    interpreter.setOut(out);
-                    interpreter.exec(code);
-                    result = out.toString();
+                String result = "";
+                try {
+                    Process process = Runtime.getRuntime().exec(("/usr/bin/python3 -c \""+code.replace("\"", "\\\"")+"\""));
+                    process.waitFor();
+                    String line = null;
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                    while((line = reader.readLine()) != null){
+                        result+=line+"\n";
+                        Shell.println(Shell.green(line));
+                    }
+                    line = null;
+                    reader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+                    while((line = reader.readLine()) != null){
+                        Shell.println(Shell.red(line));
+                    }
+                } catch (Exception e) {
+                    Shell.exceptionHandler(e, event.getGuild());
                 }
                 EmbedBuilder builder = new EmbedBuilder();
                 builder.setTitle(oldEmbed.getTitle());
