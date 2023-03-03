@@ -1,5 +1,10 @@
 package skademaskinen.Features;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -73,19 +78,26 @@ public class Python implements Feature {
 
     @Override
     public Object run(ButtonInteractionEvent event) {
+        Message message = event.getMessage();
+        MessageEmbed oldEmbed = message.getEmbeds().get(0);
         if(!event.getMember().getId().equals("214752462769356802")) return "Error, wrong user";
         switch(getSubId(event)){
             case "run":
-                Message message = event.getMessage();
-                MessageEmbed oldEmbed = message.getEmbeds().get(0);
                 String code = getCode(oldEmbed.getDescription());
-                String result;
-                try(PythonInterpreter interpreter = new PythonInterpreter()){
-                    StringWriter out = new StringWriter();
-                    interpreter.setOut(out);
-                    interpreter.exec(code);
-                    result = out.toString();
+                String result = "";
+                try{
+                    BufferedWriter writer = new BufferedWriter(new FileWriter(new File("/tmp/temp.py")));
+                    writer.write(code);
+                    writer.close();
+                    Process process = Runtime.getRuntime().exec(("/usr/bin/python3 /tmp/temp.py").split(" "));
+                    for(String line :new BufferedReader(new InputStreamReader(process.getInputStream())).lines().toList()){
+                        result += line+"\n";
+                    }
                 }
+                catch(Exception e){
+                    Shell.exceptionHandler(e);
+                }
+
                 EmbedBuilder builder = new EmbedBuilder();
                 builder.setTitle(oldEmbed.getTitle());
                 builder.setDescription(wrap(code, result));
@@ -93,7 +105,9 @@ public class Python implements Feature {
                 return null;
                 
             case "setcode":
-                TextInput codeField = TextInput.create("modal", "Set Code", TextInputStyle.PARAGRAPH).build();
+                TextInput codeField = TextInput.create("modal", "Set Code", TextInputStyle.PARAGRAPH)
+                    .setValue(getCode(oldEmbed.getDescription()))
+                    .build();
                 return Modal.create(buildSubId("modal", event.getMessageId()), "Set Code").addActionRow(codeField).build();
             default:
                 return "error!";
