@@ -106,7 +106,7 @@ public class Bot implements Loggable{
         }
         catch(Exception e){
             log(false, new String[]{e.getMessage()});
-            Shell.exceptionHandler(e, jda.getGuildById("692410386657574952"));
+            Shell.exceptionHandler(e);
 
         }
     }

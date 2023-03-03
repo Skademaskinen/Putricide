@@ -105,10 +105,10 @@ public class Python implements Feature {
                 return null;
                 
             case "setcode":
-                TextInput codeField = TextInput.create("modal", "Set Code", TextInputStyle.PARAGRAPH)
-                    .setValue(getCode(oldEmbed.getDescription()))
-                    .build();
-                return Modal.create(buildSubId("modal", event.getMessageId()), "Set Code").addActionRow(codeField).build();
+                TextInput.Builder codeField = TextInput.create("modal", "Set Code", TextInputStyle.PARAGRAPH);
+                String oldCode = getCode(oldEmbed.getDescription());
+                if(oldCode.length() > 1) codeField.setValue(getCode(oldEmbed.getDescription()));
+                return Modal.create(buildSubId("modal", event.getMessageId()), "Set Code").addActionRow(codeField.build()).build();
             default:
                 return "error!";
         }
