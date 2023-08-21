@@ -6,6 +6,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -45,12 +46,21 @@ public class Bot implements Loggable{
     private static JDA jda;
     private static Shell shell;
     private static List<CommandData> commands;
+    public static Bot bot;
+    public Map<String, Boolean> args;
     /**
      * The main method of the software, this method initializes everything and runs it.
      * @param args command line arguments that are passed after compilation, args[0] is always the access token for blizzard servers
      */
     public static void main(String[] args) {
-        new Bot();
+        
+        bot = new Bot();
+        for(String arg : args){
+            switch(arg){
+                case "--disable-teams":
+                    bot.args.put("teams", false);
+            }
+        }
     }
 
     private static List<CommandData> generateFeatures() {

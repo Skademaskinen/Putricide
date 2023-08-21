@@ -15,6 +15,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import skademaskinen.Bot;
+import skademaskinen.Utils.GlobalConfig;
 import skademaskinen.Utils.Loggable;
 import skademaskinen.Utils.ServerConfig;
 import skademaskinen.Utils.Shell;
@@ -83,6 +84,7 @@ public class PvpTeam implements Loggable {
         if(!config.getJSONObject("pvp").has("message") || !config.getJSONObject("pvp").has("channel")){
             return "Failed to update pvp team, the configuration id might be wrong";
         }
+        if(Bot.bot.args.get("teams")) return "Teams are disabled";
         TextChannel channel = guild.getTextChannelById(config.getJSONObject("pvp").getString("channel"));
         Message message = channel.getHistoryAround(config.getJSONObject("pvp").getString("message"), 2).complete().getMessageById(config.getJSONObject("pvp").getString("message"));
         JSONObject team = ServerConfig.pvpGet(guild);
