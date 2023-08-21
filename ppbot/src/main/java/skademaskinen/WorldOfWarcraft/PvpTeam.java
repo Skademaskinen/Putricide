@@ -83,6 +83,7 @@ public class PvpTeam implements Loggable {
         if(!config.getJSONObject("pvp").has("message") || !config.getJSONObject("pvp").has("channel")){
             return "Failed to update pvp team, the configuration id might be wrong";
         }
+        if(Bot.bot.args.get("teams")) return "Teams are disabled";
         TextChannel channel = guild.getTextChannelById(config.getJSONObject("pvp").getString("channel"));
         Message message = channel.getHistoryAround(config.getJSONObject("pvp").getString("message"), 2).complete().getMessageById(config.getJSONObject("pvp").getString("message"));
         JSONObject team = ServerConfig.pvpGet(guild);

@@ -83,6 +83,7 @@ public class RaidTeam implements Loggable {
         if(!serverConfig.getJSONObject("raid").has("message") || !serverConfig.getJSONObject("raid").has("channel")){
             return "Failed to update raid team, the configuration id might be wrong";
         }
+        if(Bot.bot.args.get("teams")) return "Teams are disabled";
         TextChannel channel = guild.getTextChannelById(serverConfig.getJSONObject("raid").getString("channel"));
         Message message = channel.getHistoryAround(serverConfig.getJSONObject("raid").getString("message"), 2).complete().getMessageById(serverConfig.getJSONObject("raid").getString("message"));
         JSONObject team = ServerConfig.raidGet(guild);

@@ -1,6 +1,7 @@
 package skademaskinen.Features;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import org.json.JSONObject;
@@ -69,7 +70,8 @@ public class Rolepicker implements Feature {
                 .addOption(OptionType.STRING, "category", "Name of the category", true, true)
                 .addOption(OptionType.ROLE, "role", "The role to be removed", true),
             new SubcommandData("update", "Updates a rolepicker with the current roles")
-                .addOption(OptionType.STRING, "id", "ID of the message", true),
+                .addOption(OptionType.STRING, "id", "ID of the message", true)
+                .addOption(OptionType.STRING, "orderby", "Specify the attribute to order by", false, true),
             new SubcommandData("customize", "Customize the rolepicker message")
             );
     }
@@ -242,6 +244,14 @@ public class Rolepicker implements Feature {
                     reply.add(new Choice(category.name, category.name));
                 }
                 break;
+            case "update":
+                List<Choice> replies = new ArrayList<>(){{
+                    add(new Choice("name", "name"));
+                    add(new Choice("emoji", "emoji"));
+                    add(new Choice("id", "id"));
+                }};
+                reply.addAll(replies);
+                break;
         }
         return reply;
 
@@ -335,6 +345,26 @@ public class Rolepicker implements Feature {
             builder.setPlaceholder(name);
             builder.setMinValues(0);
             return ActionRow.of(builder.build());
+        }
+        public void sort(String by){
+
+            this.roles.sort(new Comparator<GuildRole>() {
+                @Override
+                public int compare(GuildRole arg0, GuildRole arg1) {
+                    String By = by == null ? "name" : by;
+                    switch(By){
+                        case "id":
+                            return arg0.getId().compareTo(arg1.getId());
+                        case "name":
+                            return arg0.getName().compareTo(arg1.getName());
+                        case "emoji":
+                            return arg0.getEmoji().compareTo(arg1.getEmoji());
+                        default:
+                            return 0;
+                    }
+                }
+                
+            });
         }
     }
 
@@ -470,6 +500,7 @@ public class Rolepicker implements Feature {
         
         List<ActionRow> actionRows = new ArrayList<>();
         for(Category category : categories){
+            category.sort(event.getOption("orderby") == null ? null : event.getOption("orderby").getAsString());
             if(category.roles.size() == 0) continue;
             actionRows.add(category.build());
         }

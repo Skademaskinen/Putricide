@@ -31,8 +31,8 @@ fi
 mv *.jar ppbot.jar $verbose
 
 if [ "$1" = "--remote" ]; then
-	screen -L -dmS ppbot java -jar ppbot.jar
+	screen -L -dmS ppbot java -jar ppbot.jar $@
 else
-	java -jar ppbot.jar
+	java -jar ppbot.jar $@
 fi
 
