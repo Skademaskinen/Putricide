@@ -92,7 +92,7 @@ public class Bot implements Loggable{
                         this.args.put("teams", false);
                         break;
                     case "--verbose":
-                        this.args.put("verbose", true)
+                        this.args.put("verbose", true);
                 }
             }
             jda = JDABuilder.createDefault(GlobalConfig.get().getString("token"))
