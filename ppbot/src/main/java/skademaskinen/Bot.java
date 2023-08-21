@@ -6,6 +6,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -45,12 +46,15 @@ public class Bot implements Loggable{
     private static JDA jda;
     private static Shell shell;
     private static List<CommandData> commands;
+    public static Bot bot;
+    public Map<String, Boolean> args;
     /**
      * The main method of the software, this method initializes everything and runs it.
      * @param args command line arguments that are passed after compilation, args[0] is always the access token for blizzard servers
      */
     public static void main(String[] args) {
-        new Bot();
+        
+        Bot.bot = new Bot(args);
     }
 
     private static List<CommandData> generateFeatures() {
@@ -79,8 +83,14 @@ public class Bot implements Loggable{
      * @param token The access token for the blizzard servers
      */
 
-    public Bot(){
+    public Bot(String[] args){
         try{
+            for(String arg : args){
+                switch(arg){
+                    case "--disable-teams":
+                        this.args.put("teams", false);
+                }
+            }
             jda = JDABuilder.createDefault(GlobalConfig.get().getString("token"))
                 .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT)
                 .build();
