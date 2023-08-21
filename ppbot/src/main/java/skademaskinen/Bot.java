@@ -116,7 +116,7 @@ public class Bot implements Loggable{
             log(true, new String[]{});
         }
         catch(Exception e){
-            log(false, new String[]{e.getMessage()}, false);
+            log(false, new String[]{e.getMessage()});
             Shell.exceptionHandler(e);
 
         }
