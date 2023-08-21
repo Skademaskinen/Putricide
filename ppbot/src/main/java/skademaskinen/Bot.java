@@ -90,6 +90,9 @@ public class Bot implements Loggable{
                 switch(arg){
                     case "--disable-teams":
                         this.args.put("teams", false);
+                        break;
+                    case "--verbose":
+                        this.args.put("verbose", true)
                 }
             }
             jda = JDABuilder.createDefault(GlobalConfig.get().getString("token"))
@@ -232,8 +235,8 @@ public class Bot implements Loggable{
                     .toString(4));
             }
         }
-        if(!ServerConfig.get(guild).getJSONObject("pvp").getString("message").equals("placeholder") && !this.args.get("teams")) PvpTeam.update(guild, false);
-        if(!ServerConfig.get(guild).getJSONObject("raid").getString("message").equals("placeholder") && !this.args.get("teams")) RaidTeam.update(guild, false);
+        if(!ServerConfig.get(guild).getJSONObject("pvp").getString("message").equals("placeholder") && this.args.get("teams")) PvpTeam.update(guild, false);
+        if(!ServerConfig.get(guild).getJSONObject("raid").getString("message").equals("placeholder") && this.args.get("teams")) RaidTeam.update(guild, false);
 
     }
 
