@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -47,7 +48,7 @@ public class Bot implements Loggable{
     private static Shell shell;
     private static List<CommandData> commands;
     public static Bot bot;
-    public Map<String, Boolean> args;
+    public Map<String, Boolean> args = new HashMap<>();
     /**
      * The main method of the software, this method initializes everything and runs it.
      * @param args command line arguments that are passed after compilation, args[0] is always the access token for blizzard servers
@@ -115,7 +116,7 @@ public class Bot implements Loggable{
             log(true, new String[]{});
         }
         catch(Exception e){
-            log(false, new String[]{e.getMessage()});
+            log(false, new String[]{e.getMessage()}, false);
             Shell.exceptionHandler(e);
 
         }
