@@ -54,7 +54,7 @@ public class Bot implements Loggable{
      */
     public static void main(String[] args) {
         
-        bot = new Bot();
+        Bot.bot = new Bot();
         for(String arg : args){
             switch(arg){
                 case "--disable-teams":
