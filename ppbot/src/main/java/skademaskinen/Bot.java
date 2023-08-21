@@ -165,7 +165,7 @@ public class Bot implements Loggable{
         action.queue();
     }
 
-    public static void updateServerConfig(Guild guild) throws Exception{
+    public void updateServerConfig(Guild guild) throws Exception{
         File configPath = new File("files/config/"+guild.getId());
         File config = new File(configPath.getPath()+"/config.json");
         File rolepicker = new File(configPath.getPath()+"/rolepicker.json");
@@ -232,8 +232,8 @@ public class Bot implements Loggable{
                     .toString(4));
             }
         }
-        if(!ServerConfig.get(guild).getJSONObject("pvp").getString("message").equals("placeholder")) PvpTeam.update(guild, false);
-        if(!ServerConfig.get(guild).getJSONObject("raid").getString("message").equals("placeholder")) RaidTeam.update(guild, false);
+        if(!ServerConfig.get(guild).getJSONObject("pvp").getString("message").equals("placeholder") && !this.args.get("teams")) PvpTeam.update(guild, false);
+        if(!ServerConfig.get(guild).getJSONObject("raid").getString("message").equals("placeholder") && !this.args.get("teams")) RaidTeam.update(guild, false);
 
     }
 
