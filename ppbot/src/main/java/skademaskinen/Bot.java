@@ -69,6 +69,10 @@ public class Bot implements Loggable{
                     String value = args[Arrays.asList(args).indexOf("--config")+1];
                     Bot.stringArgs.put("config", value);
                     break;
+                case "--source":
+                    String source = args[Arrays.asList(args).indexOf("--source")+1];
+                    Bot.stringArgs.put("source", source);
+                    break;
             }
         }
         
@@ -76,7 +80,7 @@ public class Bot implements Loggable{
     }
 
     private static List<CommandData> generateFeatures() {
-        File[] files = new File("ppbot/src/main/java/skademaskinen/Features").listFiles();
+        File[] files = new File(stringArgs.get("source")+"/ppbot/src/main/java/skademaskinen/Features").listFiles();
         List<CommandData> result = new ArrayList<>();
         for(File file : files){
             if(file.getName().equals("Feature.java")) continue;
