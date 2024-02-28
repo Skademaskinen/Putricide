@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,7 @@ import skademaskinen.Utils.GlobalConfig;
 import skademaskinen.Utils.Loggable;
 import skademaskinen.Utils.ServerConfig;
 import skademaskinen.Utils.Shell;
+import skademaskinen.Utils.Utils;
 import skademaskinen.WorldOfWarcraft.BattleNetAPI;
 import skademaskinen.WorldOfWarcraft.PvpTeam;
 import skademaskinen.WorldOfWarcraft.RaidTeam;
@@ -48,14 +50,29 @@ public class Bot implements Loggable{
     private static Shell shell;
     private static List<CommandData> commands;
     public static Bot bot;
-    public Map<String, Boolean> args = new HashMap<>();
+    public static Map<String, Boolean> args = new HashMap<>();
+    public static Map<String, String> stringArgs = new HashMap<>();
     /**
      * The main method of the software, this method initializes everything and runs it.
      * @param args command line arguments that are passed after compilation, args[0] is always the access token for blizzard servers
      */
     public static void main(String[] args) {
+        for(String arg : args){
+            switch(arg){
+                case "--disable-teams":
+                    Bot.args.put("teams", false);
+                    break;
+                case "--verbose":
+                    Bot.args.put("verbose", true);
+                    break;
+                case "--config":
+                    String value = args[Arrays.asList(args).indexOf("--config")+1];
+                    Bot.stringArgs.put("config", value);
+                    break;
+            }
+        }
         
-        Bot.bot = new Bot(args);
+        Bot.bot = new Bot();
     }
 
     private static List<CommandData> generateFeatures() {
@@ -84,17 +101,8 @@ public class Bot implements Loggable{
      * @param token The access token for the blizzard servers
      */
 
-    public Bot(String[] args){
+    public Bot(){
         try{
-            for(String arg : args){
-                switch(arg){
-                    case "--disable-teams":
-                        this.args.put("teams", false);
-                        break;
-                    case "--verbose":
-                        this.args.put("verbose", true);
-                }
-            }
             jda = JDABuilder.createDefault(GlobalConfig.get().getString("token"))
                 .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_VOICE_STATES, GatewayIntent.GUILD_MESSAGES, GatewayIntent.MESSAGE_CONTENT)
                 .build();
@@ -169,7 +177,7 @@ public class Bot implements Loggable{
     }
 
     public void updateServerConfig(Guild guild) throws Exception{
-        File configPath = new File("files/config/"+guild.getId());
+        File configPath = new File(Utils.getRoot()+"/files/config/"+guild.getId());
         File config = new File(configPath.getPath()+"/config.json");
         File rolepicker = new File(configPath.getPath()+"/rolepicker.json");
         File pvp = new File(configPath.getPath()+"/pvp.json");
@@ -235,8 +243,8 @@ public class Bot implements Loggable{
                     .toString(4));
             }
         }
-        if(!ServerConfig.get(guild).getJSONObject("pvp").getString("message").equals("placeholder") && this.args.get("teams")) PvpTeam.update(guild, false);
-        if(!ServerConfig.get(guild).getJSONObject("raid").getString("message").equals("placeholder") && this.args.get("teams")) RaidTeam.update(guild, false);
+        if(!ServerConfig.get(guild).getJSONObject("pvp").getString("message").equals("placeholder") && args.get("teams")) PvpTeam.update(guild, false);
+        if(!ServerConfig.get(guild).getJSONObject("raid").getString("message").equals("placeholder") && args.get("teams")) RaidTeam.update(guild, false);
 
     }
 

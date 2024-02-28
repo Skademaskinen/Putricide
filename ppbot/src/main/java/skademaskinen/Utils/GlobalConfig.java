@@ -10,7 +10,7 @@ import org.json.JSONTokener;
 public class GlobalConfig {
 
     public static JSONObject get(){
-        String path = "files/config/main.json";
+        String path = Utils.getRoot()+"/files/config/main.json";
         try(FileReader reader = new FileReader(new File(path))){
             return new JSONObject(new JSONTokener(reader));
         }
@@ -20,7 +20,7 @@ public class GlobalConfig {
         }
     }
     public static void raidWrite(JSONObject object){
-        String path = "files/config/main.json";
+        String path = Utils.getRoot()+"/files/config/main.json";
         try(FileWriter writer = new FileWriter(new File(path))){
             writer.write(object.toString(4));
             writer.flush();

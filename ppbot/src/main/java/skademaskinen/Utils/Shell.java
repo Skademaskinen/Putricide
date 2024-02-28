@@ -228,6 +228,7 @@ public class Shell implements Runnable {
             println("\t"+red(element.toString()));
         }
         if(message.length() > 2000){
+            System.exit(1);
             TextChannel channel = guild.getTextChannelById(ServerConfig.get(guild).getJSONObject("channels").getString("log"));
             channel.sendFiles(FileUpload.fromData(message.getBytes(), e.getClass().getSimpleName()+".txt")).queue();
         }
@@ -235,7 +236,12 @@ public class Shell implements Runnable {
     }
 
     public static void exceptionHandler(Throwable e){
-        exceptionHandler(e, Bot.getJda().getGuildById("692410386657574952"));
+        if(Bot.getJda() != null){
+            exceptionHandler(e, Bot.getJda().getGuildById("692410386657574952"));
+        }
+        else{
+            e.printStackTrace();
+        }
     }
 
     /**

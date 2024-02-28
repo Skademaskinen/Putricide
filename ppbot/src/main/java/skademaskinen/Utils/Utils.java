@@ -13,6 +13,7 @@ import org.json.JSONTokener;
 
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
+import skademaskinen.Bot;
 
 /**
  * The purpose of this class is to compile every single type of utility that have multiple purposes into one single static class
@@ -106,5 +107,12 @@ public class Utils {
         catch(MalformedURLException e){
             return false;
         }
+    }
+
+    public static String getRoot(){
+        if(Bot.stringArgs.containsKey("config")){
+            return Bot.stringArgs.get("config");
+        }
+        return ".";
     }
 }
