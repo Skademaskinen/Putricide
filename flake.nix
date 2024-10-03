@@ -7,7 +7,7 @@
     system = "x86_64-linux";
     pkgs = import nixpkgs {inherit system;};
   in rec {
-    systemModules.default = {pkgs, config, lib, ...}:
+    nixosModules.default = {pkgs, config, lib, ...}:
 
     {
       options.services.putricide = {
