@@ -1,7 +1,7 @@
 {
   description = "Java Discord bot system modules";
   inputs = {
-    nixpkgs.url = "nixpkgs/nixos-24.05";
+    nixpkgs.url = "nixpkgs/nixos-unstable";
   };
   outputs = { self, nixpkgs }: let
     system = "x86_64-linux";
